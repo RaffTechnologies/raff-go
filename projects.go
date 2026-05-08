@@ -2,19 +2,29 @@ package raff
 
 import (
 	"context"
-	"fmt"
-	"net/http"
-	"time"
+
+	"github.com/rafftechnologies/raff-go/spec"
 )
 
-const projectsBasePath = "/api/v1/projects"
+// Project represents a Raff project. Aliased to the generated spec type so
+// new fields propagate automatically when the OpenAPI spec changes.
+type Project = spec.Project
 
-// ProjectService handles communication with the project related methods of the Raff API.
+// CreateProjectRequest is the request body for creating a project.
+type CreateProjectRequest = spec.CreateProjectRequest
+
+// UpdateProjectRequest is the request body for updating a project.
+type UpdateProjectRequest = spec.UpdateProjectRequest
+
+// ProjectListOptions are the query parameters for listing projects.
+type ProjectListOptions = spec.ListProjectsParams
+
+// ProjectService handles communication with the project endpoints.
 type ProjectService interface {
-	List(ctx context.Context, opts *ListOptions) ([]Project, *Response, error)
+	List(ctx context.Context, opts *ProjectListOptions) ([]Project, *Response, error)
 	Get(ctx context.Context, projectID string) (*Project, *Response, error)
-	Create(ctx context.Context, req *ProjectCreateRequest) (*Project, *Response, error)
-	Update(ctx context.Context, projectID string, req *ProjectUpdateRequest) (*Project, *Response, error)
+	Create(ctx context.Context, req *CreateProjectRequest) (*Project, *Response, error)
+	Update(ctx context.Context, projectID string, req *UpdateProjectRequest) (*Project, *Response, error)
 	Delete(ctx context.Context, projectID string) (*Response, error)
 }
 
@@ -25,113 +35,82 @@ type ProjectServiceOp struct {
 
 var _ ProjectService = &ProjectServiceOp{}
 
-// Project represents a Raff project.
-type Project struct {
-	ID            string    `json:"id"`
-	AccountID     string    `json:"account_id"`
-	Name          string    `json:"name"`
-	Slug          string    `json:"slug"`
-	Description   string    `json:"description"`
-	DefaultRegion string    `json:"default_region"`
-	IsDefault     bool      `json:"is_default"`
-	IsActive      bool      `json:"is_active"`
-	CreatedBy     string    `json:"created_by"`
-	CreatedAt     time.Time `json:"created_at"`
-	UpdatedAt     time.Time `json:"updated_at"`
-}
-
-// ProjectCreateRequest represents a request to create a project.
-type ProjectCreateRequest struct {
-	Name          string `json:"name"`
-	Description   string `json:"description,omitempty"`
-	DefaultRegion string `json:"default_region,omitempty"`
-}
-
-// ProjectUpdateRequest represents a request to update a project.
-type ProjectUpdateRequest struct {
-	Name          string `json:"name,omitempty"`
-	Description   string `json:"description,omitempty"`
-	DefaultRegion string `json:"default_region,omitempty"`
-}
-
 // List returns all projects for the authenticated account.
-func (s *ProjectServiceOp) List(ctx context.Context, opts *ListOptions) ([]Project, *Response, error) {
-	path := addListOptions(projectsBasePath, opts)
-
-	req, err := s.client.NewRequest(ctx, http.MethodGet, path, nil)
+func (s *ProjectServiceOp) List(ctx context.Context, opts *ProjectListOptions) ([]Project, *Response, error) {
+	resp, err := s.client.spec.ListProjectsWithResponse(ctx, opts)
 	if err != nil {
 		return nil, nil, err
 	}
-
-	var projects []Project
-	resp, err := s.client.Do(ctx, req, &projects)
-	if err != nil {
-		return nil, resp, err
+	if resp.JSON200 == nil {
+		return nil, responseFrom(resp.HTTPResponse, 0), errorFromResponse(resp.StatusCode(), resp.Body)
 	}
-
-	return projects, resp, nil
+	var projects []Project
+	if resp.JSON200.Data != nil {
+		projects = *resp.JSON200.Data
+	}
+	total := 0
+	if resp.JSON200.Total != nil {
+		total = *resp.JSON200.Total
+	}
+	return projects, responseFrom(resp.HTTPResponse, total), nil
 }
 
 // Get returns a single project by ID.
 func (s *ProjectServiceOp) Get(ctx context.Context, projectID string) (*Project, *Response, error) {
-	path := fmt.Sprintf("%s/%s", projectsBasePath, projectID)
-
-	req, err := s.client.NewRequest(ctx, http.MethodGet, path, nil)
+	id, err := parseUUID(projectID)
 	if err != nil {
 		return nil, nil, err
 	}
-
-	var project Project
-	resp, err := s.client.Do(ctx, req, &project)
+	resp, err := s.client.spec.GetProjectWithResponse(ctx, id)
 	if err != nil {
-		return nil, resp, err
+		return nil, nil, err
 	}
-
-	return &project, resp, nil
+	if resp.JSON200 == nil || resp.JSON200.Data == nil {
+		return nil, responseFrom(resp.HTTPResponse, 0), errorFromResponse(resp.StatusCode(), resp.Body)
+	}
+	return resp.JSON200.Data, responseFrom(resp.HTTPResponse, 0), nil
 }
 
 // Create creates a new project.
-func (s *ProjectServiceOp) Create(ctx context.Context, createReq *ProjectCreateRequest) (*Project, *Response, error) {
-	req, err := s.client.NewRequest(ctx, http.MethodPost, projectsBasePath, createReq)
+func (s *ProjectServiceOp) Create(ctx context.Context, req *CreateProjectRequest) (*Project, *Response, error) {
+	resp, err := s.client.spec.CreateProjectWithResponse(ctx, *req)
 	if err != nil {
 		return nil, nil, err
 	}
-
-	var project Project
-	resp, err := s.client.Do(ctx, req, &project)
-	if err != nil {
-		return nil, resp, err
+	if resp.JSON201 == nil || resp.JSON201.Data == nil {
+		return nil, responseFrom(resp.HTTPResponse, 0), errorFromResponse(resp.StatusCode(), resp.Body)
 	}
-
-	return &project, resp, nil
+	return resp.JSON201.Data, responseFrom(resp.HTTPResponse, 0), nil
 }
 
 // Update updates an existing project.
-func (s *ProjectServiceOp) Update(ctx context.Context, projectID string, updateReq *ProjectUpdateRequest) (*Project, *Response, error) {
-	path := fmt.Sprintf("%s/%s", projectsBasePath, projectID)
-
-	req, err := s.client.NewRequest(ctx, http.MethodPut, path, updateReq)
+func (s *ProjectServiceOp) Update(ctx context.Context, projectID string, req *UpdateProjectRequest) (*Project, *Response, error) {
+	id, err := parseUUID(projectID)
 	if err != nil {
 		return nil, nil, err
 	}
-
-	var project Project
-	resp, err := s.client.Do(ctx, req, &project)
+	resp, err := s.client.spec.UpdateProjectWithResponse(ctx, id, *req)
 	if err != nil {
-		return nil, resp, err
+		return nil, nil, err
 	}
-
-	return &project, resp, nil
+	if resp.JSON200 == nil || resp.JSON200.Data == nil {
+		return nil, responseFrom(resp.HTTPResponse, 0), errorFromResponse(resp.StatusCode(), resp.Body)
+	}
+	return resp.JSON200.Data, responseFrom(resp.HTTPResponse, 0), nil
 }
 
 // Delete deletes a project.
 func (s *ProjectServiceOp) Delete(ctx context.Context, projectID string) (*Response, error) {
-	path := fmt.Sprintf("%s/%s", projectsBasePath, projectID)
-
-	req, err := s.client.NewRequest(ctx, http.MethodDelete, path, nil)
+	id, err := parseUUID(projectID)
 	if err != nil {
 		return nil, err
 	}
-
-	return s.client.Do(ctx, req, nil)
+	resp, err := s.client.spec.DeleteProjectWithResponse(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	if resp.StatusCode() >= 400 {
+		return responseFrom(resp.HTTPResponse, 0), errorFromResponse(resp.StatusCode(), resp.Body)
+	}
+	return responseFrom(resp.HTTPResponse, 0), nil
 }

@@ -4,18 +4,24 @@
 //
 //	client := raff.NewFromToken("raff_pub_xxx")
 //	projects, _, err := client.Projects.List(ctx, nil)
+//
+// The library is a thin idiomatic wrapper over types and an HTTP client
+// generated from the public OpenAPI spec at docs/api-reference/openapi.yaml.
+// Run `make generate` after editing the spec.
 package raff
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
-	"net/url"
 	"strings"
 	"time"
+
+	"github.com/google/uuid"
+	openapi_types "github.com/oapi-codegen/runtime/types"
+
+	"github.com/rafftechnologies/raff-go/spec"
 )
 
 const (
@@ -28,95 +34,151 @@ const (
 
 // Client manages communication with the Raff Cloud API.
 type Client struct {
-	httpClient *http.Client
-	baseURL    string
-	apiKey     string
-	projectID  string
-	userAgent  string
+	spec      *spec.ClientWithResponses
+	apiKey    string
+	projectID string
+	userAgent string
 
 	// Services
-	Projects ProjectService
-	VMs      VMService
+	Projects        ProjectService
+	VMs             VMService
+	VPCs            VPCService
+	IPs             IPService
+	SecurityGroups  SecurityGroupService
 }
 
 // NewFromToken creates a new Raff API client with the given API key.
-func NewFromToken(apiKey string) *Client {
-	return New(&http.Client{Timeout: 30 * time.Second}, apiKey)
+func NewFromToken(apiKey string, opts ...ClientOpt) *Client {
+	return New(&http.Client{Timeout: 30 * time.Second}, apiKey, opts...)
 }
 
 // New creates a new Raff API client with a custom HTTP client.
 func New(httpClient *http.Client, apiKey string, opts ...ClientOpt) *Client {
 	c := &Client{
-		httpClient: httpClient,
-		baseURL:    defaultBaseURL,
-		apiKey:     apiKey,
-		userAgent:  defaultUserAgent,
+		apiKey:    apiKey,
+		userAgent: defaultUserAgent,
 	}
+
+	cfg := clientConfig{baseURL: defaultBaseURL}
+	for _, opt := range opts {
+		opt(&cfg, c)
+	}
+
+	specClient, err := spec.NewClientWithResponses(
+		cfg.baseURL,
+		spec.WithHTTPClient(httpClient),
+		spec.WithRequestEditorFn(c.injectHeaders),
+	)
+	if err != nil {
+		// Only fails on invalid base URL — fall back to default.
+		specClient, _ = spec.NewClientWithResponses(
+			defaultBaseURL,
+			spec.WithHTTPClient(httpClient),
+			spec.WithRequestEditorFn(c.injectHeaders),
+		)
+	}
+	c.spec = specClient
 
 	c.Projects = &ProjectServiceOp{client: c}
 	c.VMs = &VMServiceOp{client: c}
-
-	for _, opt := range opts {
-		opt(c)
-	}
+	c.VPCs = &VPCServiceOp{client: c}
+	c.IPs = &IPServiceOp{client: c}
+	c.SecurityGroups = &SecurityGroupServiceOp{client: c}
 
 	return c
 }
 
+// clientConfig captures options that affect spec client construction.
+type clientConfig struct {
+	baseURL string
+}
+
 // ClientOpt is a functional option for configuring the client.
-type ClientOpt func(*Client)
+type ClientOpt func(*clientConfig, *Client)
 
 // SetBaseURL sets the API base URL.
 func SetBaseURL(baseURL string) ClientOpt {
-	return func(c *Client) {
+	return func(cfg *clientConfig, _ *Client) {
 		baseURL = strings.TrimRight(baseURL, "/")
 		if !strings.HasPrefix(baseURL, "http://") && !strings.HasPrefix(baseURL, "https://") {
 			baseURL = "https://" + baseURL
 		}
-		c.baseURL = baseURL
+		cfg.baseURL = baseURL
 	}
 }
 
 // SetUserAgent sets the User-Agent header.
 func SetUserAgent(ua string) ClientOpt {
-	return func(c *Client) {
+	return func(_ *clientConfig, c *Client) {
 		c.userAgent = ua
 	}
 }
 
-// SetProjectID sets the default project ID sent via X-Project-ID header.
+// SetProjectID sets the default project ID sent via X-Project-ID header for
+// mutating operations. Each service method may override it per call.
 func SetProjectID(id string) ClientOpt {
-	return func(c *Client) {
+	return func(_ *clientConfig, c *Client) {
 		c.projectID = id
 	}
 }
 
-// ListOptions specifies pagination parameters.
-type ListOptions struct {
-	Limit  int `url:"limit,omitempty"`
-	Offset int `url:"offset,omitempty"`
+func (c *Client) injectHeaders(_ context.Context, req *http.Request) error {
+	req.Header.Set("User-Agent", c.userAgent)
+	req.Header.Set("Accept", "application/json")
+	if c.apiKey != "" {
+		req.Header.Set("X-API-Key", c.apiKey)
+	}
+	return nil
 }
 
-// Response wraps http.Response and adds API-specific fields.
+// requireProjectID returns the configured project ID as a UUID, or an error
+// if not set. Used by service methods that need X-Project-ID.
+func (c *Client) requireProjectID() (openapi_types.UUID, error) {
+	if c.projectID == "" {
+		return openapi_types.UUID{}, fmt.Errorf("project ID is required: configure with raff.SetProjectID")
+	}
+	return parseUUID(c.projectID)
+}
+
+// optionalProjectID returns a pointer to the configured project ID UUID, or
+// (nil, nil) when no project is configured. Used by list endpoints that allow
+// listing across all accessible projects when X-Project-ID is omitted.
+func (c *Client) optionalProjectID() (*openapi_types.UUID, error) {
+	if c.projectID == "" {
+		return nil, nil
+	}
+	id, err := parseUUID(c.projectID)
+	if err != nil {
+		return nil, err
+	}
+	return &id, nil
+}
+
+// parseUUID converts a string ID into the UUID type used by the spec.
+func parseUUID(s string) (openapi_types.UUID, error) {
+	id, err := uuid.Parse(s)
+	if err != nil {
+		return openapi_types.UUID{}, fmt.Errorf("invalid UUID %q: %w", s, err)
+	}
+	return id, nil
+}
+
+// Response wraps the underlying http.Response for callers that need access
+// to status codes, headers, or pagination metadata.
 type Response struct {
 	*http.Response
-	Total int `json:"total,omitempty"`
+	Total int
 }
 
-// apiResponse is the standard JSON envelope from the Raff API.
-type apiResponse struct {
-	Success bool            `json:"success"`
-	Data    json.RawMessage `json:"data,omitempty"`
-	Error   string          `json:"error,omitempty"`
-	Message string          `json:"message,omitempty"`
-	Total   int             `json:"total,omitempty"`
+func responseFrom(httpResp *http.Response, total int) *Response {
+	return &Response{Response: httpResp, Total: total}
 }
 
-// ErrorResponse is returned when the API returns an error.
+// ErrorResponse is returned when the API returns a non-2xx status code.
 type ErrorResponse struct {
 	StatusCode int
 	Message    string
-	Reason     string // Machine-readable reason (e.g., "banned", "no_payment_method")
+	Reason     string
 	Body       string
 }
 
@@ -127,79 +189,9 @@ func (e *ErrorResponse) Error() string {
 	return fmt.Sprintf("API error (%d): %s", e.StatusCode, e.Body)
 }
 
-// NewRequest creates an API request.
-func (c *Client) NewRequest(ctx context.Context, method, path string, body any) (*http.Request, error) {
-	u := c.baseURL + path
-
-	var reqBody io.Reader
-	if body != nil {
-		data, err := json.Marshal(body)
-		if err != nil {
-			return nil, fmt.Errorf("marshaling request body: %w", err)
-		}
-		reqBody = bytes.NewReader(data)
-	}
-
-	req, err := http.NewRequestWithContext(ctx, method, u, reqBody)
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header.Set("User-Agent", c.userAgent)
-	req.Header.Set("Accept", "application/json")
-
-	if body != nil {
-		req.Header.Set("Content-Type", "application/json")
-	}
-
-	if c.apiKey != "" {
-		req.Header.Set("X-API-Key", c.apiKey)
-	}
-
-	if c.projectID != "" {
-		req.Header.Set("X-Project-ID", c.projectID)
-	}
-
-	return req, nil
-}
-
-// Do sends an API request and unmarshals the response data into v.
-func (c *Client) Do(ctx context.Context, req *http.Request, v any) (*Response, error) {
-	resp, err := c.httpClient.Do(req)
-	if err != nil {
-		return nil, fmt.Errorf("request failed: %w", err)
-	}
-	defer resp.Body.Close()
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("reading response: %w", err)
-	}
-
-	response := &Response{Response: resp}
-
-	if resp.StatusCode >= 400 {
-		return response, checkResponse(resp.StatusCode, body)
-	}
-
-	var apiResp apiResponse
-	if err := json.Unmarshal(body, &apiResp); err != nil {
-		return response, fmt.Errorf("parsing response: %w", err)
-	}
-
-	response.Total = apiResp.Total
-
-	if v != nil && apiResp.Data != nil {
-		if err := json.Unmarshal(apiResp.Data, v); err != nil {
-			return response, fmt.Errorf("parsing response data: %w", err)
-		}
-	}
-
-	return response, nil
-}
-
-func checkResponse(statusCode int, body []byte) error {
-	var apiResp struct {
+// errorFromResponse builds an ErrorResponse from raw HTTP response data.
+func errorFromResponse(statusCode int, body []byte) error {
+	var apiErr struct {
 		Error   string `json:"error"`
 		Message string `json:"message"`
 		Reason  string `json:"reason"`
@@ -209,40 +201,50 @@ func checkResponse(statusCode int, body []byte) error {
 		StatusCode: statusCode,
 		Body:       string(body),
 	}
-
-	if json.Unmarshal(body, &apiResp) == nil {
-		if apiResp.Message != "" {
-			errResp.Message = apiResp.Message
+	if json.Unmarshal(body, &apiErr) == nil {
+		if apiErr.Message != "" {
+			errResp.Message = apiErr.Message
 		} else {
-			errResp.Message = apiResp.Error
+			errResp.Message = apiErr.Error
 		}
-		errResp.Reason = apiResp.Reason
+		errResp.Reason = apiErr.Reason
 	}
-
 	return errResp
 }
 
-// addListOptions adds pagination query params to a path.
-func addListOptions(path string, opts *ListOptions) string {
-	if opts == nil {
-		return path
-	}
+// String returns a pointer to v. Use it when constructing request types
+// that have optional string fields.
+func String(v string) *string { return &v }
 
-	params := url.Values{}
-	if opts.Limit > 0 {
-		params.Set("limit", fmt.Sprintf("%d", opts.Limit))
-	}
-	if opts.Offset > 0 {
-		params.Set("offset", fmt.Sprintf("%d", opts.Offset))
-	}
+// Int returns a pointer to v. Use it when constructing request types
+// that have optional int fields.
+func Int(v int) *int { return &v }
 
-	if len(params) == 0 {
-		return path
-	}
+// Bool returns a pointer to v. Use it when constructing request types
+// that have optional bool fields.
+func Bool(v bool) *bool { return &v }
 
-	sep := "?"
-	if strings.Contains(path, "?") {
-		sep = "&"
+// StringValue dereferences p, returning "" if nil.
+func StringValue(p *string) string {
+	if p == nil {
+		return ""
 	}
-	return path + sep + params.Encode()
+	return *p
 }
+
+// IntValue dereferences p, returning 0 if nil.
+func IntValue(p *int) int {
+	if p == nil {
+		return 0
+	}
+	return *p
+}
+
+// BoolValue dereferences p, returning false if nil.
+func BoolValue(p *bool) bool {
+	if p == nil {
+		return false
+	}
+	return *p
+}
+

@@ -1,0 +1,8 @@
+package: spec
+output: spec.gen.go
+generate:
+  models: true
+  client: true
+output-options:
+  skip-prune: true
+  name-normalizer: ToCamelCaseWithInitialisms
