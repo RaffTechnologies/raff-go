@@ -1,0 +1,48 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  verify:
+    name: spec-sync + build + vet + test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout raff-go
+        uses: actions/checkout@v4
+        with:
+          path: raff-go
+
+      # `make generate` reads the public spec from ../docs/api-reference/openapi.yaml.
+      # Clone the docs repo as a sibling so the relative path resolves.
+      - name: Checkout docs (for openapi.yaml)
+        uses: actions/checkout@v4
+        with:
+          repository: RaffTechnologies/docs
+          path: docs
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: raff-go/go.mod
+          cache-dependency-path: raff-go/go.sum
+
+      - name: Verify spec.gen.go is in sync with openapi.yaml
+        working-directory: raff-go
+        run: make verify
+
+      - name: Build
+        working-directory: raff-go
+        run: go build ./...
+
+      - name: Vet
+        working-directory: raff-go
+        run: go vet ./...
+
+      - name: Test
+        working-directory: raff-go
+        run: go test ./...

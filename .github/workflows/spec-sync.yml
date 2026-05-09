@@ -1,0 +1,68 @@
+name: spec-sync
+
+# Auto-sync raff-go's generated client with the public OpenAPI spec.
+# Runs nightly and on manual dispatch. If `make generate` produces any diff
+# vs main, a PR is opened with the regenerated spec.gen.go.
+#
+# This catches drift without requiring cross-repo write secrets — the
+# scheduled run uses GITHUB_TOKEN (same-repo push), and the spec is fetched
+# read-only from the public docs repo.
+
+on:
+  schedule:
+    # Daily at 06:15 UTC.
+    - cron: '15 6 * * *'
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout raff-go
+        uses: actions/checkout@v4
+        with:
+          path: raff-go
+
+      - name: Checkout docs (for openapi.yaml)
+        uses: actions/checkout@v4
+        with:
+          repository: RaffTechnologies/docs
+          path: docs
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: raff-go/go.mod
+          cache-dependency-path: raff-go/go.sum
+
+      - name: Regenerate spec.gen.go
+        working-directory: raff-go
+        run: make generate
+
+      - name: Build (sanity check generated code compiles)
+        working-directory: raff-go
+        run: go build ./...
+
+      - name: Open PR if spec.gen.go changed
+        uses: peter-evans/create-pull-request@v6
+        with:
+          path: raff-go
+          branch: spec-sync/auto
+          title: 'sync: regenerate spec.gen.go from public openapi.yaml'
+          commit-message: 'sync: regenerate spec.gen.go from public openapi.yaml'
+          body: |
+            Automated regeneration of `spec/spec.gen.go` from the latest
+            `docs/api-reference/openapi.yaml`.
+
+            CI on this PR runs `make verify` + build + vet + test, so any
+            wrapper code in raff-go that no longer matches the regenerated
+            client will surface as a failure here.
+
+            If the diff is empty when you read this, the workflow was
+            re-run and the branch caught up — you can close this PR.
+          delete-branch: true
+          add-paths: |
+            spec/spec.gen.go
