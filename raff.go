@@ -26,7 +26,7 @@ import (
 
 const (
 	// Version is the client library version.
-	Version = "0.1.0"
+	Version = "0.2.0"
 
 	defaultBaseURL   = "https://api.rafftechnologies.com"
 	defaultUserAgent = "raff-go/" + Version
@@ -45,6 +45,13 @@ type Client struct {
 	VPCs            VPCService
 	IPs             IPService
 	SecurityGroups  SecurityGroupService
+	SSHKeys         SSHKeyService
+	APIKeys         APIKeyService
+	Members         MemberService
+	ProjectMembers  ProjectMemberService
+	Roles           RoleService
+	Permissions     PermissionService
+	Invitations     InvitationService
 }
 
 // NewFromToken creates a new Raff API client with the given API key.
@@ -84,6 +91,13 @@ func New(httpClient *http.Client, apiKey string, opts ...ClientOpt) *Client {
 	c.VPCs = &VPCServiceOp{client: c}
 	c.IPs = &IPServiceOp{client: c}
 	c.SecurityGroups = &SecurityGroupServiceOp{client: c}
+	c.SSHKeys = &SSHKeyServiceOp{client: c}
+	c.APIKeys = &APIKeyServiceOp{client: c}
+	c.Members = &MemberServiceOp{client: c}
+	c.ProjectMembers = &ProjectMemberServiceOp{client: c}
+	c.Roles = &RoleServiceOp{client: c}
+	c.Permissions = &PermissionServiceOp{client: c}
+	c.Invitations = &InvitationServiceOp{client: c}
 
 	return c
 }
