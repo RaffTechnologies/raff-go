@@ -26,7 +26,7 @@ import (
 
 const (
 	// Version is the client library version.
-	Version = "0.2.0"
+	Version = "0.3.0"
 
 	defaultBaseURL   = "https://api.rafftechnologies.com"
 	defaultUserAgent = "raff-go/" + Version
@@ -52,6 +52,12 @@ type Client struct {
 	Roles           RoleService
 	Permissions     PermissionService
 	Invitations     InvitationService
+	Volumes         VolumeService
+	Snapshots       SnapshotService
+	Backups         BackupService
+	BackupSchedules BackupScheduleService
+	Metadata        MetadataService
+	Pricing         PricingService
 }
 
 // NewFromToken creates a new Raff API client with the given API key.
@@ -98,6 +104,12 @@ func New(httpClient *http.Client, apiKey string, opts ...ClientOpt) *Client {
 	c.Roles = &RoleServiceOp{client: c}
 	c.Permissions = &PermissionServiceOp{client: c}
 	c.Invitations = &InvitationServiceOp{client: c}
+	c.Volumes = &VolumeServiceOp{client: c}
+	c.Snapshots = &SnapshotServiceOp{client: c}
+	c.Backups = &BackupServiceOp{client: c}
+	c.BackupSchedules = &BackupScheduleServiceOp{client: c}
+	c.Metadata = &MetadataServiceOp{client: c}
+	c.Pricing = &PricingServiceOp{client: c}
 
 	return c
 }
