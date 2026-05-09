@@ -9,6 +9,13 @@ import (
 // VPC represents a virtual private cloud.
 type VPC = spec.VPC
 
+// VPCDetail is the richer response returned by GET /api/v1/vpcs/{id}: the
+// VPC plus its allocatable IP range and the active leases on attached NICs.
+type VPCDetail = spec.VPCDetail
+
+// VPCLease is a single IP lease on a VPC NIC.
+type VPCLease = spec.VPCLease
+
 // CreateVPCRequest is the request body for creating a VPC.
 type CreateVPCRequest = spec.CreateVPCRequest
 
@@ -28,6 +35,7 @@ type VPCListOptions = spec.ListVPCsParams
 type VPCService interface {
 	List(ctx context.Context, opts *VPCListOptions) ([]VPC, *Response, error)
 	Get(ctx context.Context, vpcID string) (*VPC, *Response, error)
+	GetDetail(ctx context.Context, vpcID string) (*VPCDetail, *Response, error)
 	Create(ctx context.Context, req *CreateVPCRequest) (*VPC, *Response, error)
 	Update(ctx context.Context, vpcID string, req *UpdateVPCRequest) (*VPC, *Response, error)
 	Delete(ctx context.Context, vpcID string) (*Response, error)
@@ -57,6 +65,14 @@ func (s *VPCServiceOp) List(ctx context.Context, opts *VPCListOptions) ([]VPC, *
 }
 
 func (s *VPCServiceOp) Get(ctx context.Context, vpcID string) (*VPC, *Response, error) {
+	detail, r, err := s.GetDetail(ctx, vpcID)
+	if err != nil {
+		return nil, r, err
+	}
+	return &detail.Vpc, r, nil
+}
+
+func (s *VPCServiceOp) GetDetail(ctx context.Context, vpcID string) (*VPCDetail, *Response, error) {
 	id, err := parseUUID(vpcID)
 	if err != nil {
 		return nil, nil, err

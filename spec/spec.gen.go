@@ -3201,6 +3201,30 @@ type VPC struct {
 // VPCRegion Region where the VPC lives.
 type VPCRegion string
 
+// VPCDetail Detail wrapper returned by `GET /api/v1/vpcs/{id}`. Contains the core VPC under `vpc`, plus the configured IP range and the current set of IP leases (one entry per attached network interface).
+type VPCDetail struct {
+	// IPRangeEnd Last IP in the VPC's allocatable range
+	IPRangeEnd *string `json:"ip_range_end,omitempty"`
+
+	// IPRangeStart First IP in the VPC's allocatable range
+	IPRangeStart *string `json:"ip_range_start,omitempty"`
+
+	// Leases Active IP leases on the VPC. Empty when no VMs are attached.
+	Leases *[]VPCLease `json:"leases,omitempty"`
+
+	// Vpc A virtual private cloud (VPC).
+	Vpc VPC `json:"vpc"`
+}
+
+// VPCLease A single IP lease on the VPC.
+type VPCLease struct {
+	// IP Leased IP address
+	IP string `json:"ip"`
+
+	// NicID NIC interface ID on the leased VM. Pair with `GET /api/v1/vms/{id}/networks` to identify the owning interface.
+	NicID int `json:"nic_id"`
+}
+
 // Volume defines model for Volume.
 type Volume struct {
 	// AccountID Account that owns the volume
@@ -15722,9 +15746,9 @@ type GetVPCResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON200      *struct {
-		// Data A virtual private cloud (VPC).
-		Data    *VPC  `json:"data,omitempty"`
-		Success *bool `json:"success,omitempty"`
+		// Data Detail wrapper returned by `GET /api/v1/vpcs/{id}`. Contains the core VPC under `vpc`, plus the configured IP range and the current set of IP leases (one entry per attached network interface).
+		Data    *VPCDetail `json:"data,omitempty"`
+		Success *bool      `json:"success,omitempty"`
 	}
 	JSON401 *Unauthorized
 	JSON404 *NotFound
@@ -21787,9 +21811,9 @@ func ParseGetVPCResponse(rsp *http.Response) (*GetVPCResponse, error) {
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest struct {
-			// Data A virtual private cloud (VPC).
-			Data    *VPC  `json:"data,omitempty"`
-			Success *bool `json:"success,omitempty"`
+			// Data Detail wrapper returned by `GET /api/v1/vpcs/{id}`. Contains the core VPC under `vpc`, plus the configured IP range and the current set of IP leases (one entry per attached network interface).
+			Data    *VPCDetail `json:"data,omitempty"`
+			Success *bool      `json:"success,omitempty"`
 		}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
