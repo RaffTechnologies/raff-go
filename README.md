@@ -103,12 +103,17 @@ See [pkg.go.dev](https://pkg.go.dev/github.com/rafftechnologies/raff-go) for the
 
 ## Services
 
-Twelve services on the client, ~85 operations total:
+Eighteen services on the client, ~115 operations — full coverage of the
+public OpenAPI spec.
 
 | Service | Operations |
 |---------|------------|
 | **Compute** | |
 | `client.VMs` | Full lifecycle (29 ops): list, create, delete, start/stop/reboot, resize, rename, reinstall, factory-reset, save-image, attach/detach VPC/IP/security-group, tags, notes |
+| `client.Volumes` | List, Get, Create, Delete, Resize, Attach, Detach |
+| `client.Snapshots` | List, Get, Create, Rename, Restore, Delete |
+| `client.Backups` | List, Get, Create, Restore, Delete (async on Create+Restore) |
+| `client.BackupSchedules` | List, Get, Create, Update, Delete |
 | **Networking** | |
 | `client.VPCs` | List, Get, GetDetail, Create, Update, Delete, CIDRSuggestions |
 | `client.IPs` | List, Get, Reserve, Release, Change |
@@ -122,6 +127,9 @@ Twelve services on the client, ~85 operations total:
 | `client.Invitations` | CreateAccount, CreateProject, Cancel |
 | `client.APIKeys` | List, Get, Create, Update, Regenerate, Revoke |
 | `client.SSHKeys` | List, Get, Create, Update, Delete |
+| **Catalog (read-only)** | |
+| `client.Metadata` | ListRegions, ListTemplates |
+| `client.Pricing` | ListVM, ListVolume, ListBackup, ListSnapshot, ListIP |
 
 ## Versioning
 
@@ -130,7 +138,7 @@ This library follows [Semantic Versioning](https://semver.org/). v0.x is allowed
 Pin a specific version:
 
 ```bash
-go get github.com/rafftechnologies/raff-go@v0.2.0
+go get github.com/rafftechnologies/raff-go@v0.3.0
 ```
 
 The generated client (`spec/spec.gen.go`) is auto-synced with the public OpenAPI spec at [docs/api-reference/openapi.yaml](https://github.com/RaffTechnologies/docs/blob/main/api-reference/openapi.yaml) on a nightly schedule. Spec changes typically result in a PR within 24 hours.
