@@ -50,6 +50,14 @@ type VPCServiceOp struct {
 var _ VPCService = &VPCServiceOp{}
 
 func (s *VPCServiceOp) List(ctx context.Context, opts *VPCListOptions) ([]VPC, *Response, error) {
+	if opts == nil {
+		opts = &VPCListOptions{}
+	}
+	if opts.XProjectID == nil {
+		if pid, err := s.client.optionalProjectID(); err == nil && pid != nil {
+			opts.XProjectID = pid
+		}
+	}
 	resp, err := s.client.spec.ListVPCsWithResponse(ctx, opts)
 	if err != nil {
 		return nil, nil, err

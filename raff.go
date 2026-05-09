@@ -143,6 +143,26 @@ func (c *Client) requireProjectID() (openapi_types.UUID, error) {
 // optionalProjectID returns a pointer to the configured project ID UUID, or
 // (nil, nil) when no project is configured. Used by list endpoints that allow
 // listing across all accessible projects when X-Project-ID is omitted.
+//
+// CONVENTION for `List` methods: every List wrapper that has an optional
+// project-scope filter (whether the spec exposes it as an `X-Project-ID`
+// header or a `project_id` query param) MUST auto-fill it from the client
+// before sending. Pattern:
+//
+//	if opts == nil {
+//	    opts = &XListOptions{}
+//	}
+//	if opts.XProjectID == nil { // or opts.ProjectID for query-param variants
+//	    if pid, err := s.client.optionalProjectID(); err == nil && pid != nil {
+//	        opts.XProjectID = pid
+//	    }
+//	}
+//
+// Without this, a project-scoped client (raff.SetProjectID(...)) silently
+// returns resources across every project the API key can see — a data-leak
+// bug across customers. The `make verify` CI guards spec drift but not
+// wrapper-correctness — keep this pattern consistent when adding new
+// services (volumes, snapshots, ssh keys, …).
 func (c *Client) optionalProjectID() (*openapi_types.UUID, error) {
 	if c.projectID == "" {
 		return nil, nil

@@ -143,6 +143,14 @@ type VMServiceOp struct {
 var _ VMService = &VMServiceOp{}
 
 func (s *VMServiceOp) List(ctx context.Context, opts *VMListOptions) ([]VM, *Response, error) {
+	if opts == nil {
+		opts = &VMListOptions{}
+	}
+	if opts.ProjectID == nil {
+		if pid, err := s.client.optionalProjectID(); err == nil && pid != nil {
+			opts.ProjectID = pid
+		}
+	}
 	resp, err := s.client.spec.ListVMsWithResponse(ctx, opts)
 	if err != nil {
 		return nil, nil, err
