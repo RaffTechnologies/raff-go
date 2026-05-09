@@ -103,13 +103,25 @@ See [pkg.go.dev](https://pkg.go.dev/github.com/rafftechnologies/raff-go) for the
 
 ## Services
 
-| Service | Resources covered |
-|---------|-------------------|
-| `client.Projects` | List, Get, Create, Update, Delete |
+Twelve services on the client, ~85 operations total:
+
+| Service | Operations |
+|---------|------------|
+| **Compute** | |
 | `client.VMs` | Full lifecycle (29 ops): list, create, delete, start/stop/reboot, resize, rename, reinstall, factory-reset, save-image, attach/detach VPC/IP/security-group, tags, notes |
+| **Networking** | |
 | `client.VPCs` | List, Get, GetDetail, Create, Update, Delete, CIDRSuggestions |
 | `client.IPs` | List, Get, Reserve, Release, Change |
 | `client.SecurityGroups` | List, Templates, Get, Create, Update, Delete |
+| **Identity & access** | |
+| `client.Projects` | List, Get, Create, Update, Delete |
+| `client.ProjectMembers` | List, Get, Add, Update, Remove (per-project) |
+| `client.Members` | List, Get, Add, Update, Remove (account-level) |
+| `client.Roles` | List, Get, Create, Update, Delete |
+| `client.Permissions` | List (read-only catalog) |
+| `client.Invitations` | CreateAccount, CreateProject, Cancel |
+| `client.APIKeys` | List, Get, Create, Update, Regenerate, Revoke |
+| `client.SSHKeys` | List, Get, Create, Update, Delete |
 
 ## Versioning
 
@@ -118,7 +130,7 @@ This library follows [Semantic Versioning](https://semver.org/). v0.x is allowed
 Pin a specific version:
 
 ```bash
-go get github.com/rafftechnologies/raff-go@v0.1.0
+go get github.com/rafftechnologies/raff-go@v0.2.0
 ```
 
 The generated client (`spec/spec.gen.go`) is auto-synced with the public OpenAPI spec at [docs/api-reference/openapi.yaml](https://github.com/RaffTechnologies/docs/blob/main/api-reference/openapi.yaml) on a nightly schedule. Spec changes typically result in a PR within 24 hours.
