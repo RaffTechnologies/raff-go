@@ -1,0 +1,44 @@
+name: release
+
+# Creates a GitHub Release whenever a semver tag is pushed (e.g. `v0.1.0`).
+# Go modules read the tag directly from git — the SDK does not ship binaries,
+# so this workflow only generates release notes for humans browsing the
+# Releases page. After the workflow runs, `go get github.com/rafftechnologies/raff-go@v0.1.0`
+# will pull that exact version.
+#
+# To cut a release:
+#   git tag v0.1.0 && git push origin v0.1.0
+# (Use semver: vMAJOR.MINOR.PATCH. v0.x is allowed to break; v1.x+ implies stable.)
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Build + test (sanity check before publishing)
+        run: |
+          go build ./...
+          go vet ./...
+          go test ./...
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          draft: false
+          prerelease: ${{ contains(github.ref_name, '-') }}
