@@ -3033,6 +3033,9 @@ type VMNetwork struct {
 	// IP IP address assigned to the interface (IPv4 or IPv6 depending on `type`).
 	IP string `json:"ip"`
 
+	// Mac MAC address of the interface. Stable for the lifetime of the VM — useful for static DHCP, packet captures, and disambiguating multiple NICs in scripts.
+	Mac *string `json:"mac,omitempty"`
+
 	// NetworkName Network name.
 	NetworkName string `json:"network_name"`
 
