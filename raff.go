@@ -26,7 +26,7 @@ import (
 
 const (
 	// Version is the client library version.
-	Version = "0.3.0"
+	Version = "0.3.2"
 
 	defaultBaseURL   = "https://api.rafftechnologies.com"
 	defaultUserAgent = "raff-go/" + Version
@@ -159,9 +159,18 @@ func (c *Client) injectHeaders(_ context.Context, req *http.Request) error {
 
 // requireProjectID returns the configured project ID as a UUID, or an error
 // if not set. Used by service methods that need X-Project-ID.
+//
+// The error message is intentionally neutral so it reads well when surfaced
+// by raff-cli (which would otherwise leak `raff.SetProjectID` into terminal
+// output, confusing users who aren't Go developers). CLI consumers should
+// pre-check via their own helper so this rarely fires; when it does the
+// message points at the underlying X-Project-ID requirement rather than at
+// any specific Go API.
 func (c *Client) requireProjectID() (openapi_types.UUID, error) {
 	if c.projectID == "" {
-		return openapi_types.UUID{}, fmt.Errorf("project ID is required: configure with raff.SetProjectID")
+		return openapi_types.UUID{}, fmt.Errorf("project ID required (X-Project-ID header). " +
+			"Set --project-id, RAFF_PROJECT_ID, or run `raff configure` if using the CLI; " +
+			"set raff.SetProjectID(...) when using the SDK directly")
 	}
 	return parseUUID(c.projectID)
 }
