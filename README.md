@@ -138,7 +138,7 @@ This library follows [Semantic Versioning](https://semver.org/). v0.x is allowed
 Pin a specific version:
 
 ```bash
-go get github.com/rafftechnologies/raff-go@v0.3.0
+go get github.com/rafftechnologies/raff-go@v0.3.2
 ```
 
 The generated client (`spec/spec.gen.go`) is auto-synced with the public OpenAPI spec at [docs/api-reference/openapi.yaml](https://github.com/RaffTechnologies/docs/blob/main/api-reference/openapi.yaml) on a nightly schedule. Spec changes typically result in a PR within 24 hours.
