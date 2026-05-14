@@ -35,6 +35,14 @@ type BackupService interface {
 	Create(ctx context.Context, req *CreateBackupRequest) (*Backup, *Response, error)
 	Restore(ctx context.Context, backupID string) (*Backup, *Response, error)
 	Delete(ctx context.Context, backupID string) (*Response, error)
+	// DeleteSeries removes every restore point in the series that the
+	// given backup belongs to. Use when a single restore point can't be
+	// removed on its own because it has older points it depends on.
+	DeleteSeries(ctx context.Context, backupID string) (*Response, error)
+	// ResetSeries closes the active backup series for the VM so the next
+	// backup creates a fresh independent baseline. Existing restore
+	// points stay restorable until explicitly deleted.
+	ResetSeries(ctx context.Context, vmID string) (*Response, error)
 }
 
 // BackupScheduleService handles backup schedule CRUD.
@@ -144,6 +152,44 @@ func (s *BackupServiceOp) Delete(ctx context.Context, backupID string) (*Respons
 		return nil, err
 	}
 	resp, err := s.client.spec.DeleteBackupWithResponse(ctx, id, &spec.DeleteBackupParams{XProjectID: projectID})
+	if err != nil {
+		return nil, err
+	}
+	if resp.StatusCode() >= 400 {
+		return responseFrom(resp.HTTPResponse, 0), errorFromResponse(resp.StatusCode(), resp.Body)
+	}
+	return responseFrom(resp.HTTPResponse, 0), nil
+}
+
+func (s *BackupServiceOp) DeleteSeries(ctx context.Context, backupID string) (*Response, error) {
+	id, err := parseUUID(backupID)
+	if err != nil {
+		return nil, err
+	}
+	projectID, err := s.client.requireProjectID()
+	if err != nil {
+		return nil, err
+	}
+	resp, err := s.client.spec.DeleteBackupChainWithResponse(ctx, id, &spec.DeleteBackupChainParams{XProjectID: projectID})
+	if err != nil {
+		return nil, err
+	}
+	if resp.StatusCode() >= 400 {
+		return responseFrom(resp.HTTPResponse, 0), errorFromResponse(resp.StatusCode(), resp.Body)
+	}
+	return responseFrom(resp.HTTPResponse, 0), nil
+}
+
+func (s *BackupServiceOp) ResetSeries(ctx context.Context, vmID string) (*Response, error) {
+	id, err := parseUUID(vmID)
+	if err != nil {
+		return nil, err
+	}
+	projectID, err := s.client.requireProjectID()
+	if err != nil {
+		return nil, err
+	}
+	resp, err := s.client.spec.ResetBackupChainWithResponse(ctx, id, &spec.ResetBackupChainParams{XProjectID: projectID})
 	if err != nil {
 		return nil, err
 	}

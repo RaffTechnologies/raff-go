@@ -1821,6 +1821,20 @@ type Backup struct {
 	// ID Backup ID
 	ID openapi_types.UUID `json:"id"`
 
+	// IncrementID Restore-point position within an incremental backup series.
+	//
+	// - `null` — legacy standalone backup (no series).
+	// - `0` — first restore point of a series.
+	// - `1`, `2`, … — subsequent restore points in the same series.
+	//
+	// Backups that share the same series are deleted together. Deleting a single
+	// restore point that has older points in its series triggers a series-wide delete.
+	// Use [Delete backup series](/api-reference/virtual-machines/delete-backup-series)
+	// to remove a whole series explicitly, or
+	// [Reset backup series](/api-reference/virtual-machines/reset-backup-series)
+	// to start a fresh baseline on the next backup.
+	IncrementID *int `json:"increment_id,omitempty"`
+
 	// Name Backup display name
 	Name string `json:"name"`
 
@@ -3403,6 +3417,12 @@ type GetBackupParams struct {
 	XProjectID ProjectIDHeader `json:"X-Project-ID"`
 }
 
+// DeleteBackupChainParams defines parameters for DeleteBackupChain.
+type DeleteBackupChainParams struct {
+	// XProjectID Project ID. Required for all mutating operations (create, delete, power actions, resize).
+	XProjectID ProjectIDHeader `json:"X-Project-ID"`
+}
+
 // RestoreBackupParams defines parameters for RestoreBackup.
 type RestoreBackupParams struct {
 	// XProjectID Project ID. Required for all mutating operations (create, delete, power actions, resize).
@@ -3677,6 +3697,12 @@ type DeleteVMsBulkParams struct {
 
 // DeleteVMParams defines parameters for DeleteVM.
 type DeleteVMParams struct {
+	// XProjectID Project ID. Required for all mutating operations (create, delete, power actions, resize).
+	XProjectID ProjectIDHeader `json:"X-Project-ID"`
+}
+
+// ResetBackupChainParams defines parameters for ResetBackupChain.
+type ResetBackupChainParams struct {
 	// XProjectID Project ID. Required for all mutating operations (create, delete, power actions, resize).
 	XProjectID ProjectIDHeader `json:"X-Project-ID"`
 }
@@ -4192,6 +4218,9 @@ type ClientInterface interface {
 	// GetBackup request
 	GetBackup(ctx context.Context, id openapi_types.UUID, params *GetBackupParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// DeleteBackupChain request
+	DeleteBackupChain(ctx context.Context, id openapi_types.UUID, params *DeleteBackupChainParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// RestoreBackup request
 	RestoreBackup(ctx context.Context, id openapi_types.UUID, params *RestoreBackupParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -4408,6 +4437,9 @@ type ClientInterface interface {
 
 	// GetVM request
 	GetVM(ctx context.Context, id VMIDPath, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ResetBackupChain request
+	ResetBackupChain(ctx context.Context, id openapi_types.UUID, params *ResetBackupChainParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ResizeVMDiskWithBody request with any body
 	ResizeVMDiskWithBody(ctx context.Context, id VMIDPath, params *ResizeVMDiskParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -4793,6 +4825,18 @@ func (c *Client) DeleteBackup(ctx context.Context, id openapi_types.UUID, params
 
 func (c *Client) GetBackup(ctx context.Context, id openapi_types.UUID, params *GetBackupParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetBackupRequest(c.Server, id, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DeleteBackupChain(ctx context.Context, id openapi_types.UUID, params *DeleteBackupChainParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteBackupChainRequest(c.Server, id, params)
 	if err != nil {
 		return nil, err
 	}
@@ -5741,6 +5785,18 @@ func (c *Client) DeleteVM(ctx context.Context, id VMIDPath, params *DeleteVMPara
 
 func (c *Client) GetVM(ctx context.Context, id VMIDPath, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetVMRequest(c.Server, id)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ResetBackupChain(ctx context.Context, id openapi_types.UUID, params *ResetBackupChainParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewResetBackupChainRequest(c.Server, id, params)
 	if err != nil {
 		return nil, err
 	}
@@ -7231,6 +7287,53 @@ func NewGetBackupRequest(server string, id openapi_types.UUID, params *GetBackup
 	}
 
 	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+
+		var headerParam0 string
+
+		headerParam0, err = runtime.StyleParamWithOptions("simple", false, "X-Project-ID", params.XProjectID, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: "uuid"})
+		if err != nil {
+			return nil, err
+		}
+
+		req.Header.Set("X-Project-ID", headerParam0)
+
+	}
+
+	return req, nil
+}
+
+// NewDeleteBackupChainRequest generates requests for DeleteBackupChain
+func NewDeleteBackupChainRequest(server string, id openapi_types.UUID, params *DeleteBackupChainParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "id", id, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/backups/%s/chain", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("DELETE", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -10222,6 +10325,53 @@ func NewGetVMRequest(server string, id VMIDPath) (*http.Request, error) {
 	return req, nil
 }
 
+// NewResetBackupChainRequest generates requests for ResetBackupChain
+func NewResetBackupChainRequest(server string, id openapi_types.UUID, params *ResetBackupChainParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "id", id, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/vms/%s/backups/reset-chain", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+
+		var headerParam0 string
+
+		headerParam0, err = runtime.StyleParamWithOptions("simple", false, "X-Project-ID", params.XProjectID, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: "uuid"})
+		if err != nil {
+			return nil, err
+		}
+
+		req.Header.Set("X-Project-ID", headerParam0)
+
+	}
+
+	return req, nil
+}
+
 // NewResizeVMDiskRequest calls the generic ResizeVMDisk builder with application/json body
 func NewResizeVMDiskRequest(server string, id VMIDPath, params *ResizeVMDiskParams, body ResizeVMDiskJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
@@ -12487,6 +12637,9 @@ type ClientWithResponsesInterface interface {
 	// GetBackupWithResponse request
 	GetBackupWithResponse(ctx context.Context, id openapi_types.UUID, params *GetBackupParams, reqEditors ...RequestEditorFn) (*GetBackupResponse, error)
 
+	// DeleteBackupChainWithResponse request
+	DeleteBackupChainWithResponse(ctx context.Context, id openapi_types.UUID, params *DeleteBackupChainParams, reqEditors ...RequestEditorFn) (*DeleteBackupChainResponse, error)
+
 	// RestoreBackupWithResponse request
 	RestoreBackupWithResponse(ctx context.Context, id openapi_types.UUID, params *RestoreBackupParams, reqEditors ...RequestEditorFn) (*RestoreBackupResponse, error)
 
@@ -12703,6 +12856,9 @@ type ClientWithResponsesInterface interface {
 
 	// GetVMWithResponse request
 	GetVMWithResponse(ctx context.Context, id VMIDPath, reqEditors ...RequestEditorFn) (*GetVMResponse, error)
+
+	// ResetBackupChainWithResponse request
+	ResetBackupChainWithResponse(ctx context.Context, id openapi_types.UUID, params *ResetBackupChainParams, reqEditors ...RequestEditorFn) (*ResetBackupChainResponse, error)
 
 	// ResizeVMDiskWithBodyWithResponse request with any body
 	ResizeVMDiskWithBodyWithResponse(ctx context.Context, id VMIDPath, params *ResizeVMDiskParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ResizeVMDiskResponse, error)
@@ -13241,6 +13397,29 @@ func (r GetBackupResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r GetBackupResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type DeleteBackupChainResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *SuccessResponse
+	JSON404      *NotFound
+}
+
+// Status returns HTTPResponse.Status
+func (r DeleteBackupChainResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeleteBackupChainResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -14809,6 +14988,30 @@ func (r GetVMResponse) StatusCode() int {
 	return 0
 }
 
+type ResetBackupChainResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON202      *SuccessResponse
+	JSON400      *BadRequest
+	JSON404      *NotFound
+}
+
+// Status returns HTTPResponse.Status
+func (r ResetBackupChainResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ResetBackupChainResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type ResizeVMDiskResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -16001,6 +16204,15 @@ func (c *ClientWithResponses) GetBackupWithResponse(ctx context.Context, id open
 	return ParseGetBackupResponse(rsp)
 }
 
+// DeleteBackupChainWithResponse request returning *DeleteBackupChainResponse
+func (c *ClientWithResponses) DeleteBackupChainWithResponse(ctx context.Context, id openapi_types.UUID, params *DeleteBackupChainParams, reqEditors ...RequestEditorFn) (*DeleteBackupChainResponse, error) {
+	rsp, err := c.DeleteBackupChain(ctx, id, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeleteBackupChainResponse(rsp)
+}
+
 // RestoreBackupWithResponse request returning *RestoreBackupResponse
 func (c *ClientWithResponses) RestoreBackupWithResponse(ctx context.Context, id openapi_types.UUID, params *RestoreBackupParams, reqEditors ...RequestEditorFn) (*RestoreBackupResponse, error) {
 	rsp, err := c.RestoreBackup(ctx, id, params, reqEditors...)
@@ -16690,6 +16902,15 @@ func (c *ClientWithResponses) GetVMWithResponse(ctx context.Context, id VMIDPath
 		return nil, err
 	}
 	return ParseGetVMResponse(rsp)
+}
+
+// ResetBackupChainWithResponse request returning *ResetBackupChainResponse
+func (c *ClientWithResponses) ResetBackupChainWithResponse(ctx context.Context, id openapi_types.UUID, params *ResetBackupChainParams, reqEditors ...RequestEditorFn) (*ResetBackupChainResponse, error) {
+	rsp, err := c.ResetBackupChain(ctx, id, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseResetBackupChainResponse(rsp)
 }
 
 // ResizeVMDiskWithBodyWithResponse request with arbitrary body returning *ResizeVMDiskResponse
@@ -17739,6 +17960,39 @@ func ParseGetBackupResponse(rsp *http.Response) (*GetBackupResponse, error) {
 			Data    *Backup `json:"data,omitempty"`
 			Success *bool   `json:"success,omitempty"`
 		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest NotFound
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDeleteBackupChainResponse parses an HTTP response from a DeleteBackupChainWithResponse call
+func ParseDeleteBackupChainResponse(rsp *http.Response) (*DeleteBackupChainResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeleteBackupChainResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest SuccessResponse
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -20093,6 +20347,46 @@ func ParseGetVMResponse(rsp *http.Response) (*GetVMResponse, error) {
 			return nil, err
 		}
 		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest NotFound
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseResetBackupChainResponse parses an HTTP response from a ResetBackupChainWithResponse call
+func ParseResetBackupChainResponse(rsp *http.Response) (*ResetBackupChainResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ResetBackupChainResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 202:
+		var dest SuccessResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON202 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest BadRequest
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
 		var dest NotFound
