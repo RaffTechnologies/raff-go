@@ -1858,7 +1858,9 @@ type Backup struct {
 	// - `failed` — creation or restore failed
 	Status string `json:"status"`
 
-	// StorageSize Backup size in GB
+	// StorageSize Backup size in **MB**. For incremental restore points this is the per-increment delta;
+	// for legacy standalone backups it is the full image size. Display in MB up to 1024,
+	// else convert to GB (`storage_size / 1024`). Pricing math: `(storage_size / 1024) * price_per_gb`.
 	StorageSize int `json:"storage_size"`
 }
 
@@ -3115,6 +3117,9 @@ type VMPricingPlan struct {
 
 	// MonthlyPrice Monthly price in USD
 	MonthlyPrice float32 `json:"monthly_price"`
+
+	// OutOfStock Whether this plan is currently sold out. Informational only — the plan is still listed and can be ordered.
+	OutOfStock *bool `json:"out_of_stock,omitempty"`
 
 	// PricePerHour Hourly price in USD (pay-as-you-go)
 	PricePerHour float32 `json:"price_per_hour"`
