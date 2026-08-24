@@ -180,16 +180,16 @@ func (e AppDeploymentStatus) Valid() bool {
 
 // Defines values for AppJobRunTrigger.
 const (
-	Manual   AppJobRunTrigger = "manual"
-	Schedule AppJobRunTrigger = "schedule"
+	AppJobRunTriggerManual   AppJobRunTrigger = "manual"
+	AppJobRunTriggerSchedule AppJobRunTrigger = "schedule"
 )
 
 // Valid indicates whether the value is a known member of the AppJobRunTrigger enum.
 func (e AppJobRunTrigger) Valid() bool {
 	switch e {
-	case Manual:
+	case AppJobRunTriggerManual:
 		return true
-	case Schedule:
+	case AppJobRunTriggerSchedule:
 		return true
 	default:
 		return false
@@ -2725,6 +2725,27 @@ func (e ListIPsParamsStatus) Valid() bool {
 	}
 }
 
+// Defines values for UpdateK8SClusterMaintenanceJSONBodyUpgradeMode.
+const (
+	UpdateK8SClusterMaintenanceJSONBodyUpgradeModeAutoMinor UpdateK8SClusterMaintenanceJSONBodyUpgradeMode = "auto_minor"
+	UpdateK8SClusterMaintenanceJSONBodyUpgradeModeAutoPatch UpdateK8SClusterMaintenanceJSONBodyUpgradeMode = "auto_patch"
+	UpdateK8SClusterMaintenanceJSONBodyUpgradeModeManual    UpdateK8SClusterMaintenanceJSONBodyUpgradeMode = "manual"
+)
+
+// Valid indicates whether the value is a known member of the UpdateK8SClusterMaintenanceJSONBodyUpgradeMode enum.
+func (e UpdateK8SClusterMaintenanceJSONBodyUpgradeMode) Valid() bool {
+	switch e {
+	case UpdateK8SClusterMaintenanceJSONBodyUpgradeModeAutoMinor:
+		return true
+	case UpdateK8SClusterMaintenanceJSONBodyUpgradeModeAutoPatch:
+		return true
+	case UpdateK8SClusterMaintenanceJSONBodyUpgradeModeManual:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for ListMembersParamsStatus.
 const (
 	ListMembersParamsStatusActive    ListMembersParamsStatus = "active"
@@ -3207,7 +3228,7 @@ type AddK8SNodePoolRequest struct {
 	Name             string  `json:"name"`
 	NodeCount        int     `json:"node_count"`
 
-	// PlanID Omit to inherit the cluster's worker plan
+	// PlanID Omit to inherit the cluster's worker plan. All pools share it — a differing plan is rejected.
 	PlanID *int    `json:"plan_id,omitempty"`
 	Taints *string `json:"taints,omitempty"`
 }
@@ -5259,7 +5280,7 @@ type K8SNodePlan struct {
 	// Region Region this plan is available in
 	Region K8SNodePlanRegion `json:"region"`
 
-	// SsdGib NVMe SSD storage in GiB per node
+	// SsdGib NVMe root disk in GiB per node (OS, container images, logs, ephemeral storage; persistent volumes come from storage nodes)
 	SsdGib int `json:"ssd_gib"`
 
 	// TotalPrice Monthly price per node in USD (same as price_per_month)
@@ -6932,6 +6953,25 @@ type GetK8SKubeconfigParams struct {
 	XProjectID ProjectIDHeader `json:"X-Project-ID"`
 }
 
+// UpdateK8SClusterMaintenanceJSONBody defines parameters for UpdateK8SClusterMaintenance.
+type UpdateK8SClusterMaintenanceJSONBody struct {
+	// MaintenanceDay 0 (Sunday) to 6 (Saturday)
+	MaintenanceDay *int `json:"maintenance_day,omitempty"`
+
+	// MaintenanceStart Window start hour (UTC)
+	MaintenanceStart *int                                           `json:"maintenance_start,omitempty"`
+	UpgradeMode      UpdateK8SClusterMaintenanceJSONBodyUpgradeMode `json:"upgrade_mode"`
+}
+
+// UpdateK8SClusterMaintenanceParams defines parameters for UpdateK8SClusterMaintenance.
+type UpdateK8SClusterMaintenanceParams struct {
+	// XProjectID Project ID. Required for all mutating operations (create, delete, power actions, resize).
+	XProjectID ProjectIDHeader `json:"X-Project-ID"`
+}
+
+// UpdateK8SClusterMaintenanceJSONBodyUpgradeMode defines parameters for UpdateK8SClusterMaintenance.
+type UpdateK8SClusterMaintenanceJSONBodyUpgradeMode string
+
 // GetK8SMetalLBPoolParams defines parameters for GetK8SMetalLBPool.
 type GetK8SMetalLBPoolParams struct {
 	// XProjectID Project ID. Required for all mutating operations (create, delete, power actions, resize).
@@ -7004,6 +7044,27 @@ type ListK8STcpPortsParams struct {
 
 // DeleteK8STcpPortParams defines parameters for DeleteK8STcpPort.
 type DeleteK8STcpPortParams struct {
+	// XProjectID Project ID. Required for all mutating operations (create, delete, power actions, resize).
+	XProjectID ProjectIDHeader `json:"X-Project-ID"`
+}
+
+// UpgradeK8SClusterVersionJSONBody defines parameters for UpgradeK8SClusterVersion.
+type UpgradeK8SClusterVersionJSONBody struct {
+	// ConfirmSingleMaster Required true on non-HA clusters
+	ConfirmSingleMaster *bool `json:"confirm_single_master,omitempty"`
+
+	// VersionID Target from List available version upgrades
+	VersionID int `json:"version_id"`
+}
+
+// UpgradeK8SClusterVersionParams defines parameters for UpgradeK8SClusterVersion.
+type UpgradeK8SClusterVersionParams struct {
+	// XProjectID Project ID. Required for all mutating operations (create, delete, power actions, resize).
+	XProjectID ProjectIDHeader `json:"X-Project-ID"`
+}
+
+// ListK8SClusterUpgradesParams defines parameters for ListK8SClusterUpgrades.
+type ListK8SClusterUpgradesParams struct {
 	// XProjectID Project ID. Required for all mutating operations (create, delete, power actions, resize).
 	XProjectID ProjectIDHeader `json:"X-Project-ID"`
 }
@@ -7614,6 +7675,9 @@ type RenameK8SClusterJSONRequestBody RenameK8SClusterJSONBody
 // AssignK8SClusterFirewallJSONRequestBody defines body for AssignK8SClusterFirewall for application/json ContentType.
 type AssignK8SClusterFirewallJSONRequestBody AssignK8SClusterFirewallJSONBody
 
+// UpdateK8SClusterMaintenanceJSONRequestBody defines body for UpdateK8SClusterMaintenance for application/json ContentType.
+type UpdateK8SClusterMaintenanceJSONRequestBody UpdateK8SClusterMaintenanceJSONBody
+
 // UpdateK8SMetalLBPoolJSONRequestBody defines body for UpdateK8SMetalLBPool for application/json ContentType.
 type UpdateK8SMetalLBPoolJSONRequestBody UpdateK8SMetalLBPoolJSONBody
 
@@ -7625,6 +7689,9 @@ type UpdateK8SNodePoolJSONRequestBody = UpdateK8SNodePoolRequest
 
 // ScaleK8SNodePoolJSONRequestBody defines body for ScaleK8SNodePool for application/json ContentType.
 type ScaleK8SNodePoolJSONRequestBody ScaleK8SNodePoolJSONBody
+
+// UpgradeK8SClusterVersionJSONRequestBody defines body for UpgradeK8SClusterVersion for application/json ContentType.
+type UpgradeK8SClusterVersionJSONRequestBody UpgradeK8SClusterVersionJSONBody
 
 // AddMemberJSONRequestBody defines body for AddMember for application/json ContentType.
 type AddMemberJSONRequestBody = AddMemberRequest
@@ -8249,6 +8316,11 @@ type ClientInterface interface {
 	// GetK8SKubeconfig request
 	GetK8SKubeconfig(ctx context.Context, clusterID K8SClusterIDPath, params *GetK8SKubeconfigParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// UpdateK8SClusterMaintenanceWithBody request with any body
+	UpdateK8SClusterMaintenanceWithBody(ctx context.Context, clusterID K8SClusterIDPath, params *UpdateK8SClusterMaintenanceParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	UpdateK8SClusterMaintenance(ctx context.Context, clusterID K8SClusterIDPath, params *UpdateK8SClusterMaintenanceParams, body UpdateK8SClusterMaintenanceJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// GetK8SMetalLBPool request
 	GetK8SMetalLBPool(ctx context.Context, clusterID K8SClusterIDPath, params *GetK8SMetalLBPoolParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -8289,6 +8361,14 @@ type ClientInterface interface {
 
 	// DeleteK8STcpPort request
 	DeleteK8STcpPort(ctx context.Context, clusterID K8SClusterIDPath, port int, params *DeleteK8STcpPortParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// UpgradeK8SClusterVersionWithBody request with any body
+	UpgradeK8SClusterVersionWithBody(ctx context.Context, clusterID K8SClusterIDPath, params *UpgradeK8SClusterVersionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	UpgradeK8SClusterVersion(ctx context.Context, clusterID K8SClusterIDPath, params *UpgradeK8SClusterVersionParams, body UpgradeK8SClusterVersionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ListK8SClusterUpgrades request
+	ListK8SClusterUpgrades(ctx context.Context, clusterID K8SClusterIDPath, params *ListK8SClusterUpgradesParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListK8SNodePlans request
 	ListK8SNodePlans(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -10565,6 +10645,30 @@ func (c *Client) GetK8SKubeconfig(ctx context.Context, clusterID K8SClusterIDPat
 	return c.Client.Do(req)
 }
 
+func (c *Client) UpdateK8SClusterMaintenanceWithBody(ctx context.Context, clusterID K8SClusterIDPath, params *UpdateK8SClusterMaintenanceParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateK8SClusterMaintenanceRequestWithBody(c.Server, clusterID, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdateK8SClusterMaintenance(ctx context.Context, clusterID K8SClusterIDPath, params *UpdateK8SClusterMaintenanceParams, body UpdateK8SClusterMaintenanceJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateK8SClusterMaintenanceRequest(c.Server, clusterID, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) GetK8SMetalLBPool(ctx context.Context, clusterID K8SClusterIDPath, params *GetK8SMetalLBPoolParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetK8SMetalLBPoolRequest(c.Server, clusterID, params)
 	if err != nil {
@@ -10735,6 +10839,42 @@ func (c *Client) ListK8STcpPorts(ctx context.Context, clusterID K8SClusterIDPath
 
 func (c *Client) DeleteK8STcpPort(ctx context.Context, clusterID K8SClusterIDPath, port int, params *DeleteK8STcpPortParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewDeleteK8STcpPortRequest(c.Server, clusterID, port, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpgradeK8SClusterVersionWithBody(ctx context.Context, clusterID K8SClusterIDPath, params *UpgradeK8SClusterVersionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpgradeK8SClusterVersionRequestWithBody(c.Server, clusterID, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpgradeK8SClusterVersion(ctx context.Context, clusterID K8SClusterIDPath, params *UpgradeK8SClusterVersionParams, body UpgradeK8SClusterVersionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpgradeK8SClusterVersionRequest(c.Server, clusterID, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ListK8SClusterUpgrades(ctx context.Context, clusterID K8SClusterIDPath, params *ListK8SClusterUpgradesParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListK8SClusterUpgradesRequest(c.Server, clusterID, params)
 	if err != nil {
 		return nil, err
 	}
@@ -18193,6 +18333,66 @@ func NewGetK8SKubeconfigRequest(server string, clusterID K8SClusterIDPath, param
 	return req, nil
 }
 
+// NewUpdateK8SClusterMaintenanceRequest calls the generic UpdateK8SClusterMaintenance builder with application/json body
+func NewUpdateK8SClusterMaintenanceRequest(server string, clusterID K8SClusterIDPath, params *UpdateK8SClusterMaintenanceParams, body UpdateK8SClusterMaintenanceJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewUpdateK8SClusterMaintenanceRequestWithBody(server, clusterID, params, "application/json", bodyReader)
+}
+
+// NewUpdateK8SClusterMaintenanceRequestWithBody generates requests for UpdateK8SClusterMaintenance with any type of body
+func NewUpdateK8SClusterMaintenanceRequestWithBody(server string, clusterID K8SClusterIDPath, params *UpdateK8SClusterMaintenanceParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "cluster_id", clusterID, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/k8s/clusters/%s/maintenance", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PATCH", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		var headerParam0 string
+
+		headerParam0, err = runtime.StyleParamWithOptions("simple", false, "X-Project-ID", params.XProjectID, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: "uuid"})
+		if err != nil {
+			return nil, err
+		}
+
+		req.Header.Set("X-Project-ID", headerParam0)
+
+	}
+
+	return req, nil
+}
+
 // NewGetK8SMetalLBPoolRequest generates requests for GetK8SMetalLBPool
 func NewGetK8SMetalLBPoolRequest(server string, clusterID K8SClusterIDPath, params *GetK8SMetalLBPoolParams) (*http.Request, error) {
 	var err error
@@ -18770,6 +18970,113 @@ func NewDeleteK8STcpPortRequest(server string, clusterID K8SClusterIDPath, port 
 	}
 
 	req, err := http.NewRequest("DELETE", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+
+		var headerParam0 string
+
+		headerParam0, err = runtime.StyleParamWithOptions("simple", false, "X-Project-ID", params.XProjectID, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: "uuid"})
+		if err != nil {
+			return nil, err
+		}
+
+		req.Header.Set("X-Project-ID", headerParam0)
+
+	}
+
+	return req, nil
+}
+
+// NewUpgradeK8SClusterVersionRequest calls the generic UpgradeK8SClusterVersion builder with application/json body
+func NewUpgradeK8SClusterVersionRequest(server string, clusterID K8SClusterIDPath, params *UpgradeK8SClusterVersionParams, body UpgradeK8SClusterVersionJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewUpgradeK8SClusterVersionRequestWithBody(server, clusterID, params, "application/json", bodyReader)
+}
+
+// NewUpgradeK8SClusterVersionRequestWithBody generates requests for UpgradeK8SClusterVersion with any type of body
+func NewUpgradeK8SClusterVersionRequestWithBody(server string, clusterID K8SClusterIDPath, params *UpgradeK8SClusterVersionParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "cluster_id", clusterID, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/k8s/clusters/%s/upgrade", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		var headerParam0 string
+
+		headerParam0, err = runtime.StyleParamWithOptions("simple", false, "X-Project-ID", params.XProjectID, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: "uuid"})
+		if err != nil {
+			return nil, err
+		}
+
+		req.Header.Set("X-Project-ID", headerParam0)
+
+	}
+
+	return req, nil
+}
+
+// NewListK8SClusterUpgradesRequest generates requests for ListK8SClusterUpgrades
+func NewListK8SClusterUpgradesRequest(server string, clusterID K8SClusterIDPath, params *ListK8SClusterUpgradesParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "cluster_id", clusterID, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/k8s/clusters/%s/upgrades", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -24259,6 +24566,11 @@ type ClientWithResponsesInterface interface {
 	// GetK8SKubeconfigWithResponse request
 	GetK8SKubeconfigWithResponse(ctx context.Context, clusterID K8SClusterIDPath, params *GetK8SKubeconfigParams, reqEditors ...RequestEditorFn) (*GetK8SKubeconfigResponse, error)
 
+	// UpdateK8SClusterMaintenanceWithBodyWithResponse request with any body
+	UpdateK8SClusterMaintenanceWithBodyWithResponse(ctx context.Context, clusterID K8SClusterIDPath, params *UpdateK8SClusterMaintenanceParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateK8SClusterMaintenanceResponse, error)
+
+	UpdateK8SClusterMaintenanceWithResponse(ctx context.Context, clusterID K8SClusterIDPath, params *UpdateK8SClusterMaintenanceParams, body UpdateK8SClusterMaintenanceJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateK8SClusterMaintenanceResponse, error)
+
 	// GetK8SMetalLBPoolWithResponse request
 	GetK8SMetalLBPoolWithResponse(ctx context.Context, clusterID K8SClusterIDPath, params *GetK8SMetalLBPoolParams, reqEditors ...RequestEditorFn) (*GetK8SMetalLBPoolResponse, error)
 
@@ -24299,6 +24611,14 @@ type ClientWithResponsesInterface interface {
 
 	// DeleteK8STcpPortWithResponse request
 	DeleteK8STcpPortWithResponse(ctx context.Context, clusterID K8SClusterIDPath, port int, params *DeleteK8STcpPortParams, reqEditors ...RequestEditorFn) (*DeleteK8STcpPortResponse, error)
+
+	// UpgradeK8SClusterVersionWithBodyWithResponse request with any body
+	UpgradeK8SClusterVersionWithBodyWithResponse(ctx context.Context, clusterID K8SClusterIDPath, params *UpgradeK8SClusterVersionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpgradeK8SClusterVersionResponse, error)
+
+	UpgradeK8SClusterVersionWithResponse(ctx context.Context, clusterID K8SClusterIDPath, params *UpgradeK8SClusterVersionParams, body UpgradeK8SClusterVersionJSONRequestBody, reqEditors ...RequestEditorFn) (*UpgradeK8SClusterVersionResponse, error)
+
+	// ListK8SClusterUpgradesWithResponse request
+	ListK8SClusterUpgradesWithResponse(ctx context.Context, clusterID K8SClusterIDPath, params *ListK8SClusterUpgradesParams, reqEditors ...RequestEditorFn) (*ListK8SClusterUpgradesResponse, error)
 
 	// ListK8SNodePlansWithResponse request
 	ListK8SNodePlansWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListK8SNodePlansResponse, error)
@@ -28052,6 +28372,30 @@ func (r GetK8SKubeconfigResponse) StatusCode() int {
 	return 0
 }
 
+type UpdateK8SClusterMaintenanceResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *SuccessResponse
+	JSON400      *Error
+	JSON404      *NotFound
+}
+
+// Status returns HTTPResponse.Status
+func (r UpdateK8SClusterMaintenanceResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r UpdateK8SClusterMaintenanceResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type GetK8SMetalLBPoolResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -28345,6 +28689,79 @@ func (r DeleteK8STcpPortResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r DeleteK8STcpPortResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type UpgradeK8SClusterVersionResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *SuccessResponse
+	JSON400      *Error
+	JSON404      *NotFound
+	JSON412      *Error
+}
+
+// Status returns HTTPResponse.Status
+func (r UpgradeK8SClusterVersionResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r UpgradeK8SClusterVersionResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type ListK8SClusterUpgradesResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		Available *[]struct {
+			IsDefault *bool `json:"is_default,omitempty"`
+
+			// IsMinor true for a minor hop, false for a patch
+			IsMinor     *bool   `json:"is_minor,omitempty"`
+			Rke2Version *string `json:"rke2_version,omitempty"`
+			Version     *string `json:"version,omitempty"`
+			VersionID   *int    `json:"version_id,omitempty"`
+		} `json:"available,omitempty"`
+		CurrentVersion *string `json:"current_version,omitempty"`
+
+		// MaintenanceDay 0 (Sunday) to 6 (Saturday)
+		MaintenanceDay *int `json:"maintenance_day,omitempty"`
+
+		// MaintenanceStart Window start hour (UTC); the window is 4 hours
+		MaintenanceStart *int  `json:"maintenance_start,omitempty"`
+		Success          *bool `json:"success,omitempty"`
+
+		// TargetVersion Set while an upgrade is in flight or failed
+		TargetVersion *string                                 `json:"target_version,omitempty"`
+		UpgradeMode   *ListK8SClusterUpgrades200UpgradeMode   `json:"upgrade_mode,omitempty"`
+		UpgradeStatus *ListK8SClusterUpgrades200UpgradeStatus `json:"upgrade_status,omitempty"`
+	}
+	JSON404 *NotFound
+}
+type ListK8SClusterUpgrades200UpgradeMode string
+type ListK8SClusterUpgrades200UpgradeStatus string
+
+// Status returns HTTPResponse.Status
+func (r ListK8SClusterUpgradesResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListK8SClusterUpgradesResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -32333,6 +32750,23 @@ func (c *ClientWithResponses) GetK8SKubeconfigWithResponse(ctx context.Context, 
 	return ParseGetK8SKubeconfigResponse(rsp)
 }
 
+// UpdateK8SClusterMaintenanceWithBodyWithResponse request with arbitrary body returning *UpdateK8SClusterMaintenanceResponse
+func (c *ClientWithResponses) UpdateK8SClusterMaintenanceWithBodyWithResponse(ctx context.Context, clusterID K8SClusterIDPath, params *UpdateK8SClusterMaintenanceParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateK8SClusterMaintenanceResponse, error) {
+	rsp, err := c.UpdateK8SClusterMaintenanceWithBody(ctx, clusterID, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateK8SClusterMaintenanceResponse(rsp)
+}
+
+func (c *ClientWithResponses) UpdateK8SClusterMaintenanceWithResponse(ctx context.Context, clusterID K8SClusterIDPath, params *UpdateK8SClusterMaintenanceParams, body UpdateK8SClusterMaintenanceJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateK8SClusterMaintenanceResponse, error) {
+	rsp, err := c.UpdateK8SClusterMaintenance(ctx, clusterID, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateK8SClusterMaintenanceResponse(rsp)
+}
+
 // GetK8SMetalLBPoolWithResponse request returning *GetK8SMetalLBPoolResponse
 func (c *ClientWithResponses) GetK8SMetalLBPoolWithResponse(ctx context.Context, clusterID K8SClusterIDPath, params *GetK8SMetalLBPoolParams, reqEditors ...RequestEditorFn) (*GetK8SMetalLBPoolResponse, error) {
 	rsp, err := c.GetK8SMetalLBPool(ctx, clusterID, params, reqEditors...)
@@ -32462,6 +32896,32 @@ func (c *ClientWithResponses) DeleteK8STcpPortWithResponse(ctx context.Context, 
 		return nil, err
 	}
 	return ParseDeleteK8STcpPortResponse(rsp)
+}
+
+// UpgradeK8SClusterVersionWithBodyWithResponse request with arbitrary body returning *UpgradeK8SClusterVersionResponse
+func (c *ClientWithResponses) UpgradeK8SClusterVersionWithBodyWithResponse(ctx context.Context, clusterID K8SClusterIDPath, params *UpgradeK8SClusterVersionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpgradeK8SClusterVersionResponse, error) {
+	rsp, err := c.UpgradeK8SClusterVersionWithBody(ctx, clusterID, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpgradeK8SClusterVersionResponse(rsp)
+}
+
+func (c *ClientWithResponses) UpgradeK8SClusterVersionWithResponse(ctx context.Context, clusterID K8SClusterIDPath, params *UpgradeK8SClusterVersionParams, body UpgradeK8SClusterVersionJSONRequestBody, reqEditors ...RequestEditorFn) (*UpgradeK8SClusterVersionResponse, error) {
+	rsp, err := c.UpgradeK8SClusterVersion(ctx, clusterID, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpgradeK8SClusterVersionResponse(rsp)
+}
+
+// ListK8SClusterUpgradesWithResponse request returning *ListK8SClusterUpgradesResponse
+func (c *ClientWithResponses) ListK8SClusterUpgradesWithResponse(ctx context.Context, clusterID K8SClusterIDPath, params *ListK8SClusterUpgradesParams, reqEditors ...RequestEditorFn) (*ListK8SClusterUpgradesResponse, error) {
+	rsp, err := c.ListK8SClusterUpgrades(ctx, clusterID, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListK8SClusterUpgradesResponse(rsp)
 }
 
 // ListK8SNodePlansWithResponse request returning *ListK8SNodePlansResponse
@@ -38787,6 +39247,46 @@ func ParseGetK8SKubeconfigResponse(rsp *http.Response) (*GetK8SKubeconfigRespons
 	return response, nil
 }
 
+// ParseUpdateK8SClusterMaintenanceResponse parses an HTTP response from a UpdateK8SClusterMaintenanceWithResponse call
+func ParseUpdateK8SClusterMaintenanceResponse(rsp *http.Response) (*UpdateK8SClusterMaintenanceResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &UpdateK8SClusterMaintenanceResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest SuccessResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest NotFound
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseGetK8SMetalLBPoolResponse parses an HTTP response from a GetK8SMetalLBPoolWithResponse call
 func ParseGetK8SMetalLBPoolResponse(rsp *http.Response) (*GetK8SMetalLBPoolResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -39227,6 +39727,109 @@ func ParseDeleteK8STcpPortResponse(rsp *http.Response) (*DeleteK8STcpPortRespons
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest SuccessResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest NotFound
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseUpgradeK8SClusterVersionResponse parses an HTTP response from a UpgradeK8SClusterVersionWithResponse call
+func ParseUpgradeK8SClusterVersionResponse(rsp *http.Response) (*UpgradeK8SClusterVersionResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &UpgradeK8SClusterVersionResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest SuccessResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest NotFound
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 412:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON412 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListK8SClusterUpgradesResponse parses an HTTP response from a ListK8SClusterUpgradesWithResponse call
+func ParseListK8SClusterUpgradesResponse(rsp *http.Response) (*ListK8SClusterUpgradesResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListK8SClusterUpgradesResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			Available *[]struct {
+				IsDefault *bool `json:"is_default,omitempty"`
+
+				// IsMinor true for a minor hop, false for a patch
+				IsMinor     *bool   `json:"is_minor,omitempty"`
+				Rke2Version *string `json:"rke2_version,omitempty"`
+				Version     *string `json:"version,omitempty"`
+				VersionID   *int    `json:"version_id,omitempty"`
+			} `json:"available,omitempty"`
+			CurrentVersion *string `json:"current_version,omitempty"`
+
+			// MaintenanceDay 0 (Sunday) to 6 (Saturday)
+			MaintenanceDay *int `json:"maintenance_day,omitempty"`
+
+			// MaintenanceStart Window start hour (UTC); the window is 4 hours
+			MaintenanceStart *int  `json:"maintenance_start,omitempty"`
+			Success          *bool `json:"success,omitempty"`
+
+			// TargetVersion Set while an upgrade is in flight or failed
+			TargetVersion *string                                 `json:"target_version,omitempty"`
+			UpgradeMode   *ListK8SClusterUpgrades200UpgradeMode   `json:"upgrade_mode,omitempty"`
+			UpgradeStatus *ListK8SClusterUpgrades200UpgradeStatus `json:"upgrade_status,omitempty"`
+		}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}

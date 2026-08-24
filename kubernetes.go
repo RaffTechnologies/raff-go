@@ -107,6 +107,10 @@ type KubernetesService interface {
 	ListNodes(ctx context.Context, clusterID string) ([]K8sClusterNode, *Response, error)
 	ListEvents(ctx context.Context, clusterID string) ([]K8sClusterEvent, *Response, error)
 
+	Upgrades(ctx context.Context, clusterID string) (*K8sUpgradeInfo, *Response, error)
+	Upgrade(ctx context.Context, clusterID string, versionID int, confirmSingleMaster bool) (*Response, error)
+	SetMaintenance(ctx context.Context, clusterID, mode string, day, startHour *int) (*Response, error)
+
 	ListVersions(ctx context.Context) ([]K8sVersion, *Response, error)
 	ListNodePlans(ctx context.Context) (*K8sNodePlans, *Response, error)
 
@@ -458,4 +462,122 @@ func (s *KubernetesServiceOp) WaitForDeleted(ctx context.Context, clusterID stri
 		case <-t.C:
 		}
 	}
+}
+
+// K8sAvailableUpgrade is one version a cluster can upgrade to.
+type K8sAvailableUpgrade struct {
+	VersionID   int
+	Version     string
+	RKE2Version string
+	IsMinor     bool
+	IsDefault   bool
+}
+
+// K8sUpgradeInfo is a cluster's upgrade and maintenance state.
+type K8sUpgradeInfo struct {
+	CurrentVersion   string
+	UpgradeStatus    string
+	TargetVersion    string
+	UpgradeMode      string
+	MaintenanceDay   *int
+	MaintenanceStart *int
+	Available        []K8sAvailableUpgrade
+}
+
+// Upgrades lists the versions a cluster can upgrade to plus its upgrade state.
+func (s *KubernetesServiceOp) Upgrades(ctx context.Context, clusterID string) (*K8sUpgradeInfo, *Response, error) {
+	projectID, err := s.client.requireProjectID()
+	if err != nil {
+		return nil, nil, err
+	}
+	resp, err := s.client.spec.ListK8SClusterUpgradesWithResponse(ctx, clusterID, &spec.ListK8SClusterUpgradesParams{XProjectID: projectID})
+	if err != nil {
+		return nil, nil, err
+	}
+	if resp.JSON200 == nil {
+		return nil, responseFrom(resp.HTTPResponse, 0), errorFromResponse(resp.StatusCode(), resp.Body)
+	}
+	info := &K8sUpgradeInfo{
+		MaintenanceDay:   resp.JSON200.MaintenanceDay,
+		MaintenanceStart: resp.JSON200.MaintenanceStart,
+	}
+	if resp.JSON200.CurrentVersion != nil {
+		info.CurrentVersion = *resp.JSON200.CurrentVersion
+	}
+	if resp.JSON200.UpgradeStatus != nil {
+		info.UpgradeStatus = string(*resp.JSON200.UpgradeStatus)
+	}
+	if resp.JSON200.TargetVersion != nil {
+		info.TargetVersion = *resp.JSON200.TargetVersion
+	}
+	if resp.JSON200.UpgradeMode != nil {
+		info.UpgradeMode = string(*resp.JSON200.UpgradeMode)
+	}
+	if resp.JSON200.Available != nil {
+		for _, a := range *resp.JSON200.Available {
+			u := K8sAvailableUpgrade{}
+			if a.VersionID != nil {
+				u.VersionID = *a.VersionID
+			}
+			if a.Version != nil {
+				u.Version = *a.Version
+			}
+			if a.Rke2Version != nil {
+				u.RKE2Version = *a.Rke2Version
+			}
+			if a.IsMinor != nil {
+				u.IsMinor = *a.IsMinor
+			}
+			if a.IsDefault != nil {
+				u.IsDefault = *a.IsDefault
+			}
+			info.Available = append(info.Available, u)
+		}
+	}
+	return info, responseFrom(resp.HTTPResponse, 0), nil
+}
+
+// Upgrade starts an in-place Kubernetes version upgrade. confirmSingleMaster
+// must be true on non-HA clusters (brief API interruption).
+func (s *KubernetesServiceOp) Upgrade(ctx context.Context, clusterID string, versionID int, confirmSingleMaster bool) (*Response, error) {
+	projectID, err := s.client.requireProjectID()
+	if err != nil {
+		return nil, err
+	}
+	body := spec.UpgradeK8SClusterVersionJSONRequestBody{VersionID: versionID}
+	if confirmSingleMaster {
+		body.ConfirmSingleMaster = &confirmSingleMaster
+	}
+	resp, err := s.client.spec.UpgradeK8SClusterVersionWithResponse(ctx, clusterID,
+		&spec.UpgradeK8SClusterVersionParams{XProjectID: projectID}, body)
+	if err != nil {
+		return nil, err
+	}
+	if resp.StatusCode() >= 400 {
+		return responseFrom(resp.HTTPResponse, 0), errorFromResponse(resp.StatusCode(), resp.Body)
+	}
+	return responseFrom(resp.HTTPResponse, 0), nil
+}
+
+// SetMaintenance sets the upgrade mode (manual, auto_patch, auto_minor) and
+// optionally the weekly 4-hour maintenance window.
+func (s *KubernetesServiceOp) SetMaintenance(ctx context.Context, clusterID, mode string, day, startHour *int) (*Response, error) {
+	projectID, err := s.client.requireProjectID()
+	if err != nil {
+		return nil, err
+	}
+	body := spec.UpdateK8SClusterMaintenanceJSONRequestBody{
+		UpgradeMode:      spec.UpdateK8SClusterMaintenanceJSONBodyUpgradeMode(mode),
+		MaintenanceDay:   day,
+		MaintenanceStart: startHour,
+	}
+	resp, err := s.client.spec.UpdateK8SClusterMaintenanceWithResponse(ctx, clusterID,
+		&spec.UpdateK8SClusterMaintenanceParams{XProjectID: projectID}, body)
+	if err != nil {
+		return nil, err
+	}
+	if resp.StatusCode() >= 400 {
+		return responseFrom(resp.HTTPResponse, 0), errorFromResponse(resp.StatusCode(), resp.Body)
+	}
+	return responseFrom(resp.HTTPResponse, 0), nil
 }
