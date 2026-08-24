@@ -39,6 +39,12 @@ type Client struct {
 	projectID string
 	userAgent string
 
+	// baseURL + httpClient back the hand-written Functions service until
+	// Functions lands in the public OpenAPI spec (then it is generated like
+	// every other service and these can go away).
+	baseURL    string
+	httpClient *http.Client
+
 	// Services
 	Projects        ProjectService
 	VMs             VMService
@@ -58,6 +64,9 @@ type Client struct {
 	BackupSchedules BackupScheduleService
 	Metadata        MetadataService
 	Pricing         PricingService
+	Functions       FunctionService
+	AppServices     AppServiceService
+	Kubernetes      KubernetesService
 }
 
 // NewFromToken creates a new Raff API client with the given API key.
@@ -82,6 +91,7 @@ func New(httpClient *http.Client, apiKey string, opts ...ClientOpt) *Client {
 		spec.WithHTTPClient(httpClient),
 		spec.WithRequestEditorFn(c.injectHeaders),
 	)
+	c.baseURL = cfg.baseURL
 	if err != nil {
 		// Only fails on invalid base URL — fall back to default.
 		specClient, _ = spec.NewClientWithResponses(
@@ -89,8 +99,10 @@ func New(httpClient *http.Client, apiKey string, opts ...ClientOpt) *Client {
 			spec.WithHTTPClient(httpClient),
 			spec.WithRequestEditorFn(c.injectHeaders),
 		)
+		c.baseURL = defaultBaseURL
 	}
 	c.spec = specClient
+	c.httpClient = httpClient
 
 	c.Projects = &ProjectServiceOp{client: c}
 	c.VMs = &VMServiceOp{client: c}
@@ -110,6 +122,9 @@ func New(httpClient *http.Client, apiKey string, opts ...ClientOpt) *Client {
 	c.BackupSchedules = &BackupScheduleServiceOp{client: c}
 	c.Metadata = &MetadataServiceOp{client: c}
 	c.Pricing = &PricingServiceOp{client: c}
+	c.Functions = &FunctionServiceOp{client: c}
+	c.AppServices = &AppServiceServiceOp{client: c}
+	c.Kubernetes = &KubernetesServiceOp{client: c}
 
 	return c
 }
