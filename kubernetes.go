@@ -53,6 +53,12 @@ type K8sNodePlan = spec.K8SNodePlan
 // K8sClusterEvent is one lifecycle event of a cluster.
 type K8sClusterEvent = spec.K8SClusterEvent
 
+// K8sNodePoolInput describes a node pool in a cluster create request.
+type K8sNodePoolInput = spec.K8SNodePoolInput
+
+// CreateK8sClusterStorageNodeCount is the storage-node count in a create request.
+type CreateK8sClusterStorageNodeCount = spec.CreateK8SClusterRequestStorageNodeCount
+
 // CreateK8sClusterRequest is the request body for creating a cluster.
 type CreateK8sClusterRequest = spec.CreateK8SClusterJSONRequestBody
 
