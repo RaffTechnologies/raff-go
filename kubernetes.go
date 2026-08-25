@@ -96,6 +96,8 @@ type KubernetesService interface {
 	Rename(ctx context.Context, clusterID, name string) (*Response, error)
 	Delete(ctx context.Context, clusterID string) (*Response, error)
 	Kubeconfig(ctx context.Context, clusterID string) (*K8sKubeconfig, *Response, error)
+	KubeconfigWithTTL(ctx context.Context, clusterID string, ttlSeconds int) (*K8sKubeconfig, *Response, error)
+	RotateKubeconfigAccess(ctx context.Context, clusterID string) (*Response, error)
 	UpgradeHA(ctx context.Context, clusterID string) (*Response, error)
 
 	ListNodePools(ctx context.Context, clusterID string) ([]K8sNodePool, *Response, error)
@@ -217,6 +219,45 @@ func (s *KubernetesServiceOp) Delete(ctx context.Context, clusterID string) (*Re
 		return nil, err
 	}
 	if resp.StatusCode() >= 400 {
+		return responseFrom(resp.HTTPResponse, 0), errorFromResponse(resp.StatusCode(), resp.Body)
+	}
+	return responseFrom(resp.HTTPResponse, 0), nil
+}
+
+// KubeconfigWithTTL returns a SHORT-LIVED kubeconfig: a bound token with the
+// given time-to-live (10 minutes to 30 days). It expires on its own;
+// RotateKubeconfigAccess invalidates all previously issued ones at once.
+func (s *KubernetesServiceOp) KubeconfigWithTTL(ctx context.Context, clusterID string, ttlSeconds int) (*K8sKubeconfig, *Response, error) {
+	projectID, err := s.client.requireProjectID()
+	if err != nil {
+		return nil, nil, err
+	}
+	resp, err := s.client.spec.GetK8SKubeconfigWithResponse(ctx, clusterID, &spec.GetK8SKubeconfigParams{XProjectID: projectID, ExpiresIn: &ttlSeconds})
+	if err != nil {
+		return nil, nil, err
+	}
+	if resp.JSON200 == nil || resp.JSON200.Kubeconfig == nil {
+		return nil, responseFrom(resp.HTTPResponse, 0), errorFromResponse(resp.StatusCode(), resp.Body)
+	}
+	kc := &K8sKubeconfig{Kubeconfig: *resp.JSON200.Kubeconfig}
+	if resp.JSON200.APIEndpoint != nil {
+		kc.APIEndpoint = *resp.JSON200.APIEndpoint
+	}
+	return kc, responseFrom(resp.HTTPResponse, 0), nil
+}
+
+// RotateKubeconfigAccess invalidates every previously issued short-lived
+// kubeconfig for the cluster, immediately. The admin kubeconfig is unaffected.
+func (s *KubernetesServiceOp) RotateKubeconfigAccess(ctx context.Context, clusterID string) (*Response, error) {
+	projectID, err := s.client.requireProjectID()
+	if err != nil {
+		return nil, err
+	}
+	resp, err := s.client.spec.RotateK8SKubeconfigAccessWithResponse(ctx, clusterID, &spec.RotateK8SKubeconfigAccessParams{XProjectID: projectID})
+	if err != nil {
+		return nil, err
+	}
+	if resp.StatusCode() != 200 {
 		return responseFrom(resp.HTTPResponse, 0), errorFromResponse(resp.StatusCode(), resp.Body)
 	}
 	return responseFrom(resp.HTTPResponse, 0), nil

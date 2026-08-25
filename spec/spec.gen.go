@@ -6949,6 +6949,15 @@ type UpgradeK8SClusterHAParams struct {
 
 // GetK8SKubeconfigParams defines parameters for GetK8SKubeconfig.
 type GetK8SKubeconfigParams struct {
+	// ExpiresIn Issue a SHORT-LIVED kubeconfig instead of the admin one: a token with this time-to-live in seconds (10 minutes to 30 days). Expired kubeconfigs stop working on their own; [rotate access](#tag/Kubernetes/operation/rotateK8sKubeconfigAccess) invalidates all of them at once.
+	ExpiresIn *int `form:"expires_in,omitempty" json:"expires_in,omitempty"`
+
+	// XProjectID Project ID. Required for all mutating operations (create, delete, power actions, resize).
+	XProjectID ProjectIDHeader `json:"X-Project-ID"`
+}
+
+// RotateK8SKubeconfigAccessParams defines parameters for RotateK8SKubeconfigAccess.
+type RotateK8SKubeconfigAccessParams struct {
 	// XProjectID Project ID. Required for all mutating operations (create, delete, power actions, resize).
 	XProjectID ProjectIDHeader `json:"X-Project-ID"`
 }
@@ -8315,6 +8324,9 @@ type ClientInterface interface {
 
 	// GetK8SKubeconfig request
 	GetK8SKubeconfig(ctx context.Context, clusterID K8SClusterIDPath, params *GetK8SKubeconfigParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// RotateK8SKubeconfigAccess request
+	RotateK8SKubeconfigAccess(ctx context.Context, clusterID K8SClusterIDPath, params *RotateK8SKubeconfigAccessParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// UpdateK8SClusterMaintenanceWithBody request with any body
 	UpdateK8SClusterMaintenanceWithBody(ctx context.Context, clusterID K8SClusterIDPath, params *UpdateK8SClusterMaintenanceParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -10635,6 +10647,18 @@ func (c *Client) UpgradeK8SClusterHA(ctx context.Context, clusterID K8SClusterID
 
 func (c *Client) GetK8SKubeconfig(ctx context.Context, clusterID K8SClusterIDPath, params *GetK8SKubeconfigParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetK8SKubeconfigRequest(c.Server, clusterID, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) RotateK8SKubeconfigAccess(ctx context.Context, clusterID K8SClusterIDPath, params *RotateK8SKubeconfigAccessParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRotateK8SKubeconfigAccessRequest(c.Server, clusterID, params)
 	if err != nil {
 		return nil, err
 	}
@@ -18312,7 +18336,76 @@ func NewGetK8SKubeconfigRequest(server string, clusterID K8SClusterIDPath, param
 		return nil, err
 	}
 
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.ExpiresIn != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "expires_in", *params.ExpiresIn, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: ""}); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
 	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+
+		var headerParam0 string
+
+		headerParam0, err = runtime.StyleParamWithOptions("simple", false, "X-Project-ID", params.XProjectID, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: "uuid"})
+		if err != nil {
+			return nil, err
+		}
+
+		req.Header.Set("X-Project-ID", headerParam0)
+
+	}
+
+	return req, nil
+}
+
+// NewRotateK8SKubeconfigAccessRequest generates requests for RotateK8SKubeconfigAccess
+func NewRotateK8SKubeconfigAccessRequest(server string, clusterID K8SClusterIDPath, params *RotateK8SKubeconfigAccessParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "cluster_id", clusterID, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/k8s/clusters/%s/kubeconfig/rotate", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -24566,6 +24659,9 @@ type ClientWithResponsesInterface interface {
 	// GetK8SKubeconfigWithResponse request
 	GetK8SKubeconfigWithResponse(ctx context.Context, clusterID K8SClusterIDPath, params *GetK8SKubeconfigParams, reqEditors ...RequestEditorFn) (*GetK8SKubeconfigResponse, error)
 
+	// RotateK8SKubeconfigAccessWithResponse request
+	RotateK8SKubeconfigAccessWithResponse(ctx context.Context, clusterID K8SClusterIDPath, params *RotateK8SKubeconfigAccessParams, reqEditors ...RequestEditorFn) (*RotateK8SKubeconfigAccessResponse, error)
+
 	// UpdateK8SClusterMaintenanceWithBodyWithResponse request with any body
 	UpdateK8SClusterMaintenanceWithBodyWithResponse(ctx context.Context, clusterID K8SClusterIDPath, params *UpdateK8SClusterMaintenanceParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateK8SClusterMaintenanceResponse, error)
 
@@ -28366,6 +28462,32 @@ func (r GetK8SKubeconfigResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r GetK8SKubeconfigResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type RotateK8SKubeconfigAccessResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		Message *string `json:"message,omitempty"`
+		Success *bool   `json:"success,omitempty"`
+	}
+	JSON404 *NotFound
+}
+
+// Status returns HTTPResponse.Status
+func (r RotateK8SKubeconfigAccessResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r RotateK8SKubeconfigAccessResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -32748,6 +32870,15 @@ func (c *ClientWithResponses) GetK8SKubeconfigWithResponse(ctx context.Context, 
 		return nil, err
 	}
 	return ParseGetK8SKubeconfigResponse(rsp)
+}
+
+// RotateK8SKubeconfigAccessWithResponse request returning *RotateK8SKubeconfigAccessResponse
+func (c *ClientWithResponses) RotateK8SKubeconfigAccessWithResponse(ctx context.Context, clusterID K8SClusterIDPath, params *RotateK8SKubeconfigAccessParams, reqEditors ...RequestEditorFn) (*RotateK8SKubeconfigAccessResponse, error) {
+	rsp, err := c.RotateK8SKubeconfigAccess(ctx, clusterID, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRotateK8SKubeconfigAccessResponse(rsp)
 }
 
 // UpdateK8SClusterMaintenanceWithBodyWithResponse request with arbitrary body returning *UpdateK8SClusterMaintenanceResponse
@@ -39229,6 +39360,42 @@ func ParseGetK8SKubeconfigResponse(rsp *http.Response) (*GetK8SKubeconfigRespons
 			// Kubeconfig kubeconfig YAML
 			Kubeconfig *string `json:"kubeconfig,omitempty"`
 			Success    *bool   `json:"success,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest NotFound
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseRotateK8SKubeconfigAccessResponse parses an HTTP response from a RotateK8SKubeconfigAccessWithResponse call
+func ParseRotateK8SKubeconfigAccessResponse(rsp *http.Response) (*RotateK8SKubeconfigAccessResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &RotateK8SKubeconfigAccessResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			Message *string `json:"message,omitempty"`
+			Success *bool   `json:"success,omitempty"`
 		}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
