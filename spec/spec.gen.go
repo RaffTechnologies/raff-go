@@ -844,27 +844,6 @@ func (e CreateK8SClusterRequestRegion) Valid() bool {
 	}
 }
 
-// Defines values for CreateK8SClusterRequestStorageNodeCount.
-const (
-	N0 CreateK8SClusterRequestStorageNodeCount = 0
-	N2 CreateK8SClusterRequestStorageNodeCount = 2
-	N3 CreateK8SClusterRequestStorageNodeCount = 3
-)
-
-// Valid indicates whether the value is a known member of the CreateK8SClusterRequestStorageNodeCount enum.
-func (e CreateK8SClusterRequestStorageNodeCount) Valid() bool {
-	switch e {
-	case N0:
-		return true
-	case N2:
-		return true
-	case N3:
-		return true
-	default:
-		return false
-	}
-}
-
 // Defines values for CreateProjectRequestDefaultRegion.
 const (
 	CreateProjectRequestDefaultRegionUsEast CreateProjectRequestDefaultRegion = "us-east"
@@ -4064,10 +4043,12 @@ type CreateK8SClusterRequest struct {
 	// ServiceCidr Service network override (private IPv4, /12–/24)
 	ServiceCidr *string `json:"service_cidr,omitempty"`
 
-	// StorageNodeCount Dedicated Longhorn storage nodes (0 disables in-cluster block storage)
-	StorageNodeCount *CreateK8SClusterRequestStorageNodeCount `json:"storage_node_count,omitempty"`
+	// StorageNodeCount Removed August 26, 2026 — every cluster includes the `raff-block` default StorageClass: PersistentVolumeClaims are provisioned as Volumes and billed per GB. Any value other than 0 is rejected.
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
+	StorageNodeCount *int `json:"storage_node_count,omitempty"`
 
-	// StorageNodeDiskGb Data disk per storage node; required when `storage_node_count` > 0. Bounds from [List Kubernetes node plans](#tag/Kubernetes/operation/listK8sNodePlans) `storage_pricing`.
+	// StorageNodeDiskGb Removed August 26, 2026 together with `storage_node_count`.
+	// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
 	StorageNodeDiskGb *int `json:"storage_node_disk_gb,omitempty"`
 
 	// TraefikEnabled Install the Traefik ingress controller
@@ -4076,9 +4057,6 @@ type CreateK8SClusterRequest struct {
 
 // CreateK8SClusterRequestRegion defines model for CreateK8SClusterRequest.Region.
 type CreateK8SClusterRequestRegion string
-
-// CreateK8SClusterRequestStorageNodeCount Dedicated Longhorn storage nodes (0 disables in-cluster block storage)
-type CreateK8SClusterRequestStorageNodeCount int
 
 // CreateProjectRequest defines model for CreateProjectRequest.
 type CreateProjectRequest struct {
@@ -5029,7 +5007,7 @@ type K8SCluster struct {
 	K8SVersion   *string            `json:"k8s_version,omitempty"`
 	K8SVersionID *int               `json:"k8s_version_id,omitempty"`
 
-	// LonghornEnabled Dedicated storage nodes with Longhorn block storage
+	// LonghornEnabled Legacy clusters only — dedicated storage nodes with Longhorn block storage. Clusters created since August 26, 2026 use the `raff-block` StorageClass (PVCs become Volumes) and report false.
 	LonghornEnabled *bool `json:"longhorn_enabled,omitempty"`
 
 	// MasterCount 1, or 3 with an HA control plane
@@ -5038,7 +5016,7 @@ type K8SCluster struct {
 	Name           string         `json:"name"`
 	NodePools      *[]K8SNodePool `json:"node_pools,omitempty"`
 
-	// PricePerHour Current hourly price (workers + storage + HA fee; control plane is free)
+	// PricePerHour Current hourly price (workers + HA fee; control plane is free, PVC storage bills separately per GB)
 	PricePerHour  *float64 `json:"price_per_hour,omitempty"`
 	PricePerMonth *float64 `json:"price_per_month,omitempty"`
 

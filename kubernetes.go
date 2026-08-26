@@ -57,7 +57,11 @@ type K8sClusterEvent = spec.K8SClusterEvent
 type K8sNodePoolInput = spec.K8SNodePoolInput
 
 // CreateK8sClusterStorageNodeCount is the storage-node count in a create request.
-type CreateK8sClusterStorageNodeCount = spec.CreateK8SClusterRequestStorageNodeCount
+//
+// Deprecated: storage nodes were removed August 26, 2026 — every cluster
+// includes the raff-block default StorageClass (PVCs become Volumes, billed
+// per GB). The API rejects any value other than 0.
+type CreateK8sClusterStorageNodeCount = int
 
 // CreateK8sClusterRequest is the request body for creating a cluster.
 type CreateK8sClusterRequest = spec.CreateK8SClusterJSONRequestBody
