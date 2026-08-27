@@ -75,6 +75,18 @@ type UpdateK8sNodePoolRequest = spec.UpdateK8SNodePoolJSONRequestBody
 // K8sClusterListOptions are the query parameters for listing clusters.
 type K8sClusterListOptions = spec.ListK8SClustersParams
 
+// K8sClusterVolume is one PVC-provisioned Raff Volume of a cluster.
+type K8sClusterVolume struct {
+	VolumeID     int        `json:"volume_id"`
+	Name         string     `json:"name"`    // display name (<cluster>-<namespace>-<claim>)
+	PVName       string     `json:"pv_name"` // Kubernetes PersistentVolume name
+	SizeGB       int        `json:"size_gb"`
+	Status       string     `json:"status"`
+	NodeIP       string     `json:"node_ip"` // internal IP of the attached worker ("" when detached)
+	PricePerHour float64    `json:"price_per_hour"`
+	CreatedAt    *time.Time `json:"created_at,omitempty"`
+}
+
 // K8sKubeconfig is a cluster's kubeconfig with its API endpoint.
 type K8sKubeconfig struct {
 	Kubeconfig  string
@@ -112,6 +124,7 @@ type KubernetesService interface {
 
 	ListNodes(ctx context.Context, clusterID string) ([]K8sClusterNode, *Response, error)
 	ListEvents(ctx context.Context, clusterID string) ([]K8sClusterEvent, *Response, error)
+	ListClusterVolumes(ctx context.Context, clusterID string) ([]K8sClusterVolume, *Response, error)
 
 	Upgrades(ctx context.Context, clusterID string) (*K8sUpgradeInfo, *Response, error)
 	Upgrade(ctx context.Context, clusterID string, versionID int, confirmSingleMaster bool) (*Response, error)
@@ -318,6 +331,51 @@ func (s *KubernetesServiceOp) ListNodePools(ctx context.Context, clusterID strin
 		pools = *resp.JSON200.NodePools
 	}
 	return pools, responseFrom(resp.HTTPResponse, 0), nil
+}
+
+// ListClusterVolumes lists the cluster's PVC-provisioned Raff Volumes
+// (the raff-block StorageClass).
+func (s *KubernetesServiceOp) ListClusterVolumes(ctx context.Context, clusterID string) ([]K8sClusterVolume, *Response, error) {
+	projectID, err := s.client.requireProjectID()
+	if err != nil {
+		return nil, nil, err
+	}
+	resp, err := s.client.spec.ListK8SClusterVolumesWithResponse(ctx, clusterID, &spec.ListK8SClusterVolumesParams{XProjectID: projectID})
+	if err != nil {
+		return nil, nil, err
+	}
+	if resp.JSON200 == nil {
+		return nil, responseFrom(resp.HTTPResponse, 0), errorFromResponse(resp.StatusCode(), resp.Body)
+	}
+	var volumes []K8sClusterVolume
+	if resp.JSON200.Volumes != nil {
+		for _, v := range *resp.JSON200.Volumes {
+			vol := K8sClusterVolume{CreatedAt: v.CreatedAt}
+			if v.VolumeID != nil {
+				vol.VolumeID = *v.VolumeID
+			}
+			if v.Name != nil {
+				vol.Name = *v.Name
+			}
+			if v.PvName != nil {
+				vol.PVName = *v.PvName
+			}
+			if v.SizeGb != nil {
+				vol.SizeGB = *v.SizeGb
+			}
+			if v.Status != nil {
+				vol.Status = string(*v.Status)
+			}
+			if v.NodeIP != nil {
+				vol.NodeIP = *v.NodeIP
+			}
+			if v.PricePerHour != nil {
+				vol.PricePerHour = *v.PricePerHour
+			}
+			volumes = append(volumes, vol)
+		}
+	}
+	return volumes, responseFrom(resp.HTTPResponse, 0), nil
 }
 
 func (s *KubernetesServiceOp) AddNodePool(ctx context.Context, clusterID string, req *AddK8sNodePoolRequest) (*K8sNodePool, *Response, error) {

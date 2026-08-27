@@ -1834,6 +1834,24 @@ func (e K8SNodeStatus) Valid() bool {
 	}
 }
 
+// Defines values for K8SNodePlanNodeClass.
+const (
+	CPUOptimized K8SNodePlanNodeClass = "cpu_optimized"
+	Shared       K8SNodePlanNodeClass = "shared"
+)
+
+// Valid indicates whether the value is a known member of the K8SNodePlanNodeClass enum.
+func (e K8SNodePlanNodeClass) Valid() bool {
+	switch e {
+	case CPUOptimized:
+		return true
+	case Shared:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for K8SNodePlanRegion.
 const (
 	K8SNodePlanRegionUsEast K8SNodePlanRegion = "us-east"
@@ -3207,7 +3225,7 @@ type AddK8SNodePoolRequest struct {
 	Name             string  `json:"name"`
 	NodeCount        int     `json:"node_count"`
 
-	// PlanID Omit to inherit the cluster's worker plan. All pools share it — a differing plan is rejected.
+	// PlanID Worker plan for this pool — pools may use different plans. Omit to inherit the first pool's plan.
 	PlanID *int    `json:"plan_id,omitempty"`
 	Taints *string `json:"taints,omitempty"`
 }
@@ -4036,7 +4054,7 @@ type CreateK8SClusterRequest struct {
 	// Name 1–63 lowercase letters, digits or hyphens; unique within the account
 	Name string `json:"name"`
 
-	// NodePools At least one pool with at least 2 nodes in total
+	// NodePools At least one pool with at least 2 nodes in total. Pools may use different plans — each pool's nodes are sized and billed by its own plan.
 	NodePools []K8SNodePoolInput             `json:"node_pools"`
 	Region    *CreateK8SClusterRequestRegion `json:"region,omitempty"`
 
@@ -5249,6 +5267,9 @@ type K8SNodePlan struct {
 	// Name Node plan name
 	Name string `json:"name"`
 
+	// NodeClass CPU commitment tier — `shared` for general workloads, `cpu_optimized` reserves far more host CPU per vCPU for steady, compute-heavy workloads. Each node pool has its own plan, so a cluster can mix tiers across pools.
+	NodeClass *K8SNodePlanNodeClass `json:"node_class,omitempty"`
+
 	// PricePerHour Hourly price per node in USD (pay-as-you-go)
 	PricePerHour float32 `json:"price_per_hour"`
 
@@ -5258,7 +5279,7 @@ type K8SNodePlan struct {
 	// Region Region this plan is available in
 	Region K8SNodePlanRegion `json:"region"`
 
-	// SsdGib NVMe root disk in GiB per node (OS, container images, logs, ephemeral storage; persistent volumes come from storage nodes)
+	// SsdGib NVMe root disk in GiB per node (OS, container images, logs, ephemeral storage; persistent volumes are PVC-provisioned Raff Volumes)
 	SsdGib int `json:"ssd_gib"`
 
 	// TotalPrice Monthly price per node in USD (same as price_per_month)
@@ -5276,6 +5297,9 @@ type K8SNodePlan struct {
 	// YearlyPrice Yearly commitment price in USD (0 if not offered)
 	YearlyPrice *float32 `json:"yearly_price,omitempty"`
 }
+
+// K8SNodePlanNodeClass CPU commitment tier — `shared` for general workloads, `cpu_optimized` reserves far more host CPU per vCPU for steady, compute-heavy workloads. Each node pool has its own plan, so a cluster can mix tiers across pools.
+type K8SNodePlanNodeClass string
 
 // K8SNodePlanRegion Region this plan is available in
 type K8SNodePlanRegion string
@@ -5329,10 +5353,12 @@ type K8SNodePoolInput struct {
 	MinNodes *int `json:"min_nodes,omitempty"`
 
 	// Name 1–63 lowercase letters, digits or hyphens; unique within the cluster
-	Name      string `json:"name"`
-	NodeCount int    `json:"node_count"`
+	Name string `json:"name"`
 
-	// PlanID Worker plan from [List Kubernetes node plans](#tag/Kubernetes/operation/listK8sNodePlans)
+	// NodeCount Per-pool minimum is 1; the cluster needs at least 2 worker nodes across all pools
+	NodeCount int `json:"node_count"`
+
+	// PlanID Worker plan from [List Kubernetes node plans](#tag/Kubernetes/operation/listK8sNodePlans). Pools in one cluster may use different plans.
 	PlanID int `json:"plan_id"`
 
 	// Taints JSON array of taints, e.g. `[{"key":"gpu","value":"true","effect":"NoSchedule"}]`
@@ -7056,6 +7082,12 @@ type ListK8SClusterUpgradesParams struct {
 	XProjectID ProjectIDHeader `json:"X-Project-ID"`
 }
 
+// ListK8SClusterVolumesParams defines parameters for ListK8SClusterVolumes.
+type ListK8SClusterVolumesParams struct {
+	// XProjectID Project ID. Required for all mutating operations (create, delete, power actions, resize).
+	XProjectID ProjectIDHeader `json:"X-Project-ID"`
+}
+
 // ListMembersParams defines parameters for ListMembers.
 type ListMembersParams struct {
 	// Status Filter by member status
@@ -8359,6 +8391,9 @@ type ClientInterface interface {
 
 	// ListK8SClusterUpgrades request
 	ListK8SClusterUpgrades(ctx context.Context, clusterID K8SClusterIDPath, params *ListK8SClusterUpgradesParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ListK8SClusterVolumes request
+	ListK8SClusterVolumes(ctx context.Context, clusterID K8SClusterIDPath, params *ListK8SClusterVolumesParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListK8SNodePlans request
 	ListK8SNodePlans(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -10877,6 +10912,18 @@ func (c *Client) UpgradeK8SClusterVersion(ctx context.Context, clusterID K8SClus
 
 func (c *Client) ListK8SClusterUpgrades(ctx context.Context, clusterID K8SClusterIDPath, params *ListK8SClusterUpgradesParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewListK8SClusterUpgradesRequest(c.Server, clusterID, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ListK8SClusterVolumes(ctx context.Context, clusterID K8SClusterIDPath, params *ListK8SClusterVolumesParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListK8SClusterVolumesRequest(c.Server, clusterID, params)
 	if err != nil {
 		return nil, err
 	}
@@ -19168,6 +19215,53 @@ func NewListK8SClusterUpgradesRequest(server string, clusterID K8SClusterIDPath,
 	return req, nil
 }
 
+// NewListK8SClusterVolumesRequest generates requests for ListK8SClusterVolumes
+func NewListK8SClusterVolumesRequest(server string, clusterID K8SClusterIDPath, params *ListK8SClusterVolumesParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "cluster_id", clusterID, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/k8s/clusters/%s/volumes", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+
+		var headerParam0 string
+
+		headerParam0, err = runtime.StyleParamWithOptions("simple", false, "X-Project-ID", params.XProjectID, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: "uuid"})
+		if err != nil {
+			return nil, err
+		}
+
+		req.Header.Set("X-Project-ID", headerParam0)
+
+	}
+
+	return req, nil
+}
+
 // NewListK8SNodePlansRequest generates requests for ListK8SNodePlans
 func NewListK8SNodePlansRequest(server string) (*http.Request, error) {
 	var err error
@@ -24694,6 +24788,9 @@ type ClientWithResponsesInterface interface {
 	// ListK8SClusterUpgradesWithResponse request
 	ListK8SClusterUpgradesWithResponse(ctx context.Context, clusterID K8SClusterIDPath, params *ListK8SClusterUpgradesParams, reqEditors ...RequestEditorFn) (*ListK8SClusterUpgradesResponse, error)
 
+	// ListK8SClusterVolumesWithResponse request
+	ListK8SClusterVolumesWithResponse(ctx context.Context, clusterID K8SClusterIDPath, params *ListK8SClusterVolumesParams, reqEditors ...RequestEditorFn) (*ListK8SClusterVolumesResponse, error)
+
 	// ListK8SNodePlansWithResponse request
 	ListK8SNodePlansWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListK8SNodePlansResponse, error)
 
@@ -28868,6 +28965,48 @@ func (r ListK8SClusterUpgradesResponse) StatusCode() int {
 	return 0
 }
 
+type ListK8SClusterVolumesResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		Success *bool `json:"success,omitempty"`
+		Volumes *[]struct {
+			CreatedAt *time.Time `json:"created_at,omitempty"`
+
+			// Name Display name (`<cluster>-<namespace>-<claim>`)
+			Name *string `json:"name,omitempty"`
+
+			// NodeIP Internal IP of the worker it is attached to ("" when detached)
+			NodeIP       *string  `json:"node_ip,omitempty"`
+			PricePerHour *float64 `json:"price_per_hour,omitempty"`
+
+			// PvName Kubernetes PersistentVolume name
+			PvName   *string                                `json:"pv_name,omitempty"`
+			SizeGb   *int                                   `json:"size_gb,omitempty"`
+			Status   *ListK8SClusterVolumes200VolumesStatus `json:"status,omitempty"`
+			VolumeID *int                                   `json:"volume_id,omitempty"`
+		} `json:"volumes,omitempty"`
+	}
+	JSON404 *NotFound
+}
+type ListK8SClusterVolumes200VolumesStatus string
+
+// Status returns HTTPResponse.Status
+func (r ListK8SClusterVolumesResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListK8SClusterVolumesResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type ListK8SNodePlansResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -33031,6 +33170,15 @@ func (c *ClientWithResponses) ListK8SClusterUpgradesWithResponse(ctx context.Con
 		return nil, err
 	}
 	return ParseListK8SClusterUpgradesResponse(rsp)
+}
+
+// ListK8SClusterVolumesWithResponse request returning *ListK8SClusterVolumesResponse
+func (c *ClientWithResponses) ListK8SClusterVolumesWithResponse(ctx context.Context, clusterID K8SClusterIDPath, params *ListK8SClusterVolumesParams, reqEditors ...RequestEditorFn) (*ListK8SClusterVolumesResponse, error) {
+	rsp, err := c.ListK8SClusterVolumes(ctx, clusterID, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListK8SClusterVolumesResponse(rsp)
 }
 
 // ListK8SNodePlansWithResponse request returning *ListK8SNodePlansResponse
@@ -39974,6 +40122,57 @@ func ParseListK8SClusterUpgradesResponse(rsp *http.Response) (*ListK8SClusterUpg
 			TargetVersion *string                                 `json:"target_version,omitempty"`
 			UpgradeMode   *ListK8SClusterUpgrades200UpgradeMode   `json:"upgrade_mode,omitempty"`
 			UpgradeStatus *ListK8SClusterUpgrades200UpgradeStatus `json:"upgrade_status,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest NotFound
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListK8SClusterVolumesResponse parses an HTTP response from a ListK8SClusterVolumesWithResponse call
+func ParseListK8SClusterVolumesResponse(rsp *http.Response) (*ListK8SClusterVolumesResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListK8SClusterVolumesResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			Success *bool `json:"success,omitempty"`
+			Volumes *[]struct {
+				CreatedAt *time.Time `json:"created_at,omitempty"`
+
+				// Name Display name (`<cluster>-<namespace>-<claim>`)
+				Name *string `json:"name,omitempty"`
+
+				// NodeIP Internal IP of the worker it is attached to ("" when detached)
+				NodeIP       *string  `json:"node_ip,omitempty"`
+				PricePerHour *float64 `json:"price_per_hour,omitempty"`
+
+				// PvName Kubernetes PersistentVolume name
+				PvName   *string                                `json:"pv_name,omitempty"`
+				SizeGb   *int                                   `json:"size_gb,omitempty"`
+				Status   *ListK8SClusterVolumes200VolumesStatus `json:"status,omitempty"`
+				VolumeID *int                                   `json:"volume_id,omitempty"`
+			} `json:"volumes,omitempty"`
 		}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
