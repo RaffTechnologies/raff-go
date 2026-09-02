@@ -139,12 +139,25 @@ type AppSourceUpload struct {
 	ExpiresInSeconds int    `json:"expires_in_seconds"`
 }
 
+// App env var scopes. Build-scoped values are passed to the image build, so
+// frameworks that inline configuration at build time (Next.js NEXT_PUBLIC_*,
+// Vite VITE_*, Create React App REACT_APP_*, SvelteKit and Astro PUBLIC_*) can
+// see them. Changing one rebuilds the image rather than restarting replicas.
+const (
+	AppEnvScopeRuntime = "runtime"
+	AppEnvScopeBuild   = "build"
+	AppEnvScopeBoth    = "both"
+)
+
 // AppEnvVar is one environment variable on an app service.
 type AppEnvVar struct {
 	Key      string `json:"key"`
 	Value    string `json:"value"`
 	IsSecret bool   `json:"is_secret"`
 	IsSystem bool   `json:"is_system"`
+	// Scope is runtime, build or both; empty responses predate build scopes
+	// and mean runtime.
+	Scope string `json:"scope,omitempty"`
 }
 
 // SetAppEnvVarRequest sets one environment variable. Redeploy defaults to true
@@ -153,6 +166,9 @@ type SetAppEnvVarRequest struct {
 	Key      string `json:"key"`
 	Value    string `json:"value"`
 	IsSecret bool   `json:"is_secret,omitempty"`
+	// Scope is runtime (default), build or both. Build arguments are
+	// recoverable from image history, so prefer runtime for credentials.
+	Scope    string `json:"scope,omitempty"`
 	Redeploy *bool  `json:"redeploy,omitempty"`
 }
 
