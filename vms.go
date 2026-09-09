@@ -22,6 +22,9 @@ type DeleteVMRequest = spec.DeleteVMRequest
 // RenameVMRequest is the request body for renaming a VM.
 type RenameVMRequest = spec.RenameVMRequest
 
+// SetVMConsolePolicyRequest is the request body for the per-VM console 2FA requirement.
+type SetVMConsolePolicyRequest = spec.SetVMConsolePolicyRequest
+
 // ReinstallVMRequest is the request body for reinstalling a VM.
 type ReinstallVMRequest = spec.ReinstallVMRequest
 
@@ -112,6 +115,7 @@ type VMService interface {
 	Stop(ctx context.Context, vmID string) (*Response, error)
 	Reboot(ctx context.Context, vmID string) (*Response, error)
 	Rename(ctx context.Context, vmID string, req *RenameVMRequest) (*Response, error)
+	SetConsolePolicy(ctx context.Context, vmID string, req *SetVMConsolePolicyRequest) (*Response, error)
 	ResetPassword(ctx context.Context, vmID string) (*Response, error)
 	Reinstall(ctx context.Context, vmID string, req *ReinstallVMRequest) (*Response, error)
 	FactoryReset(ctx context.Context, vmID string) (*Response, error)
@@ -267,6 +271,25 @@ func (s *VMServiceOp) Rename(ctx context.Context, vmID string, req *RenameVMRequ
 		return nil, err
 	}
 	resp, err := s.client.spec.RenameVMWithResponse(ctx, id, &spec.RenameVMParams{XProjectID: projectID}, *req)
+	if err != nil {
+		return nil, err
+	}
+	if resp.StatusCode() >= 400 {
+		return responseFrom(resp.HTTPResponse, 0), errorFromResponse(resp.StatusCode(), resp.Body)
+	}
+	return responseFrom(resp.HTTPResponse, 0), nil
+}
+
+func (s *VMServiceOp) SetConsolePolicy(ctx context.Context, vmID string, req *SetVMConsolePolicyRequest) (*Response, error) {
+	id, err := parseUUID(vmID)
+	if err != nil {
+		return nil, err
+	}
+	projectID, err := s.client.requireProjectID()
+	if err != nil {
+		return nil, err
+	}
+	resp, err := s.client.spec.SetVMConsolePolicyWithResponse(ctx, id, &spec.SetVMConsolePolicyParams{XProjectID: projectID}, *req)
 	if err != nil {
 		return nil, err
 	}

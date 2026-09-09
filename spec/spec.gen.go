@@ -178,6 +178,27 @@ func (e AppDeploymentStatus) Valid() bool {
 	}
 }
 
+// Defines values for AppEnvVarScope.
+const (
+	AppEnvVarScopeBoth    AppEnvVarScope = "both"
+	AppEnvVarScopeBuild   AppEnvVarScope = "build"
+	AppEnvVarScopeRuntime AppEnvVarScope = "runtime"
+)
+
+// Valid indicates whether the value is a known member of the AppEnvVarScope enum.
+func (e AppEnvVarScope) Valid() bool {
+	switch e {
+	case AppEnvVarScopeBoth:
+		return true
+	case AppEnvVarScopeBuild:
+		return true
+	case AppEnvVarScopeRuntime:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for AppJobRunTrigger.
 const (
 	AppJobRunTriggerManual   AppJobRunTrigger = "manual"
@@ -2617,6 +2638,48 @@ func (e ListAppServicesParamsServiceType) Valid() bool {
 	}
 }
 
+// Defines values for SetAppEnvVarJSONBodyScope.
+const (
+	SetAppEnvVarJSONBodyScopeBoth    SetAppEnvVarJSONBodyScope = "both"
+	SetAppEnvVarJSONBodyScopeBuild   SetAppEnvVarJSONBodyScope = "build"
+	SetAppEnvVarJSONBodyScopeRuntime SetAppEnvVarJSONBodyScope = "runtime"
+)
+
+// Valid indicates whether the value is a known member of the SetAppEnvVarJSONBodyScope enum.
+func (e SetAppEnvVarJSONBodyScope) Valid() bool {
+	switch e {
+	case SetAppEnvVarJSONBodyScopeBoth:
+		return true
+	case SetAppEnvVarJSONBodyScopeBuild:
+		return true
+	case SetAppEnvVarJSONBodyScopeRuntime:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for BulkSetAppEnvVarsJSONBodyVarsScope.
+const (
+	Both    BulkSetAppEnvVarsJSONBodyVarsScope = "both"
+	Build   BulkSetAppEnvVarsJSONBodyVarsScope = "build"
+	Runtime BulkSetAppEnvVarsJSONBodyVarsScope = "runtime"
+)
+
+// Valid indicates whether the value is a known member of the BulkSetAppEnvVarsJSONBodyVarsScope enum.
+func (e BulkSetAppEnvVarsJSONBodyVarsScope) Valid() bool {
+	switch e {
+	case Both:
+		return true
+	case Build:
+		return true
+	case Runtime:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for UpdateAppSpendSettingsJSONBodyCapAction.
 const (
 	Pause UpdateAppSpendSettingsJSONBodyCapAction = "pause"
@@ -3326,9 +3389,41 @@ type AppEnvVar struct {
 	IsSystem *bool   `json:"is_system,omitempty"`
 	Key      *string `json:"key,omitempty"`
 
+	// Scope Where the value is injected. `runtime` reaches the running container
+	// only. `build` reaches the image build only. `both` reaches each.
+	//
+	// Frameworks that inline configuration at build time need `build` or
+	// `both` — Next.js `NEXT_PUBLIC_*`, Vite `VITE_*`, Create React App
+	// `REACT_APP_*`, SvelteKit and Astro `PUBLIC_*`. A runtime-only value
+	// is not visible to those builds and ships as an empty string.
+	//
+	// Changing a build-scoped variable rebuilds the image rather than
+	// restarting replicas, so it takes a full build to take effect.
+	//
+	// Build arguments are recoverable from image history for any `ARG` the
+	// Dockerfile declares, so a build-scoped value is not confidential
+	// inside the image. Prefer `runtime` for credentials.
+	Scope *AppEnvVarScope `json:"scope,omitempty"`
+
 	// Value Empty for secrets unless fetched via the reveal endpoint
 	Value *string `json:"value,omitempty"`
 }
+
+// AppEnvVarScope Where the value is injected. `runtime` reaches the running container
+// only. `build` reaches the image build only. `both` reaches each.
+//
+// Frameworks that inline configuration at build time need `build` or
+// `both` — Next.js `NEXT_PUBLIC_*`, Vite `VITE_*`, Create React App
+// `REACT_APP_*`, SvelteKit and Astro `PUBLIC_*`. A runtime-only value
+// is not visible to those builds and ships as an empty string.
+//
+// Changing a build-scoped variable rebuilds the image rather than
+// restarting replicas, so it takes a full build to take effect.
+//
+// Build arguments are recoverable from image history for any `ARG` the
+// Dockerfile declares, so a build-scoped value is not confidential
+// inside the image. Prefer `runtime` for credentials.
+type AppEnvVarScope string
 
 // AppJobRun defines model for AppJobRun.
 type AppJobRun struct {
@@ -5809,6 +5904,12 @@ type SetDatabaseExtensionRequest struct {
 	Name string `json:"name"`
 }
 
+// SetVMConsolePolicyRequest defines model for SetVMConsolePolicyRequest.
+type SetVMConsolePolicyRequest struct {
+	// ConsoleRequireMfa Require a two-factor-verified session to open the web console
+	ConsoleRequireMfa bool `json:"console_require_mfa"`
+}
+
 // Snapshot defines model for Snapshot.
 type Snapshot struct {
 	// AccountID Account that owns the snapshot
@@ -6068,6 +6169,9 @@ type VM struct {
 
 	// BillingType Billing type for this VM
 	BillingType *VMBillingType `json:"billing_type,omitempty"`
+
+	// ConsoleRequireMfa Whether opening the web console requires a two-factor-verified session
+	ConsoleRequireMfa *bool `json:"console_require_mfa,omitempty"`
 
 	// CPU Number of vCPU cores
 	CPU       int       `json:"cpu"`
@@ -6568,18 +6672,28 @@ type SetAppEnvVarJSONBody struct {
 	IsSecret *bool  `json:"is_secret,omitempty"`
 	Key      string `json:"key"`
 	Redeploy *bool  `json:"redeploy,omitempty"`
-	Value    string `json:"value"`
+
+	// Scope Where the value is injected. Use `build` or `both` for values a framework inlines at build time (NEXT_PUBLIC_*, VITE_*, REACT_APP_*, PUBLIC_*); changing one rebuilds the image instead of restarting replicas.
+	Scope *SetAppEnvVarJSONBodyScope `json:"scope,omitempty"`
+	Value string                     `json:"value"`
 }
+
+// SetAppEnvVarJSONBodyScope defines parameters for SetAppEnvVar.
+type SetAppEnvVarJSONBodyScope string
 
 // BulkSetAppEnvVarsJSONBody defines parameters for BulkSetAppEnvVars.
 type BulkSetAppEnvVarsJSONBody struct {
 	Redeploy *bool `json:"redeploy,omitempty"`
 	Vars     []struct {
-		IsSecret *bool  `json:"is_secret,omitempty"`
-		Key      string `json:"key"`
-		Value    string `json:"value"`
+		IsSecret *bool                               `json:"is_secret,omitempty"`
+		Key      string                              `json:"key"`
+		Scope    *BulkSetAppEnvVarsJSONBodyVarsScope `json:"scope,omitempty"`
+		Value    string                              `json:"value"`
 	} `json:"vars"`
 }
+
+// BulkSetAppEnvVarsJSONBodyVarsScope defines parameters for BulkSetAppEnvVars.
+type BulkSetAppEnvVarsJSONBodyVarsScope string
 
 // ListAppLogsParams defines parameters for ListAppLogs.
 type ListAppLogsParams struct {
@@ -6953,7 +7067,7 @@ type UpgradeK8SClusterHAParams struct {
 
 // GetK8SKubeconfigParams defines parameters for GetK8SKubeconfig.
 type GetK8SKubeconfigParams struct {
-	// ExpiresIn Issue a SHORT-LIVED kubeconfig instead of the admin one: a token with this time-to-live in seconds (10 minutes to 30 days). Expired kubeconfigs stop working on their own; [rotate access](#tag/Kubernetes/operation/rotateK8sKubeconfigAccess) invalidates all of them at once.
+	// ExpiresIn Kubeconfig lifetime in seconds (10 minutes to 30 days). Defaults to 7 days when omitted. Expired kubeconfigs stop working on their own.
 	ExpiresIn *int `form:"expires_in,omitempty" json:"expires_in,omitempty"`
 
 	// XProjectID Project ID. Required for all mutating operations (create, delete, power actions, resize).
@@ -7331,6 +7445,12 @@ type DeleteVMParams struct {
 
 // ResetBackupChainParams defines parameters for ResetBackupChain.
 type ResetBackupChainParams struct {
+	// XProjectID Project ID. Required for all mutating operations (create, delete, power actions, resize).
+	XProjectID ProjectIDHeader `json:"X-Project-ID"`
+}
+
+// SetVMConsolePolicyParams defines parameters for SetVMConsolePolicy.
+type SetVMConsolePolicyParams struct {
 	// XProjectID Project ID. Required for all mutating operations (create, delete, power actions, resize).
 	XProjectID ProjectIDHeader `json:"X-Project-ID"`
 }
@@ -7765,6 +7885,9 @@ type DeleteVMsBulkJSONRequestBody = DeleteVMsBulkRequest
 
 // DeleteVMJSONRequestBody defines body for DeleteVM for application/json ContentType.
 type DeleteVMJSONRequestBody = DeleteVMRequest
+
+// SetVMConsolePolicyJSONRequestBody defines body for SetVMConsolePolicy for application/json ContentType.
+type SetVMConsolePolicyJSONRequestBody = SetVMConsolePolicyRequest
 
 // ResizeVMDiskJSONRequestBody defines body for ResizeVMDisk for application/json ContentType.
 type ResizeVMDiskJSONRequestBody = ResizeVMDiskRequest
@@ -8607,6 +8730,11 @@ type ClientInterface interface {
 
 	// ResetBackupChain request
 	ResetBackupChain(ctx context.Context, id openapi_types.UUID, params *ResetBackupChainParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// SetVMConsolePolicyWithBody request with any body
+	SetVMConsolePolicyWithBody(ctx context.Context, id VMIDPath, params *SetVMConsolePolicyParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	SetVMConsolePolicy(ctx context.Context, id VMIDPath, params *SetVMConsolePolicyParams, body SetVMConsolePolicyJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ResizeVMDiskWithBody request with any body
 	ResizeVMDiskWithBody(ctx context.Context, id VMIDPath, params *ResizeVMDiskParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -11848,6 +11976,30 @@ func (c *Client) GetVM(ctx context.Context, id VMIDPath, reqEditors ...RequestEd
 
 func (c *Client) ResetBackupChain(ctx context.Context, id openapi_types.UUID, params *ResetBackupChainParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewResetBackupChainRequest(c.Server, id, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) SetVMConsolePolicyWithBody(ctx context.Context, id VMIDPath, params *SetVMConsolePolicyParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSetVMConsolePolicyRequestWithBody(c.Server, id, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) SetVMConsolePolicy(ctx context.Context, id VMIDPath, params *SetVMConsolePolicyParams, body SetVMConsolePolicyJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSetVMConsolePolicyRequest(c.Server, id, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -22079,6 +22231,66 @@ func NewResetBackupChainRequest(server string, id openapi_types.UUID, params *Re
 	return req, nil
 }
 
+// NewSetVMConsolePolicyRequest calls the generic SetVMConsolePolicy builder with application/json body
+func NewSetVMConsolePolicyRequest(server string, id VMIDPath, params *SetVMConsolePolicyParams, body SetVMConsolePolicyJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewSetVMConsolePolicyRequestWithBody(server, id, params, "application/json", bodyReader)
+}
+
+// NewSetVMConsolePolicyRequestWithBody generates requests for SetVMConsolePolicy with any type of body
+func NewSetVMConsolePolicyRequestWithBody(server string, id VMIDPath, params *SetVMConsolePolicyParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "id", id, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/vms/%s/console-policy", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PATCH", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		var headerParam0 string
+
+		headerParam0, err = runtime.StyleParamWithOptions("simple", false, "X-Project-ID", params.XProjectID, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: "uuid"})
+		if err != nil {
+			return nil, err
+		}
+
+		req.Header.Set("X-Project-ID", headerParam0)
+
+	}
+
+	return req, nil
+}
+
 // NewResizeVMDiskRequest calls the generic ResizeVMDisk builder with application/json body
 func NewResizeVMDiskRequest(server string, id VMIDPath, params *ResizeVMDiskParams, body ResizeVMDiskJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
@@ -25003,6 +25215,11 @@ type ClientWithResponsesInterface interface {
 
 	// ResetBackupChainWithResponse request
 	ResetBackupChainWithResponse(ctx context.Context, id openapi_types.UUID, params *ResetBackupChainParams, reqEditors ...RequestEditorFn) (*ResetBackupChainResponse, error)
+
+	// SetVMConsolePolicyWithBodyWithResponse request with any body
+	SetVMConsolePolicyWithBodyWithResponse(ctx context.Context, id VMIDPath, params *SetVMConsolePolicyParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SetVMConsolePolicyResponse, error)
+
+	SetVMConsolePolicyWithResponse(ctx context.Context, id VMIDPath, params *SetVMConsolePolicyParams, body SetVMConsolePolicyJSONRequestBody, reqEditors ...RequestEditorFn) (*SetVMConsolePolicyResponse, error)
 
 	// ResizeVMDiskWithBodyWithResponse request with any body
 	ResizeVMDiskWithBodyWithResponse(ctx context.Context, id VMIDPath, params *ResizeVMDiskParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ResizeVMDiskResponse, error)
@@ -30576,6 +30793,31 @@ func (r ResetBackupChainResponse) StatusCode() int {
 	return 0
 }
 
+type SetVMConsolePolicyResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *SuccessResponse
+	JSON400      *MissingProjectID
+	JSON401      *Unauthorized
+	JSON404      *NotFound
+}
+
+// Status returns HTTPResponse.Status
+func (r SetVMConsolePolicyResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r SetVMConsolePolicyResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type ResizeVMDiskResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -33854,6 +34096,23 @@ func (c *ClientWithResponses) ResetBackupChainWithResponse(ctx context.Context, 
 		return nil, err
 	}
 	return ParseResetBackupChainResponse(rsp)
+}
+
+// SetVMConsolePolicyWithBodyWithResponse request with arbitrary body returning *SetVMConsolePolicyResponse
+func (c *ClientWithResponses) SetVMConsolePolicyWithBodyWithResponse(ctx context.Context, id VMIDPath, params *SetVMConsolePolicyParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SetVMConsolePolicyResponse, error) {
+	rsp, err := c.SetVMConsolePolicyWithBody(ctx, id, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSetVMConsolePolicyResponse(rsp)
+}
+
+func (c *ClientWithResponses) SetVMConsolePolicyWithResponse(ctx context.Context, id VMIDPath, params *SetVMConsolePolicyParams, body SetVMConsolePolicyJSONRequestBody, reqEditors ...RequestEditorFn) (*SetVMConsolePolicyResponse, error) {
+	rsp, err := c.SetVMConsolePolicy(ctx, id, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSetVMConsolePolicyResponse(rsp)
 }
 
 // ResizeVMDiskWithBodyWithResponse request with arbitrary body returning *ResizeVMDiskResponse
@@ -42469,6 +42728,53 @@ func ParseResetBackupChainResponse(rsp *http.Response) (*ResetBackupChainRespons
 			return nil, err
 		}
 		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest NotFound
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseSetVMConsolePolicyResponse parses an HTTP response from a SetVMConsolePolicyWithResponse call
+func ParseSetVMConsolePolicyResponse(rsp *http.Response) (*SetVMConsolePolicyResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &SetVMConsolePolicyResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest SuccessResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest MissingProjectID
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest Unauthorized
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
 		var dest NotFound
