@@ -5690,7 +5690,6 @@ type ReserveIPRequestType string
 // ResizeBillingDetails Present only for subscription-based resources.
 type ResizeBillingDetails struct {
 	BalanceApplied  *float32 `json:"balance_applied,omitempty"`
-	CreditsApplied  *float32 `json:"credits_applied,omitempty"`
 	NewMonthlyPrice *float32 `json:"new_monthly_price,omitempty"`
 	NewPricePerHour *string  `json:"new_price_per_hour,omitempty"`
 
