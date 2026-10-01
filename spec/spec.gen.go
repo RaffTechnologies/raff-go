@@ -4789,7 +4789,7 @@ type Function struct {
 	TimeoutSeconds *int       `json:"timeout_seconds,omitempty"`
 	UpdatedAt      *time.Time `json:"updated_at,omitempty"`
 
-	// URL `https://{slug}.fn.raffusercloud.com` — HTTPS with automatic TLS
+	// URL `https://{slug}.fn.onraff.com`, HTTPS with automatic TLS
 	URL *string `json:"url,omitempty"`
 }
 
