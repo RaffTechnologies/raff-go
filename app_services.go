@@ -274,11 +274,15 @@ type AppSpendSettings struct {
 	PausedByCap   bool    `json:"paused_by_cap"`
 }
 
-// UpdateAppSpendSettingsRequest saves the account's Apps spend cap.
+// UpdateAppSpendSettingsRequest changes the account's Apps spend cap. Only
+// the fields you set are sent; the others keep their value. MonthlyCapUSD must
+// be at least 1 (to remove the cap, set Enabled to false). CapAction is
+// "notify_only" (email at 75%, 90% and 100%) or "pause" (also pause every
+// pay-as-you-go app at 100%; prepaid apps keep running).
 type UpdateAppSpendSettingsRequest struct {
-	Enabled       bool    `json:"enabled"`
-	MonthlyCapUSD float64 `json:"monthly_cap_usd"`
-	CapAction     string  `json:"cap_action,omitempty"`
+	Enabled       *bool    `json:"enabled,omitempty"`
+	MonthlyCapUSD *float64 `json:"monthly_cap_usd,omitempty"`
+	CapAction     *string  `json:"cap_action,omitempty"`
 }
 
 // AppServiceService handles communication with the Raff Apps endpoints.

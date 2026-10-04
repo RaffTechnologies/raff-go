@@ -348,12 +348,15 @@ func (e AppServiceStatus) Valid() bool {
 
 // Defines values for AppSpendSettingsCapAction.
 const (
-	AppSpendSettingsCapActionPause AppSpendSettingsCapAction = "pause"
+	AppSpendSettingsCapActionNotifyOnly AppSpendSettingsCapAction = "notify_only"
+	AppSpendSettingsCapActionPause      AppSpendSettingsCapAction = "pause"
 )
 
 // Valid indicates whether the value is a known member of the AppSpendSettingsCapAction enum.
 func (e AppSpendSettingsCapAction) Valid() bool {
 	switch e {
+	case AppSpendSettingsCapActionNotifyOnly:
+		return true
 	case AppSpendSettingsCapActionPause:
 		return true
 	default:
@@ -2682,12 +2685,15 @@ func (e BulkSetAppEnvVarsJSONBodyVarsScope) Valid() bool {
 
 // Defines values for UpdateAppSpendSettingsJSONBodyCapAction.
 const (
-	Pause UpdateAppSpendSettingsJSONBodyCapAction = "pause"
+	NotifyOnly UpdateAppSpendSettingsJSONBodyCapAction = "notify_only"
+	Pause      UpdateAppSpendSettingsJSONBodyCapAction = "pause"
 )
 
 // Valid indicates whether the value is a known member of the UpdateAppSpendSettingsJSONBodyCapAction enum.
 func (e UpdateAppSpendSettingsJSONBodyCapAction) Valid() bool {
 	switch e {
+	case NotifyOnly:
+		return true
 	case Pause:
 		return true
 	default:
@@ -3542,7 +3548,9 @@ type AppSpendSettings struct {
 	CapAction     *AppSpendSettingsCapAction `json:"cap_action,omitempty"`
 	Enabled       *bool                      `json:"enabled,omitempty"`
 	MonthlyCapUsd *float32                   `json:"monthly_cap_usd,omitempty"`
-	PausedByCap   *bool                      `json:"paused_by_cap,omitempty"`
+
+	// PausedByCap True while the cap has the account's apps paused.
+	PausedByCap *bool `json:"paused_by_cap,omitempty"`
 }
 
 // AppSpendSettingsCapAction defines model for AppSpendSettings.CapAction.
@@ -6716,9 +6724,14 @@ type RollbackAppServiceJSONBody struct {
 
 // UpdateAppSpendSettingsJSONBody defines parameters for UpdateAppSpendSettings.
 type UpdateAppSpendSettingsJSONBody struct {
-	CapAction     *UpdateAppSpendSettingsJSONBodyCapAction `json:"cap_action,omitempty"`
-	Enabled       bool                                     `json:"enabled"`
-	MonthlyCapUsd float32                                  `json:"monthly_cap_usd"`
+	// CapAction What happens when the cap is reached.
+	CapAction *UpdateAppSpendSettingsJSONBodyCapAction `json:"cap_action,omitempty"`
+
+	// Enabled Turn the cap on or off.
+	Enabled *bool `json:"enabled,omitempty"`
+
+	// MonthlyCapUsd The monthly cap in USD, rounded to cents. To remove the cap, set `enabled` to false.
+	MonthlyCapUsd *float32 `json:"monthly_cap_usd,omitempty"`
 }
 
 // UpdateAppSpendSettingsJSONBodyCapAction defines parameters for UpdateAppSpendSettings.
