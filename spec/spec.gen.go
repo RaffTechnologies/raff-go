@@ -712,6 +712,24 @@ func (e CreateDatabaseRequestRegion) Valid() bool {
 	}
 }
 
+// Defines values for CreateDatabaseUserRequestRole.
+const (
+	Readonly  CreateDatabaseUserRequestRole = "readonly"
+	Readwrite CreateDatabaseUserRequestRole = "readwrite"
+)
+
+// Valid indicates whether the value is a known member of the CreateDatabaseUserRequestRole enum.
+func (e CreateDatabaseUserRequestRole) Valid() bool {
+	switch e {
+	case Readonly:
+		return true
+	case Readwrite:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for CreateFunctionBindingRequestBindingType.
 const (
 	CreateFunctionBindingRequestBindingTypeBucket   CreateFunctionBindingRequestBindingType = "bucket"
@@ -1082,6 +1100,8 @@ const (
 	DatabaseStatusDeploying DatabaseStatus = "deploying"
 	DatabaseStatusFailed    DatabaseStatus = "failed"
 	DatabaseStatusPending   DatabaseStatus = "pending"
+	DatabaseStatusResizing  DatabaseStatus = "resizing"
+	DatabaseStatusRestoring DatabaseStatus = "restoring"
 	DatabaseStatusRunning   DatabaseStatus = "running"
 	DatabaseStatusSuspended DatabaseStatus = "suspended"
 	DatabaseStatusWarning   DatabaseStatus = "warning"
@@ -1099,6 +1119,10 @@ func (e DatabaseStatus) Valid() bool {
 	case DatabaseStatusFailed:
 		return true
 	case DatabaseStatusPending:
+		return true
+	case DatabaseStatusResizing:
+		return true
+	case DatabaseStatusRestoring:
 		return true
 	case DatabaseStatusRunning:
 		return true
@@ -1150,6 +1174,42 @@ func (e DatabaseBackupStatus) Valid() bool {
 	}
 }
 
+// Defines values for DatabaseBrowseResultKind.
+const (
+	Nodes DatabaseBrowseResultKind = "nodes"
+	Rows  DatabaseBrowseResultKind = "rows"
+)
+
+// Valid indicates whether the value is a known member of the DatabaseBrowseResultKind enum.
+func (e DatabaseBrowseResultKind) Valid() bool {
+	switch e {
+	case Nodes:
+		return true
+	case Rows:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for DatabaseConsumerKind.
+const (
+	DatabaseConsumerKindApp      DatabaseConsumerKind = "app"
+	DatabaseConsumerKindFunction DatabaseConsumerKind = "function"
+)
+
+// Valid indicates whether the value is a known member of the DatabaseConsumerKind enum.
+func (e DatabaseConsumerKind) Valid() bool {
+	switch e {
+	case DatabaseConsumerKindApp:
+		return true
+	case DatabaseConsumerKindFunction:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for DatabaseEngine.
 const (
 	Clickhouse DatabaseEngine = "clickhouse"
@@ -1177,6 +1237,27 @@ func (e DatabaseEngine) Valid() bool {
 	}
 }
 
+// Defines values for DatabaseParameterSource.
+const (
+	Engine   DatabaseParameterSource = "engine"
+	Override DatabaseParameterSource = "override"
+	Plan     DatabaseParameterSource = "plan"
+)
+
+// Valid indicates whether the value is a known member of the DatabaseParameterSource enum.
+func (e DatabaseParameterSource) Valid() bool {
+	switch e {
+	case Engine:
+		return true
+	case Override:
+		return true
+	case Plan:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for DatabasePricingPlanRegion.
 const (
 	DatabasePricingPlanRegionUsEast DatabasePricingPlanRegion = "us-east"
@@ -1186,6 +1267,30 @@ const (
 func (e DatabasePricingPlanRegion) Valid() bool {
 	switch e {
 	case DatabasePricingPlanRegionUsEast:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for DatabaseUserKind.
+const (
+	Admin   DatabaseUserKind = "admin"
+	Binding DatabaseUserKind = "binding"
+	Scoped  DatabaseUserKind = "scoped"
+	System  DatabaseUserKind = "system"
+)
+
+// Valid indicates whether the value is a known member of the DatabaseUserKind enum.
+func (e DatabaseUserKind) Valid() bool {
+	switch e {
+	case Admin:
+		return true
+	case Binding:
+		return true
+	case Scoped:
+		return true
+	case System:
 		return true
 	default:
 		return false
@@ -3812,6 +3917,21 @@ type BillingError struct {
 // - `no_billing_customer` — billing has not been set up for this account
 type BillingErrorReason string
 
+// BrowseDatabaseRequest defines model for BrowseDatabaseRequest.
+type BrowseDatabaseRequest struct {
+	// Cursor `next_cursor` from the previous page
+	Cursor *string `json:"cursor,omitempty"`
+
+	// Limit Items or rows per page
+	Limit *int `json:"limit,omitempty"`
+
+	// Match Valkey key pattern
+	Match *string `json:"match,omitempty"`
+
+	// Path `[]`, `[schema]`, or `[schema, table]`; for Valkey `[]` or `[key]`
+	Path *[]string `json:"path,omitempty"`
+}
+
 // BulkDeleteVMItemResult defines model for BulkDeleteVMItemResult.
 type BulkDeleteVMItemResult struct {
 	// Error Error detail if deletion failed.
@@ -4074,6 +4194,16 @@ type CreateDatabaseRequest struct {
 
 // CreateDatabaseRequestRegion Data center region
 type CreateDatabaseRequestRegion string
+
+// CreateDatabaseUserRequest defines model for CreateDatabaseUserRequest.
+type CreateDatabaseUserRequest struct {
+	// Name 3 to 31 characters. Starts with a lowercase letter, then lowercase letters, digits, or underscores.
+	Name string                        `json:"name"`
+	Role CreateDatabaseUserRequestRole `json:"role"`
+}
+
+// CreateDatabaseUserRequestRole defines model for CreateDatabaseUserRequest.Role.
+type CreateDatabaseUserRequestRole string
 
 // CreateFunctionBindingRequest defines model for CreateFunctionBindingRequest.
 type CreateFunctionBindingRequest struct {
@@ -4422,6 +4552,9 @@ type Database struct {
 	// ID Unique database identifier
 	ID *openapi_types.UUID `json:"id,omitempty"`
 
+	// IsFree True for a free-tier database. Free databases pause after 7 days without connections.
+	IsFree *bool `json:"is_free,omitempty"`
+
 	// MonthlyPrice Monthly price in USD
 	MonthlyPrice *float32 `json:"monthly_price,omitempty"`
 
@@ -4446,7 +4579,7 @@ type Database struct {
 	// PublicDNSHostname Public endpoint hostname (empty when public access is off)
 	PublicDNSHostname *string `json:"public_dns_hostname,omitempty"`
 
-	// PublicPort Public port from the reserved range 25060–26060; `0` when public access is off. For PostgreSQL, `public_port` is the pooled endpoint and `public_port + 1` is the direct endpoint.
+	// PublicPort Public port from the reserved range 25060–26060; `0` when public access is off. For PostgreSQL, `public_port` is the pooled endpoint and `public_port + 1` is the direct endpoint. PostgreSQL is also reachable on the standard ports 6543 (pooled) and 5432 (direct) of `public_dns_hostname`.
 	PublicPort *int `json:"public_port,omitempty"`
 
 	// Region Data center region
@@ -4455,7 +4588,7 @@ type Database struct {
 	// ReplicaCount Number of read replicas (PostgreSQL only; always 0 for Valkey)
 	ReplicaCount *int `json:"replica_count,omitempty"`
 
-	// Status Lifecycle status. Creation: `pending` → `deploying` → `running`. `warning` means running with a degraded component; `suspended` means a free-tier database paused for idleness (resume any time — data is kept); `failed` means provisioning or a scale operation failed.
+	// Status Lifecycle status. Creation: `pending` → `deploying` → `running`. `warning` means running with a degraded component. `resizing` and `restoring` mean a scale or in-place restore is in progress. `suspended` means a free-tier database paused for idleness (resume any time, data is kept). `failed` means provisioning or a scale operation failed.
 	Status *DatabaseStatus `json:"status,omitempty"`
 
 	// StatusMessage Human-readable detail for `warning` and `failed` states
@@ -4464,12 +4597,15 @@ type Database struct {
 	// StorageGb Provisioned storage in GB. Storage above the plan's included allotment bills at $0.12/GB/month.
 	StorageGb *int `json:"storage_gb,omitempty"`
 
-	// SubscriptionID Subscription ID if billing_type is subscription
-	SubscriptionID *openapi_types.UUID `json:"subscription_id,omitempty"`
-	UpdatedAt      *time.Time          `json:"updated_at,omitempty"`
+	// SubscriptionID Subscription ID if billing_type is subscription (empty otherwise)
+	SubscriptionID *string `json:"subscription_id,omitempty"`
+
+	// SuspendedAt When a free-tier database was paused for idleness, RFC 3339 (empty when not paused)
+	SuspendedAt *string    `json:"suspended_at,omitempty"`
+	UpdatedAt   *time.Time `json:"updated_at,omitempty"`
 
 	// VpcID VPC the private endpoint is attached to (empty if not yet connected)
-	VpcID *openapi_types.UUID `json:"vpc_id,omitempty"`
+	VpcID *string `json:"vpc_id,omitempty"`
 }
 
 // DatabaseBillingType Billing type for this database
@@ -4478,27 +4614,35 @@ type DatabaseBillingType string
 // DatabaseRegion Data center region
 type DatabaseRegion string
 
-// DatabaseStatus Lifecycle status. Creation: `pending` → `deploying` → `running`. `warning` means running with a degraded component; `suspended` means a free-tier database paused for idleness (resume any time — data is kept); `failed` means provisioning or a scale operation failed.
+// DatabaseStatus Lifecycle status. Creation: `pending` → `deploying` → `running`. `warning` means running with a degraded component. `resizing` and `restoring` mean a scale or in-place restore is in progress. `suspended` means a free-tier database paused for idleness (resume any time, data is kept). `failed` means provisioning or a scale operation failed.
 type DatabaseStatus string
 
 // DatabaseBackup defines model for DatabaseBackup.
 type DatabaseBackup struct {
-	// BackupTimestamp Consistency point of the backup
-	BackupTimestamp *time.Time `json:"backup_timestamp,omitempty"`
+	// BackupTimestamp Consistency point of the backup, RFC 3339 (empty while running)
+	BackupTimestamp *string `json:"backup_timestamp,omitempty"`
 
 	// BackupType `base` = nightly automatic backup; `on_demand` = manually requested
-	BackupType  *DatabaseBackupBackupType `json:"backup_type,omitempty"`
-	CompletedAt *time.Time                `json:"completed_at,omitempty"`
-	CreatedAt   *time.Time                `json:"created_at,omitempty"`
+	BackupType *DatabaseBackupBackupType `json:"backup_type,omitempty"`
+
+	// CompletedAt RFC 3339 (empty while running)
+	CompletedAt *string    `json:"completed_at,omitempty"`
+	CreatedAt   *time.Time `json:"created_at,omitempty"`
 
 	// DatabaseID Database this backup belongs to
 	DatabaseID *openapi_types.UUID `json:"database_id,omitempty"`
 
-	// ExpiresAt When the backup leaves retention
-	ExpiresAt *time.Time `json:"expires_at,omitempty"`
+	// ExpiresAt When the backup leaves retention, RFC 3339 (empty when not set)
+	ExpiresAt *string `json:"expires_at,omitempty"`
 
 	// ID Backup identifier — use as `backup_id` when restoring
 	ID *openapi_types.UUID `json:"id,omitempty"`
+
+	// Restorable Whether this backup can be used as `backup_id` for a restore. Backups from before the last in-place restore are kept for reference but cannot be restored.
+	Restorable *bool `json:"restorable,omitempty"`
+
+	// RestoreWindowStart RFC 3339. Earliest point in time a PostgreSQL restore can target (the same on every backup in the list). Empty when unknown.
+	RestoreWindowStart *string `json:"restore_window_start,omitempty"`
 
 	// S3Path Object storage location of the backup artifact
 	S3Path *string `json:"s3_path,omitempty"`
@@ -4516,9 +4660,49 @@ type DatabaseBackupBackupType string
 // DatabaseBackupStatus Only `completed` backups are restorable
 type DatabaseBackupStatus string
 
+// DatabaseBrowseResult defines model for DatabaseBrowseResult.
+type DatabaseBrowseResult struct {
+	Columns *[]string                 `json:"columns,omitempty"`
+	Kind    *DatabaseBrowseResultKind `json:"kind,omitempty"`
+
+	// Meta Valkey key type and TTL
+	Meta *map[string]string `json:"meta,omitempty"`
+
+	// NextCursor Pass as `cursor` for the next page; empty on the last page
+	NextCursor *string `json:"next_cursor,omitempty"`
+	Nodes      *[]struct {
+		// Detail Short extra detail, for example a row estimate
+		Detail *string `json:"detail,omitempty"`
+
+		// Kind `schema`, `table`, `view`, `matview`, or a Valkey key type
+		Kind *string `json:"kind,omitempty"`
+		Name *string `json:"name,omitempty"`
+	} `json:"nodes,omitempty"`
+	Rows *[]DatabaseRow `json:"rows,omitempty"`
+}
+
+// DatabaseBrowseResultKind defines model for DatabaseBrowseResult.Kind.
+type DatabaseBrowseResultKind string
+
+// DatabaseClientTraffic defines model for DatabaseClientTraffic.
+type DatabaseClientTraffic struct {
+	Points *[]struct {
+		Errors     *int       `json:"errors,omitempty"`
+		Ops        *int       `json:"ops,omitempty"`
+		RecordedAt *time.Time `json:"recorded_at,omitempty"`
+		Warnings   *int       `json:"warnings,omitempty"`
+	} `json:"points,omitempty"`
+	TotalErrors   *int `json:"total_errors,omitempty"`
+	TotalOps      *int `json:"total_ops,omitempty"`
+	TotalWarnings *int `json:"total_warnings,omitempty"`
+
+	// User Database user
+	User *string `json:"user,omitempty"`
+}
+
 // DatabaseConnection defines model for DatabaseConnection.
 type DatabaseConnection struct {
-	// CaCert PEM CA bundle your client must trust, for engines whose certificates come from a private CA (currently Kafka). Empty for other engines.
+	// CaCert PEM CA that signs the database's certificate. Kafka clients must trust it; for PostgreSQL, use it with `sslmode=verify-full`.
 	CaCert *string `json:"ca_cert,omitempty"`
 
 	// ConnectionURI Ready-to-use connection URI (includes the password only when revealed)
@@ -4536,16 +4720,38 @@ type DatabaseConnection struct {
 	// Port Endpoint port
 	Port *int `json:"port,omitempty"`
 
+	// PublicConnectionURI Ready-to-use URI for the public endpoint (includes the password only when revealed). Empty while public access is off.
+	PublicConnectionURI *string `json:"public_connection_uri,omitempty"`
+
+	// PublicHost Public hostname. Empty while public access is off.
+	PublicHost *string `json:"public_host,omitempty"`
+
+	// PublicPort Public port. PostgreSQL uses the standard direct port 5432 (routed by the hostname your client sends in TLS); ClickHouse uses its native TLS port; other engines use `public_port` of the database.
+	PublicPort *int `json:"public_port,omitempty"`
+
 	// Username Database user
 	Username *string `json:"username,omitempty"`
 }
+
+// DatabaseConsumer defines model for DatabaseConsumer.
+type DatabaseConsumer struct {
+	BindingStatus *string               `json:"binding_status,omitempty"`
+	ID            *string               `json:"id,omitempty"`
+	Kind          *DatabaseConsumerKind `json:"kind,omitempty"`
+	Name          *string               `json:"name,omitempty"`
+	ServiceType   *string               `json:"service_type,omitempty"`
+	Status        *string               `json:"status,omitempty"`
+}
+
+// DatabaseConsumerKind defines model for DatabaseConsumer.Kind.
+type DatabaseConsumerKind string
 
 // DatabaseEngine Database engine identifier. Defaults to `postgres` on create; the live catalog (including availability and versions) is `GET /api/v1/databases/engines`.
 type DatabaseEngine string
 
 // DatabaseEngineInfo defines model for DatabaseEngineInfo.
 type DatabaseEngineInfo struct {
-	// Available Whether this engine can be created. MySQL is listed but not yet available.
+	// Available Whether this engine can be created
 	Available   *bool   `json:"available,omitempty"`
 	DisplayName *string `json:"display_name,omitempty"`
 
@@ -4603,8 +4809,8 @@ type DatabaseMetrics struct {
 	// MemUsedBytes Memory in use, bytes
 	MemUsedBytes *int `json:"mem_used_bytes,omitempty"`
 
-	// MetricsUpdatedAt When this snapshot was taken
-	MetricsUpdatedAt *time.Time `json:"metrics_updated_at,omitempty"`
+	// MetricsUpdatedAt When this snapshot was taken, RFC 3339 (empty before the first sample)
+	MetricsUpdatedAt *string `json:"metrics_updated_at,omitempty"`
 
 	// ReplicationLagBytes Standby/replica lag in bytes (0 without HA or replicas)
 	ReplicationLagBytes *int `json:"replication_lag_bytes,omitempty"`
@@ -4630,6 +4836,18 @@ type DatabaseMetricsPoint struct {
 	StorageCapacityBytes  *int       `json:"storage_capacity_bytes,omitempty"`
 	StorageUsedBytes      *int       `json:"storage_used_bytes,omitempty"`
 }
+
+// DatabaseParameter defines model for DatabaseParameter.
+type DatabaseParameter struct {
+	DefaultValue *string                  `json:"default_value,omitempty"`
+	Name         *string                  `json:"name,omitempty"`
+	Source       *DatabaseParameterSource `json:"source,omitempty"`
+	Unit         *string                  `json:"unit,omitempty"`
+	Value        *string                  `json:"value,omitempty"`
+}
+
+// DatabaseParameterSource defines model for DatabaseParameter.Source.
+type DatabaseParameterSource string
 
 // DatabasePricingPlan defines model for DatabasePricingPlan.
 type DatabasePricingPlan struct {
@@ -4683,6 +4901,23 @@ type DatabasePublicAccessRequest struct {
 	Enabled bool `json:"enabled"`
 }
 
+// DatabaseQueryResult defines model for DatabaseQueryResult.
+type DatabaseQueryResult struct {
+	Columns *[]string `json:"columns,omitempty"`
+
+	// Command Engine command tag, for example `SELECT 10` or `INSERT 0 1`
+	Command    *string        `json:"command,omitempty"`
+	DurationMs *float32       `json:"duration_ms,omitempty"`
+	Notices    *[]string      `json:"notices,omitempty"`
+	Rows       *[]DatabaseRow `json:"rows,omitempty"`
+
+	// RowsAffected Rows changed by a write
+	RowsAffected *int `json:"rows_affected,omitempty"`
+
+	// Truncated More rows existed than `max_rows`
+	Truncated *bool `json:"truncated,omitempty"`
+}
+
 // DatabaseReplicaPricing Read replica pricing for one engine.
 type DatabaseReplicaPricing struct {
 	// Engine Database engine identifier. Defaults to `postgres` on create; the live catalog (including availability and versions) is `GET /api/v1/databases/engines`.
@@ -4693,6 +4928,23 @@ type DatabaseReplicaPricing struct {
 
 	// PricePerMonth Monthly price per read replica in USD
 	PricePerMonth *float32 `json:"price_per_month,omitempty"`
+}
+
+// DatabaseRow defines model for DatabaseRow.
+type DatabaseRow struct {
+	// Cells Values in column order, as text
+	Cells *[]string `json:"cells,omitempty"`
+
+	// Nulls `true` where the value is SQL NULL
+	Nulls *[]bool `json:"nulls,omitempty"`
+}
+
+// DatabaseSavedQuery defines model for DatabaseSavedQuery.
+type DatabaseSavedQuery struct {
+	CreatedBy *string    `json:"created_by,omitempty"`
+	Name      *string    `json:"name,omitempty"`
+	Statement *string    `json:"statement,omitempty"`
+	UpdatedAt *time.Time `json:"updated_at,omitempty"`
 }
 
 // DatabaseSlowQuery One slow-query entry. PostgreSQL rows are `pg_stat_statements` aggregates per normalized query; Valkey rows are individual slow commands from `SLOWLOG` (`calls` is 1, `rows` is not applicable).
@@ -4727,6 +4979,22 @@ type DatabaseStoragePricing struct {
 	// PricePerGbMonth Price per GB per month in USD
 	PricePerGbMonth *float32 `json:"price_per_gb_month,omitempty"`
 }
+
+// DatabaseUser defines model for DatabaseUser.
+type DatabaseUser struct {
+	// Kind `admin` = created with the database; `scoped` = added by you; `binding` = managed by Raff for an app or function; `system` = engine internal
+	Kind *DatabaseUserKind `json:"kind,omitempty"`
+	Name *string           `json:"name,omitempty"`
+
+	// Role What the user can do, in the engine's terms
+	Role *string `json:"role,omitempty"`
+
+	// Scope The database, schema, or keyspace the access applies to
+	Scope *string `json:"scope,omitempty"`
+}
+
+// DatabaseUserKind `admin` = created with the database; `scoped` = added by you; `binding` = managed by Raff for an app or function; `system` = engine internal
+type DatabaseUserKind string
 
 // DeleteVMRequest defines model for DeleteVMRequest.
 type DeleteVMRequest struct {
@@ -5782,16 +6050,19 @@ type ResizeVolumeRequest struct {
 	NewSize int `json:"new_size"`
 }
 
-// RestoreDatabaseRequest defines model for RestoreDatabaseRequest.
+// RestoreDatabaseRequest Set exactly one of `clone_to_new` or `in_place` to `true`.
 type RestoreDatabaseRequest struct {
 	// BackupID Restore from this completed backup. Omit to use `pitr_timestamp` or the latest state.
 	BackupID *openapi_types.UUID `json:"backup_id,omitempty"`
 
-	// CloneToNew Must be `true` — restores always create a new database; in-place restore is not supported
-	CloneToNew bool `json:"clone_to_new"`
+	// CloneToNew Restore into a new database
+	CloneToNew *bool `json:"clone_to_new,omitempty"`
 
 	// HaEnabled Enable high availability on the new database (+70% of the plan price). Never inherited from the source.
 	HaEnabled *bool `json:"ha_enabled,omitempty"`
+
+	// InPlace Restore over this database. Data written after the restore point is lost.
+	InPlace *bool `json:"in_place,omitempty"`
 
 	// NewName Name for the new database. Defaults to `{source-name}-restored`; auto-suffixed (`-2`, `-3`, …) if taken.
 	NewName *string `json:"new_name,omitempty"`
@@ -5824,6 +6095,18 @@ type Role struct {
 
 // RoleScope Whether the role grants account-level or project-level permissions
 type RoleScope string
+
+// RunDatabaseQueryRequest defines model for RunDatabaseQueryRequest.
+type RunDatabaseQueryRequest struct {
+	// MaxRows Most rows to return (ceiling 5,000)
+	MaxRows *int `json:"max_rows,omitempty"`
+
+	// ReadOnly Refuse writes. Set `false` to run statements that change data or schema.
+	ReadOnly *bool `json:"read_only,omitempty"`
+
+	// Statement One SQL statement, or one Valkey command
+	Statement string `json:"statement"`
+}
 
 // SSHKey defines model for SSHKey.
 type SSHKey struct {
@@ -6634,6 +6917,9 @@ type AppServiceRef = string
 // DatabaseIDPath defines model for DatabaseIDPath.
 type DatabaseIDPath = string
 
+// DatabaseUserNamePath defines model for DatabaseUserNamePath.
+type DatabaseUserNamePath = string
+
 // FunctionRef defines model for FunctionRef.
 type FunctionRef = string
 
@@ -6888,6 +7174,12 @@ type RestoreBackupParams struct {
 	XProjectID ProjectIDHeader `json:"X-Project-ID"`
 }
 
+// ListDatabasesParams defines parameters for ListDatabases.
+type ListDatabasesParams struct {
+	// XProjectID Optional project ID to scope the list. Omit to list across all accessible projects.
+	XProjectID *openapi_types.UUID `json:"X-Project-ID,omitempty"`
+}
+
 // CreateDatabaseParams defines parameters for CreateDatabase.
 type CreateDatabaseParams struct {
 	// XProjectID Project ID. Required for all mutating operations (create, delete, power actions, resize).
@@ -6912,10 +7204,22 @@ type GetDatabaseLogsParams struct {
 	Tail *int `form:"tail,omitempty" json:"tail,omitempty"`
 }
 
+// GetDatabaseClientTrafficParams defines parameters for GetDatabaseClientTraffic.
+type GetDatabaseClientTrafficParams struct {
+	// WindowHours History window in hours
+	WindowHours *int `form:"window_hours,omitempty" json:"window_hours,omitempty"`
+}
+
 // GetDatabaseMetricsHistoryParams defines parameters for GetDatabaseMetricsHistory.
 type GetDatabaseMetricsHistoryParams struct {
 	// WindowHours History window in hours
 	WindowHours *int `form:"window_hours,omitempty" json:"window_hours,omitempty"`
+}
+
+// SaveDatabaseSavedQueryJSONBody defines parameters for SaveDatabaseSavedQuery.
+type SaveDatabaseSavedQueryJSONBody struct {
+	Name      string `json:"name"`
+	Statement string `json:"statement"`
 }
 
 // GetDatabaseSlowQueriesParams defines parameters for GetDatabaseSlowQueries.
@@ -7829,6 +8133,12 @@ type CreateDatabaseJSONRequestBody = CreateDatabaseRequest
 // UpdateDatabaseJSONRequestBody defines body for UpdateDatabase for application/json ContentType.
 type UpdateDatabaseJSONRequestBody = UpdateDatabaseRequest
 
+// BrowseDatabaseJSONRequestBody defines body for BrowseDatabase for application/json ContentType.
+type BrowseDatabaseJSONRequestBody = BrowseDatabaseRequest
+
+// RunDatabaseQueryJSONRequestBody defines body for RunDatabaseQuery for application/json ContentType.
+type RunDatabaseQueryJSONRequestBody = RunDatabaseQueryRequest
+
 // SetDatabaseExtensionJSONRequestBody defines body for SetDatabaseExtension for application/json ContentType.
 type SetDatabaseExtensionJSONRequestBody = SetDatabaseExtensionRequest
 
@@ -7838,8 +8148,14 @@ type SetDatabasePublicAccessJSONRequestBody = DatabasePublicAccessRequest
 // RestoreDatabaseJSONRequestBody defines body for RestoreDatabase for application/json ContentType.
 type RestoreDatabaseJSONRequestBody = RestoreDatabaseRequest
 
+// SaveDatabaseSavedQueryJSONRequestBody defines body for SaveDatabaseSavedQuery for application/json ContentType.
+type SaveDatabaseSavedQueryJSONRequestBody SaveDatabaseSavedQueryJSONBody
+
 // ScaleDatabaseJSONRequestBody defines body for ScaleDatabase for application/json ContentType.
 type ScaleDatabaseJSONRequestBody = ScaleDatabaseRequest
+
+// CreateDatabaseUserJSONRequestBody defines body for CreateDatabaseUser for application/json ContentType.
+type CreateDatabaseUserJSONRequestBody = CreateDatabaseUserRequest
 
 // ConnectDatabaseVPCJSONRequestBody defines body for ConnectDatabaseVPC for application/json ContentType.
 type ConnectDatabaseVPCJSONRequestBody = ConnectDatabaseVPCRequest
@@ -8262,7 +8578,7 @@ type ClientInterface interface {
 	RestoreBackup(ctx context.Context, id openapi_types.UUID, params *RestoreBackupParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListDatabases request
-	ListDatabases(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+	ListDatabases(ctx context.Context, params *ListDatabasesParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// CreateDatabaseWithBody request with any body
 	CreateDatabaseWithBody(ctx context.Context, params *CreateDatabaseParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -8292,8 +8608,21 @@ type ClientInterface interface {
 	// CreateDatabaseBackup request
 	CreateDatabaseBackup(ctx context.Context, databaseID DatabaseIDPath, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// BrowseDatabaseWithBody request with any body
+	BrowseDatabaseWithBody(ctx context.Context, databaseID DatabaseIDPath, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	BrowseDatabase(ctx context.Context, databaseID DatabaseIDPath, body BrowseDatabaseJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// GetDatabaseConnection request
 	GetDatabaseConnection(ctx context.Context, databaseID DatabaseIDPath, params *GetDatabaseConnectionParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// RunDatabaseQueryWithBody request with any body
+	RunDatabaseQueryWithBody(ctx context.Context, databaseID DatabaseIDPath, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	RunDatabaseQuery(ctx context.Context, databaseID DatabaseIDPath, body RunDatabaseQueryJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ListDatabaseConsumers request
+	ListDatabaseConsumers(ctx context.Context, databaseID DatabaseIDPath, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// RotateDatabaseCredentials request
 	RotateDatabaseCredentials(ctx context.Context, databaseID DatabaseIDPath, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -8312,8 +8641,14 @@ type ClientInterface interface {
 	// GetDatabaseMetrics request
 	GetDatabaseMetrics(ctx context.Context, databaseID DatabaseIDPath, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// GetDatabaseClientTraffic request
+	GetDatabaseClientTraffic(ctx context.Context, databaseID DatabaseIDPath, params *GetDatabaseClientTrafficParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// GetDatabaseMetricsHistory request
 	GetDatabaseMetricsHistory(ctx context.Context, databaseID DatabaseIDPath, params *GetDatabaseMetricsHistoryParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ListDatabaseParameters request
+	ListDatabaseParameters(ctx context.Context, databaseID DatabaseIDPath, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// SetDatabasePublicAccessWithBody request with any body
 	SetDatabasePublicAccessWithBody(ctx context.Context, databaseID DatabaseIDPath, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -8326,7 +8661,18 @@ type ClientInterface interface {
 	RestoreDatabase(ctx context.Context, databaseID DatabaseIDPath, body RestoreDatabaseJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ResumeDatabase request
-	ResumeDatabase(ctx context.Context, databaseID string, reqEditors ...RequestEditorFn) (*http.Response, error)
+	ResumeDatabase(ctx context.Context, databaseID DatabaseIDPath, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ListDatabaseSavedQueries request
+	ListDatabaseSavedQueries(ctx context.Context, databaseID DatabaseIDPath, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// SaveDatabaseSavedQueryWithBody request with any body
+	SaveDatabaseSavedQueryWithBody(ctx context.Context, databaseID DatabaseIDPath, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	SaveDatabaseSavedQuery(ctx context.Context, databaseID DatabaseIDPath, body SaveDatabaseSavedQueryJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DeleteDatabaseSavedQuery request
+	DeleteDatabaseSavedQuery(ctx context.Context, databaseID DatabaseIDPath, name string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ScaleDatabaseWithBody request with any body
 	ScaleDatabaseWithBody(ctx context.Context, databaseID DatabaseIDPath, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -8335,6 +8681,26 @@ type ClientInterface interface {
 
 	// GetDatabaseSlowQueries request
 	GetDatabaseSlowQueries(ctx context.Context, databaseID DatabaseIDPath, params *GetDatabaseSlowQueriesParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ListDatabaseUsers request
+	ListDatabaseUsers(ctx context.Context, databaseID DatabaseIDPath, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateDatabaseUserWithBody request with any body
+	CreateDatabaseUserWithBody(ctx context.Context, databaseID DatabaseIDPath, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreateDatabaseUser(ctx context.Context, databaseID DatabaseIDPath, body CreateDatabaseUserJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DeleteDatabaseUser request
+	DeleteDatabaseUser(ctx context.Context, databaseID DatabaseIDPath, name DatabaseUserNamePath, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetDatabaseUserCredential request
+	GetDatabaseUserCredential(ctx context.Context, databaseID DatabaseIDPath, name DatabaseUserNamePath, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// RotateDatabaseUser request
+	RotateDatabaseUser(ctx context.Context, databaseID DatabaseIDPath, name DatabaseUserNamePath, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DisconnectDatabaseVPC request
+	DisconnectDatabaseVPC(ctx context.Context, databaseID DatabaseIDPath, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ConnectDatabaseVPCWithBody request with any body
 	ConnectDatabaseVPCWithBody(ctx context.Context, databaseID DatabaseIDPath, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -9697,8 +10063,8 @@ func (c *Client) RestoreBackup(ctx context.Context, id openapi_types.UUID, param
 	return c.Client.Do(req)
 }
 
-func (c *Client) ListDatabases(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewListDatabasesRequest(c.Server)
+func (c *Client) ListDatabases(ctx context.Context, params *ListDatabasesParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListDatabasesRequest(c.Server, params)
 	if err != nil {
 		return nil, err
 	}
@@ -9829,8 +10195,68 @@ func (c *Client) CreateDatabaseBackup(ctx context.Context, databaseID DatabaseID
 	return c.Client.Do(req)
 }
 
+func (c *Client) BrowseDatabaseWithBody(ctx context.Context, databaseID DatabaseIDPath, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewBrowseDatabaseRequestWithBody(c.Server, databaseID, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) BrowseDatabase(ctx context.Context, databaseID DatabaseIDPath, body BrowseDatabaseJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewBrowseDatabaseRequest(c.Server, databaseID, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) GetDatabaseConnection(ctx context.Context, databaseID DatabaseIDPath, params *GetDatabaseConnectionParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetDatabaseConnectionRequest(c.Server, databaseID, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) RunDatabaseQueryWithBody(ctx context.Context, databaseID DatabaseIDPath, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRunDatabaseQueryRequestWithBody(c.Server, databaseID, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) RunDatabaseQuery(ctx context.Context, databaseID DatabaseIDPath, body RunDatabaseQueryJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRunDatabaseQueryRequest(c.Server, databaseID, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ListDatabaseConsumers(ctx context.Context, databaseID DatabaseIDPath, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListDatabaseConsumersRequest(c.Server, databaseID)
 	if err != nil {
 		return nil, err
 	}
@@ -9913,8 +10339,32 @@ func (c *Client) GetDatabaseMetrics(ctx context.Context, databaseID DatabaseIDPa
 	return c.Client.Do(req)
 }
 
+func (c *Client) GetDatabaseClientTraffic(ctx context.Context, databaseID DatabaseIDPath, params *GetDatabaseClientTrafficParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetDatabaseClientTrafficRequest(c.Server, databaseID, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) GetDatabaseMetricsHistory(ctx context.Context, databaseID DatabaseIDPath, params *GetDatabaseMetricsHistoryParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetDatabaseMetricsHistoryRequest(c.Server, databaseID, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ListDatabaseParameters(ctx context.Context, databaseID DatabaseIDPath, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListDatabaseParametersRequest(c.Server, databaseID)
 	if err != nil {
 		return nil, err
 	}
@@ -9973,8 +10423,56 @@ func (c *Client) RestoreDatabase(ctx context.Context, databaseID DatabaseIDPath,
 	return c.Client.Do(req)
 }
 
-func (c *Client) ResumeDatabase(ctx context.Context, databaseID string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+func (c *Client) ResumeDatabase(ctx context.Context, databaseID DatabaseIDPath, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewResumeDatabaseRequest(c.Server, databaseID)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ListDatabaseSavedQueries(ctx context.Context, databaseID DatabaseIDPath, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListDatabaseSavedQueriesRequest(c.Server, databaseID)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) SaveDatabaseSavedQueryWithBody(ctx context.Context, databaseID DatabaseIDPath, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSaveDatabaseSavedQueryRequestWithBody(c.Server, databaseID, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) SaveDatabaseSavedQuery(ctx context.Context, databaseID DatabaseIDPath, body SaveDatabaseSavedQueryJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSaveDatabaseSavedQueryRequest(c.Server, databaseID, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DeleteDatabaseSavedQuery(ctx context.Context, databaseID DatabaseIDPath, name string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteDatabaseSavedQueryRequest(c.Server, databaseID, name)
 	if err != nil {
 		return nil, err
 	}
@@ -10011,6 +10509,90 @@ func (c *Client) ScaleDatabase(ctx context.Context, databaseID DatabaseIDPath, b
 
 func (c *Client) GetDatabaseSlowQueries(ctx context.Context, databaseID DatabaseIDPath, params *GetDatabaseSlowQueriesParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetDatabaseSlowQueriesRequest(c.Server, databaseID, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ListDatabaseUsers(ctx context.Context, databaseID DatabaseIDPath, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListDatabaseUsersRequest(c.Server, databaseID)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateDatabaseUserWithBody(ctx context.Context, databaseID DatabaseIDPath, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateDatabaseUserRequestWithBody(c.Server, databaseID, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateDatabaseUser(ctx context.Context, databaseID DatabaseIDPath, body CreateDatabaseUserJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateDatabaseUserRequest(c.Server, databaseID, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DeleteDatabaseUser(ctx context.Context, databaseID DatabaseIDPath, name DatabaseUserNamePath, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteDatabaseUserRequest(c.Server, databaseID, name)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetDatabaseUserCredential(ctx context.Context, databaseID DatabaseIDPath, name DatabaseUserNamePath, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetDatabaseUserCredentialRequest(c.Server, databaseID, name)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) RotateDatabaseUser(ctx context.Context, databaseID DatabaseIDPath, name DatabaseUserNamePath, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRotateDatabaseUserRequest(c.Server, databaseID, name)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DisconnectDatabaseVPC(ctx context.Context, databaseID DatabaseIDPath, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDisconnectDatabaseVPCRequest(c.Server, databaseID)
 	if err != nil {
 		return nil, err
 	}
@@ -15060,7 +15642,7 @@ func NewRestoreBackupRequest(server string, id openapi_types.UUID, params *Resto
 }
 
 // NewListDatabasesRequest generates requests for ListDatabases
-func NewListDatabasesRequest(server string) (*http.Request, error) {
+func NewListDatabasesRequest(server string, params *ListDatabasesParams) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -15081,6 +15663,21 @@ func NewListDatabasesRequest(server string) (*http.Request, error) {
 	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
+	}
+
+	if params != nil {
+
+		if params.XProjectID != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithOptions("simple", false, "X-Project-ID", *params.XProjectID, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: "uuid"})
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Project-ID", headerParam0)
+		}
+
 	}
 
 	return req, nil
@@ -15398,6 +15995,53 @@ func NewCreateDatabaseBackupRequest(server string, databaseID DatabaseIDPath) (*
 	return req, nil
 }
 
+// NewBrowseDatabaseRequest calls the generic BrowseDatabase builder with application/json body
+func NewBrowseDatabaseRequest(server string, databaseID DatabaseIDPath, body BrowseDatabaseJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewBrowseDatabaseRequestWithBody(server, databaseID, "application/json", bodyReader)
+}
+
+// NewBrowseDatabaseRequestWithBody generates requests for BrowseDatabase with any type of body
+func NewBrowseDatabaseRequestWithBody(server string, databaseID DatabaseIDPath, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "database_id", databaseID, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/databases/%s/browse", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 // NewGetDatabaseConnectionRequest generates requests for GetDatabaseConnection
 func NewGetDatabaseConnectionRequest(server string, databaseID DatabaseIDPath, params *GetDatabaseConnectionParams) (*http.Request, error) {
 	var err error
@@ -15444,6 +16088,87 @@ func NewGetDatabaseConnectionRequest(server string, databaseID DatabaseIDPath, p
 		}
 
 		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewRunDatabaseQueryRequest calls the generic RunDatabaseQuery builder with application/json body
+func NewRunDatabaseQueryRequest(server string, databaseID DatabaseIDPath, body RunDatabaseQueryJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewRunDatabaseQueryRequestWithBody(server, databaseID, "application/json", bodyReader)
+}
+
+// NewRunDatabaseQueryRequestWithBody generates requests for RunDatabaseQuery with any type of body
+func NewRunDatabaseQueryRequestWithBody(server string, databaseID DatabaseIDPath, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "database_id", databaseID, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/databases/%s/console", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewListDatabaseConsumersRequest generates requests for ListDatabaseConsumers
+func NewListDatabaseConsumersRequest(server string, databaseID DatabaseIDPath) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "database_id", databaseID, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/databases/%s/consumers", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
 	}
 
 	req, err := http.NewRequest("GET", queryURL.String(), nil)
@@ -15659,6 +16384,62 @@ func NewGetDatabaseMetricsRequest(server string, databaseID DatabaseIDPath) (*ht
 	return req, nil
 }
 
+// NewGetDatabaseClientTrafficRequest generates requests for GetDatabaseClientTraffic
+func NewGetDatabaseClientTrafficRequest(server string, databaseID DatabaseIDPath, params *GetDatabaseClientTrafficParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "database_id", databaseID, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/databases/%s/metrics/clients", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.WindowHours != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "window_hours", *params.WindowHours, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: ""}); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewGetDatabaseMetricsHistoryRequest generates requests for GetDatabaseMetricsHistory
 func NewGetDatabaseMetricsHistoryRequest(server string, databaseID DatabaseIDPath, params *GetDatabaseMetricsHistoryParams) (*http.Request, error) {
 	var err error
@@ -15705,6 +16486,40 @@ func NewGetDatabaseMetricsHistoryRequest(server string, databaseID DatabaseIDPat
 		}
 
 		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewListDatabaseParametersRequest generates requests for ListDatabaseParameters
+func NewListDatabaseParametersRequest(server string, databaseID DatabaseIDPath) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "database_id", databaseID, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/databases/%s/parameters", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
 	}
 
 	req, err := http.NewRequest("GET", queryURL.String(), nil)
@@ -15810,7 +16625,7 @@ func NewRestoreDatabaseRequestWithBody(server string, databaseID DatabaseIDPath,
 }
 
 // NewResumeDatabaseRequest generates requests for ResumeDatabase
-func NewResumeDatabaseRequest(server string, databaseID string) (*http.Request, error) {
+func NewResumeDatabaseRequest(server string, databaseID DatabaseIDPath) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -15836,6 +16651,128 @@ func NewResumeDatabaseRequest(server string, databaseID string) (*http.Request, 
 	}
 
 	req, err := http.NewRequest("POST", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewListDatabaseSavedQueriesRequest generates requests for ListDatabaseSavedQueries
+func NewListDatabaseSavedQueriesRequest(server string, databaseID DatabaseIDPath) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "database_id", databaseID, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/databases/%s/saved-queries", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewSaveDatabaseSavedQueryRequest calls the generic SaveDatabaseSavedQuery builder with application/json body
+func NewSaveDatabaseSavedQueryRequest(server string, databaseID DatabaseIDPath, body SaveDatabaseSavedQueryJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewSaveDatabaseSavedQueryRequestWithBody(server, databaseID, "application/json", bodyReader)
+}
+
+// NewSaveDatabaseSavedQueryRequestWithBody generates requests for SaveDatabaseSavedQuery with any type of body
+func NewSaveDatabaseSavedQueryRequestWithBody(server string, databaseID DatabaseIDPath, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "database_id", databaseID, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/databases/%s/saved-queries", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PUT", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewDeleteDatabaseSavedQueryRequest generates requests for DeleteDatabaseSavedQuery
+func NewDeleteDatabaseSavedQueryRequest(server string, databaseID DatabaseIDPath, name string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "database_id", databaseID, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "name", name, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/databases/%s/saved-queries/%s", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("DELETE", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -15939,6 +16876,244 @@ func NewGetDatabaseSlowQueriesRequest(server string, databaseID DatabaseIDPath, 
 	}
 
 	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewListDatabaseUsersRequest generates requests for ListDatabaseUsers
+func NewListDatabaseUsersRequest(server string, databaseID DatabaseIDPath) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "database_id", databaseID, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/databases/%s/users", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewCreateDatabaseUserRequest calls the generic CreateDatabaseUser builder with application/json body
+func NewCreateDatabaseUserRequest(server string, databaseID DatabaseIDPath, body CreateDatabaseUserJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateDatabaseUserRequestWithBody(server, databaseID, "application/json", bodyReader)
+}
+
+// NewCreateDatabaseUserRequestWithBody generates requests for CreateDatabaseUser with any type of body
+func NewCreateDatabaseUserRequestWithBody(server string, databaseID DatabaseIDPath, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "database_id", databaseID, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/databases/%s/users", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewDeleteDatabaseUserRequest generates requests for DeleteDatabaseUser
+func NewDeleteDatabaseUserRequest(server string, databaseID DatabaseIDPath, name DatabaseUserNamePath) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "database_id", databaseID, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "name", name, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/databases/%s/users/%s", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("DELETE", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetDatabaseUserCredentialRequest generates requests for GetDatabaseUserCredential
+func NewGetDatabaseUserCredentialRequest(server string, databaseID DatabaseIDPath, name DatabaseUserNamePath) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "database_id", databaseID, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "name", name, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/databases/%s/users/%s/credential", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewRotateDatabaseUserRequest generates requests for RotateDatabaseUser
+func NewRotateDatabaseUserRequest(server string, databaseID DatabaseIDPath, name DatabaseUserNamePath) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "database_id", databaseID, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "name", name, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/databases/%s/users/%s/rotate", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewDisconnectDatabaseVPCRequest generates requests for DisconnectDatabaseVPC
+func NewDisconnectDatabaseVPCRequest(server string, databaseID DatabaseIDPath) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "database_id", databaseID, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/databases/%s/vpc", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("DELETE", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -24747,7 +25922,7 @@ type ClientWithResponsesInterface interface {
 	RestoreBackupWithResponse(ctx context.Context, id openapi_types.UUID, params *RestoreBackupParams, reqEditors ...RequestEditorFn) (*RestoreBackupResponse, error)
 
 	// ListDatabasesWithResponse request
-	ListDatabasesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListDatabasesResponse, error)
+	ListDatabasesWithResponse(ctx context.Context, params *ListDatabasesParams, reqEditors ...RequestEditorFn) (*ListDatabasesResponse, error)
 
 	// CreateDatabaseWithBodyWithResponse request with any body
 	CreateDatabaseWithBodyWithResponse(ctx context.Context, params *CreateDatabaseParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateDatabaseResponse, error)
@@ -24777,8 +25952,21 @@ type ClientWithResponsesInterface interface {
 	// CreateDatabaseBackupWithResponse request
 	CreateDatabaseBackupWithResponse(ctx context.Context, databaseID DatabaseIDPath, reqEditors ...RequestEditorFn) (*CreateDatabaseBackupResponse, error)
 
+	// BrowseDatabaseWithBodyWithResponse request with any body
+	BrowseDatabaseWithBodyWithResponse(ctx context.Context, databaseID DatabaseIDPath, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*BrowseDatabaseResponse, error)
+
+	BrowseDatabaseWithResponse(ctx context.Context, databaseID DatabaseIDPath, body BrowseDatabaseJSONRequestBody, reqEditors ...RequestEditorFn) (*BrowseDatabaseResponse, error)
+
 	// GetDatabaseConnectionWithResponse request
 	GetDatabaseConnectionWithResponse(ctx context.Context, databaseID DatabaseIDPath, params *GetDatabaseConnectionParams, reqEditors ...RequestEditorFn) (*GetDatabaseConnectionResponse, error)
+
+	// RunDatabaseQueryWithBodyWithResponse request with any body
+	RunDatabaseQueryWithBodyWithResponse(ctx context.Context, databaseID DatabaseIDPath, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RunDatabaseQueryResponse, error)
+
+	RunDatabaseQueryWithResponse(ctx context.Context, databaseID DatabaseIDPath, body RunDatabaseQueryJSONRequestBody, reqEditors ...RequestEditorFn) (*RunDatabaseQueryResponse, error)
+
+	// ListDatabaseConsumersWithResponse request
+	ListDatabaseConsumersWithResponse(ctx context.Context, databaseID DatabaseIDPath, reqEditors ...RequestEditorFn) (*ListDatabaseConsumersResponse, error)
 
 	// RotateDatabaseCredentialsWithResponse request
 	RotateDatabaseCredentialsWithResponse(ctx context.Context, databaseID DatabaseIDPath, reqEditors ...RequestEditorFn) (*RotateDatabaseCredentialsResponse, error)
@@ -24797,8 +25985,14 @@ type ClientWithResponsesInterface interface {
 	// GetDatabaseMetricsWithResponse request
 	GetDatabaseMetricsWithResponse(ctx context.Context, databaseID DatabaseIDPath, reqEditors ...RequestEditorFn) (*GetDatabaseMetricsResponse, error)
 
+	// GetDatabaseClientTrafficWithResponse request
+	GetDatabaseClientTrafficWithResponse(ctx context.Context, databaseID DatabaseIDPath, params *GetDatabaseClientTrafficParams, reqEditors ...RequestEditorFn) (*GetDatabaseClientTrafficResponse, error)
+
 	// GetDatabaseMetricsHistoryWithResponse request
 	GetDatabaseMetricsHistoryWithResponse(ctx context.Context, databaseID DatabaseIDPath, params *GetDatabaseMetricsHistoryParams, reqEditors ...RequestEditorFn) (*GetDatabaseMetricsHistoryResponse, error)
+
+	// ListDatabaseParametersWithResponse request
+	ListDatabaseParametersWithResponse(ctx context.Context, databaseID DatabaseIDPath, reqEditors ...RequestEditorFn) (*ListDatabaseParametersResponse, error)
 
 	// SetDatabasePublicAccessWithBodyWithResponse request with any body
 	SetDatabasePublicAccessWithBodyWithResponse(ctx context.Context, databaseID DatabaseIDPath, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SetDatabasePublicAccessResponse, error)
@@ -24811,7 +26005,18 @@ type ClientWithResponsesInterface interface {
 	RestoreDatabaseWithResponse(ctx context.Context, databaseID DatabaseIDPath, body RestoreDatabaseJSONRequestBody, reqEditors ...RequestEditorFn) (*RestoreDatabaseResponse, error)
 
 	// ResumeDatabaseWithResponse request
-	ResumeDatabaseWithResponse(ctx context.Context, databaseID string, reqEditors ...RequestEditorFn) (*ResumeDatabaseResponse, error)
+	ResumeDatabaseWithResponse(ctx context.Context, databaseID DatabaseIDPath, reqEditors ...RequestEditorFn) (*ResumeDatabaseResponse, error)
+
+	// ListDatabaseSavedQueriesWithResponse request
+	ListDatabaseSavedQueriesWithResponse(ctx context.Context, databaseID DatabaseIDPath, reqEditors ...RequestEditorFn) (*ListDatabaseSavedQueriesResponse, error)
+
+	// SaveDatabaseSavedQueryWithBodyWithResponse request with any body
+	SaveDatabaseSavedQueryWithBodyWithResponse(ctx context.Context, databaseID DatabaseIDPath, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SaveDatabaseSavedQueryResponse, error)
+
+	SaveDatabaseSavedQueryWithResponse(ctx context.Context, databaseID DatabaseIDPath, body SaveDatabaseSavedQueryJSONRequestBody, reqEditors ...RequestEditorFn) (*SaveDatabaseSavedQueryResponse, error)
+
+	// DeleteDatabaseSavedQueryWithResponse request
+	DeleteDatabaseSavedQueryWithResponse(ctx context.Context, databaseID DatabaseIDPath, name string, reqEditors ...RequestEditorFn) (*DeleteDatabaseSavedQueryResponse, error)
 
 	// ScaleDatabaseWithBodyWithResponse request with any body
 	ScaleDatabaseWithBodyWithResponse(ctx context.Context, databaseID DatabaseIDPath, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ScaleDatabaseResponse, error)
@@ -24820,6 +26025,26 @@ type ClientWithResponsesInterface interface {
 
 	// GetDatabaseSlowQueriesWithResponse request
 	GetDatabaseSlowQueriesWithResponse(ctx context.Context, databaseID DatabaseIDPath, params *GetDatabaseSlowQueriesParams, reqEditors ...RequestEditorFn) (*GetDatabaseSlowQueriesResponse, error)
+
+	// ListDatabaseUsersWithResponse request
+	ListDatabaseUsersWithResponse(ctx context.Context, databaseID DatabaseIDPath, reqEditors ...RequestEditorFn) (*ListDatabaseUsersResponse, error)
+
+	// CreateDatabaseUserWithBodyWithResponse request with any body
+	CreateDatabaseUserWithBodyWithResponse(ctx context.Context, databaseID DatabaseIDPath, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateDatabaseUserResponse, error)
+
+	CreateDatabaseUserWithResponse(ctx context.Context, databaseID DatabaseIDPath, body CreateDatabaseUserJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateDatabaseUserResponse, error)
+
+	// DeleteDatabaseUserWithResponse request
+	DeleteDatabaseUserWithResponse(ctx context.Context, databaseID DatabaseIDPath, name DatabaseUserNamePath, reqEditors ...RequestEditorFn) (*DeleteDatabaseUserResponse, error)
+
+	// GetDatabaseUserCredentialWithResponse request
+	GetDatabaseUserCredentialWithResponse(ctx context.Context, databaseID DatabaseIDPath, name DatabaseUserNamePath, reqEditors ...RequestEditorFn) (*GetDatabaseUserCredentialResponse, error)
+
+	// RotateDatabaseUserWithResponse request
+	RotateDatabaseUserWithResponse(ctx context.Context, databaseID DatabaseIDPath, name DatabaseUserNamePath, reqEditors ...RequestEditorFn) (*RotateDatabaseUserResponse, error)
+
+	// DisconnectDatabaseVPCWithResponse request
+	DisconnectDatabaseVPCWithResponse(ctx context.Context, databaseID DatabaseIDPath, reqEditors ...RequestEditorFn) (*DisconnectDatabaseVPCResponse, error)
 
 	// ConnectDatabaseVPCWithBodyWithResponse request with any body
 	ConnectDatabaseVPCWithBodyWithResponse(ctx context.Context, databaseID DatabaseIDPath, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ConnectDatabaseVPCResponse, error)
@@ -26983,11 +28208,56 @@ func (r CreateDatabaseBackupResponse) StatusCode() int {
 	return 0
 }
 
+type BrowseDatabaseResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		Columns *[]string              `json:"columns,omitempty"`
+		Kind    *BrowseDatabase200Kind `json:"kind,omitempty"`
+
+		// Meta Valkey key type and TTL
+		Meta *map[string]string `json:"meta,omitempty"`
+
+		// NextCursor Pass as `cursor` for the next page; empty on the last page
+		NextCursor *string `json:"next_cursor,omitempty"`
+		Nodes      *[]struct {
+			// Detail Short extra detail, for example a row estimate
+			Detail *string `json:"detail,omitempty"`
+
+			// Kind `schema`, `table`, `view`, `matview`, or a Valkey key type
+			Kind *string `json:"kind,omitempty"`
+			Name *string `json:"name,omitempty"`
+		} `json:"nodes,omitempty"`
+		Rows    *[]DatabaseRow `json:"rows,omitempty"`
+		Success *bool          `json:"success,omitempty"`
+	}
+	JSON400 *BadRequest
+	JSON401 *Unauthorized
+	JSON404 *NotFound
+}
+type BrowseDatabase200Kind string
+
+// Status returns HTTPResponse.Status
+func (r BrowseDatabaseResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r BrowseDatabaseResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type GetDatabaseConnectionResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON200      *struct {
-		// CaCert PEM CA bundle your client must trust, for engines whose certificates come from a private CA (currently Kafka). Empty for other engines.
+		// CaCert PEM CA that signs the database's certificate. Kafka clients must trust it; for PostgreSQL, use it with `sslmode=verify-full`.
 		CaCert *string `json:"ca_cert,omitempty"`
 
 		// ConnectionURI Ready-to-use connection URI (includes the password only when revealed)
@@ -27003,8 +28273,17 @@ type GetDatabaseConnectionResponse struct {
 		Password *string `json:"password,omitempty"`
 
 		// Port Endpoint port
-		Port    *int  `json:"port,omitempty"`
-		Success *bool `json:"success,omitempty"`
+		Port *int `json:"port,omitempty"`
+
+		// PublicConnectionURI Ready-to-use URI for the public endpoint (includes the password only when revealed). Empty while public access is off.
+		PublicConnectionURI *string `json:"public_connection_uri,omitempty"`
+
+		// PublicHost Public hostname. Empty while public access is off.
+		PublicHost *string `json:"public_host,omitempty"`
+
+		// PublicPort Public port. PostgreSQL uses the standard direct port 5432 (routed by the hostname your client sends in TLS); ClickHouse uses its native TLS port; other engines use `public_port` of the database.
+		PublicPort *int  `json:"public_port,omitempty"`
+		Success    *bool `json:"success,omitempty"`
 
 		// Username Database user
 		Username *string `json:"username,omitempty"`
@@ -27023,6 +28302,73 @@ func (r GetDatabaseConnectionResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r GetDatabaseConnectionResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type RunDatabaseQueryResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		Columns *[]string `json:"columns,omitempty"`
+
+		// Command Engine command tag, for example `SELECT 10` or `INSERT 0 1`
+		Command    *string        `json:"command,omitempty"`
+		DurationMs *float32       `json:"duration_ms,omitempty"`
+		Notices    *[]string      `json:"notices,omitempty"`
+		Rows       *[]DatabaseRow `json:"rows,omitempty"`
+
+		// RowsAffected Rows changed by a write
+		RowsAffected *int  `json:"rows_affected,omitempty"`
+		Success      *bool `json:"success,omitempty"`
+
+		// Truncated More rows existed than `max_rows`
+		Truncated *bool `json:"truncated,omitempty"`
+	}
+	JSON400 *BadRequest
+	JSON401 *Unauthorized
+	JSON404 *NotFound
+}
+
+// Status returns HTTPResponse.Status
+func (r RunDatabaseQueryResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r RunDatabaseQueryResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type ListDatabaseConsumersResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		Consumers *[]DatabaseConsumer `json:"consumers,omitempty"`
+		Success   *bool               `json:"success,omitempty"`
+	}
+	JSON401 *Unauthorized
+	JSON404 *NotFound
+}
+
+// Status returns HTTPResponse.Status
+func (r ListDatabaseConsumersResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListDatabaseConsumersResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -27157,8 +28503,8 @@ type GetDatabaseMetricsResponse struct {
 		// MemUsedBytes Memory in use, bytes
 		MemUsedBytes *int `json:"mem_used_bytes,omitempty"`
 
-		// MetricsUpdatedAt When this snapshot was taken
-		MetricsUpdatedAt *time.Time `json:"metrics_updated_at,omitempty"`
+		// MetricsUpdatedAt When this snapshot was taken, RFC 3339 (empty before the first sample)
+		MetricsUpdatedAt *string `json:"metrics_updated_at,omitempty"`
 
 		// ReplicationLagBytes Standby/replica lag in bytes (0 without HA or replicas)
 		ReplicationLagBytes *int `json:"replication_lag_bytes,omitempty"`
@@ -27190,6 +28536,35 @@ func (r GetDatabaseMetricsResponse) StatusCode() int {
 	return 0
 }
 
+type GetDatabaseClientTrafficResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		// BucketSeconds Seconds each point covers
+		BucketSeconds *int                     `json:"bucket_seconds,omitempty"`
+		Clients       *[]DatabaseClientTraffic `json:"clients,omitempty"`
+		Success       *bool                    `json:"success,omitempty"`
+	}
+	JSON401 *Unauthorized
+	JSON404 *NotFound
+}
+
+// Status returns HTTPResponse.Status
+func (r GetDatabaseClientTrafficResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetDatabaseClientTrafficResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type GetDatabaseMetricsHistoryResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -27213,6 +28588,33 @@ func (r GetDatabaseMetricsHistoryResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r GetDatabaseMetricsHistoryResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type ListDatabaseParametersResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		Parameters *[]DatabaseParameter `json:"parameters,omitempty"`
+		Success    *bool                `json:"success,omitempty"`
+	}
+	JSON401 *Unauthorized
+	JSON404 *NotFound
+}
+
+// Status returns HTTPResponse.Status
+func (r ListDatabaseParametersResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListDatabaseParametersResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -27252,7 +28654,7 @@ type RestoreDatabaseResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON200      *struct {
-		// NewDatabaseID Short ID of the new database being created
+		// NewDatabaseID Short ID of the new database being created (empty for an in-place restore)
 		NewDatabaseID *string `json:"new_database_id,omitempty"`
 		Success       *bool   `json:"success,omitempty"`
 	}
@@ -27283,7 +28685,11 @@ type ResumeDatabaseResponse struct {
 	JSON200      *struct {
 		// Database A managed database instance. The private endpoint `{database_id}.db.raffusercloud.com` lives inside the attached VPC; public access is optional. TLS is always required.
 		Database *Database `json:"database,omitempty"`
+		Success  *bool     `json:"success,omitempty"`
 	}
+	JSON400 *BadRequest
+	JSON401 *Unauthorized
+	JSON404 *NotFound
 }
 
 // Status returns HTTPResponse.Status
@@ -27296,6 +28702,85 @@ func (r ResumeDatabaseResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r ResumeDatabaseResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type ListDatabaseSavedQueriesResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		Queries *[]DatabaseSavedQuery `json:"queries,omitempty"`
+		Success *bool                 `json:"success,omitempty"`
+	}
+	JSON401 *Unauthorized
+	JSON404 *NotFound
+}
+
+// Status returns HTTPResponse.Status
+func (r ListDatabaseSavedQueriesResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListDatabaseSavedQueriesResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type SaveDatabaseSavedQueryResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		Query   *DatabaseSavedQuery `json:"query,omitempty"`
+		Success *bool               `json:"success,omitempty"`
+	}
+	JSON400 *BadRequest
+	JSON401 *Unauthorized
+	JSON404 *NotFound
+}
+
+// Status returns HTTPResponse.Status
+func (r SaveDatabaseSavedQueryResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r SaveDatabaseSavedQueryResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type DeleteDatabaseSavedQueryResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *SuccessResponse
+	JSON401      *Unauthorized
+	JSON404      *NotFound
+}
+
+// Status returns HTTPResponse.Status
+func (r DeleteDatabaseSavedQueryResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeleteDatabaseSavedQueryResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -27354,6 +28839,173 @@ func (r GetDatabaseSlowQueriesResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r GetDatabaseSlowQueriesResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type ListDatabaseUsersResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		Success *bool           `json:"success,omitempty"`
+		Users   *[]DatabaseUser `json:"users,omitempty"`
+	}
+	JSON401 *Unauthorized
+	JSON404 *NotFound
+}
+
+// Status returns HTTPResponse.Status
+func (r ListDatabaseUsersResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListDatabaseUsersResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type CreateDatabaseUserResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON201      *struct {
+		// Password The new user's password
+		Password *string       `json:"password,omitempty"`
+		Success  *bool         `json:"success,omitempty"`
+		User     *DatabaseUser `json:"user,omitempty"`
+	}
+	JSON400 *BadRequest
+	JSON401 *Unauthorized
+	JSON404 *NotFound
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateDatabaseUserResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateDatabaseUserResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type DeleteDatabaseUserResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *SuccessResponse
+	JSON400      *BadRequest
+	JSON401      *Unauthorized
+	JSON404      *NotFound
+}
+
+// Status returns HTTPResponse.Status
+func (r DeleteDatabaseUserResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeleteDatabaseUserResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetDatabaseUserCredentialResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		Password *string `json:"password,omitempty"`
+		Success  *bool   `json:"success,omitempty"`
+		Username *string `json:"username,omitempty"`
+	}
+	JSON401 *Unauthorized
+	JSON404 *NotFound
+}
+
+// Status returns HTTPResponse.Status
+func (r GetDatabaseUserCredentialResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetDatabaseUserCredentialResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type RotateDatabaseUserResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		Password *string `json:"password,omitempty"`
+		Success  *bool   `json:"success,omitempty"`
+	}
+	JSON400 *BadRequest
+	JSON401 *Unauthorized
+	JSON404 *NotFound
+}
+
+// Status returns HTTPResponse.Status
+func (r RotateDatabaseUserResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r RotateDatabaseUserResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type DisconnectDatabaseVPCResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		// Database A managed database instance. The private endpoint `{database_id}.db.raffusercloud.com` lives inside the attached VPC; public access is optional. TLS is always required.
+		Database *Database `json:"database,omitempty"`
+		Success  *bool     `json:"success,omitempty"`
+	}
+	JSON400 *BadRequest
+	JSON401 *Unauthorized
+	JSON404 *NotFound
+}
+
+// Status returns HTTPResponse.Status
+func (r DisconnectDatabaseVPCResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DisconnectDatabaseVPCResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -32449,8 +34101,8 @@ func (c *ClientWithResponses) RestoreBackupWithResponse(ctx context.Context, id 
 }
 
 // ListDatabasesWithResponse request returning *ListDatabasesResponse
-func (c *ClientWithResponses) ListDatabasesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListDatabasesResponse, error) {
-	rsp, err := c.ListDatabases(ctx, reqEditors...)
+func (c *ClientWithResponses) ListDatabasesWithResponse(ctx context.Context, params *ListDatabasesParams, reqEditors ...RequestEditorFn) (*ListDatabasesResponse, error) {
+	rsp, err := c.ListDatabases(ctx, params, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -32545,6 +34197,23 @@ func (c *ClientWithResponses) CreateDatabaseBackupWithResponse(ctx context.Conte
 	return ParseCreateDatabaseBackupResponse(rsp)
 }
 
+// BrowseDatabaseWithBodyWithResponse request with arbitrary body returning *BrowseDatabaseResponse
+func (c *ClientWithResponses) BrowseDatabaseWithBodyWithResponse(ctx context.Context, databaseID DatabaseIDPath, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*BrowseDatabaseResponse, error) {
+	rsp, err := c.BrowseDatabaseWithBody(ctx, databaseID, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseBrowseDatabaseResponse(rsp)
+}
+
+func (c *ClientWithResponses) BrowseDatabaseWithResponse(ctx context.Context, databaseID DatabaseIDPath, body BrowseDatabaseJSONRequestBody, reqEditors ...RequestEditorFn) (*BrowseDatabaseResponse, error) {
+	rsp, err := c.BrowseDatabase(ctx, databaseID, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseBrowseDatabaseResponse(rsp)
+}
+
 // GetDatabaseConnectionWithResponse request returning *GetDatabaseConnectionResponse
 func (c *ClientWithResponses) GetDatabaseConnectionWithResponse(ctx context.Context, databaseID DatabaseIDPath, params *GetDatabaseConnectionParams, reqEditors ...RequestEditorFn) (*GetDatabaseConnectionResponse, error) {
 	rsp, err := c.GetDatabaseConnection(ctx, databaseID, params, reqEditors...)
@@ -32552,6 +34221,32 @@ func (c *ClientWithResponses) GetDatabaseConnectionWithResponse(ctx context.Cont
 		return nil, err
 	}
 	return ParseGetDatabaseConnectionResponse(rsp)
+}
+
+// RunDatabaseQueryWithBodyWithResponse request with arbitrary body returning *RunDatabaseQueryResponse
+func (c *ClientWithResponses) RunDatabaseQueryWithBodyWithResponse(ctx context.Context, databaseID DatabaseIDPath, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RunDatabaseQueryResponse, error) {
+	rsp, err := c.RunDatabaseQueryWithBody(ctx, databaseID, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRunDatabaseQueryResponse(rsp)
+}
+
+func (c *ClientWithResponses) RunDatabaseQueryWithResponse(ctx context.Context, databaseID DatabaseIDPath, body RunDatabaseQueryJSONRequestBody, reqEditors ...RequestEditorFn) (*RunDatabaseQueryResponse, error) {
+	rsp, err := c.RunDatabaseQuery(ctx, databaseID, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRunDatabaseQueryResponse(rsp)
+}
+
+// ListDatabaseConsumersWithResponse request returning *ListDatabaseConsumersResponse
+func (c *ClientWithResponses) ListDatabaseConsumersWithResponse(ctx context.Context, databaseID DatabaseIDPath, reqEditors ...RequestEditorFn) (*ListDatabaseConsumersResponse, error) {
+	rsp, err := c.ListDatabaseConsumers(ctx, databaseID, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListDatabaseConsumersResponse(rsp)
 }
 
 // RotateDatabaseCredentialsWithResponse request returning *RotateDatabaseCredentialsResponse
@@ -32607,6 +34302,15 @@ func (c *ClientWithResponses) GetDatabaseMetricsWithResponse(ctx context.Context
 	return ParseGetDatabaseMetricsResponse(rsp)
 }
 
+// GetDatabaseClientTrafficWithResponse request returning *GetDatabaseClientTrafficResponse
+func (c *ClientWithResponses) GetDatabaseClientTrafficWithResponse(ctx context.Context, databaseID DatabaseIDPath, params *GetDatabaseClientTrafficParams, reqEditors ...RequestEditorFn) (*GetDatabaseClientTrafficResponse, error) {
+	rsp, err := c.GetDatabaseClientTraffic(ctx, databaseID, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetDatabaseClientTrafficResponse(rsp)
+}
+
 // GetDatabaseMetricsHistoryWithResponse request returning *GetDatabaseMetricsHistoryResponse
 func (c *ClientWithResponses) GetDatabaseMetricsHistoryWithResponse(ctx context.Context, databaseID DatabaseIDPath, params *GetDatabaseMetricsHistoryParams, reqEditors ...RequestEditorFn) (*GetDatabaseMetricsHistoryResponse, error) {
 	rsp, err := c.GetDatabaseMetricsHistory(ctx, databaseID, params, reqEditors...)
@@ -32614,6 +34318,15 @@ func (c *ClientWithResponses) GetDatabaseMetricsHistoryWithResponse(ctx context.
 		return nil, err
 	}
 	return ParseGetDatabaseMetricsHistoryResponse(rsp)
+}
+
+// ListDatabaseParametersWithResponse request returning *ListDatabaseParametersResponse
+func (c *ClientWithResponses) ListDatabaseParametersWithResponse(ctx context.Context, databaseID DatabaseIDPath, reqEditors ...RequestEditorFn) (*ListDatabaseParametersResponse, error) {
+	rsp, err := c.ListDatabaseParameters(ctx, databaseID, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListDatabaseParametersResponse(rsp)
 }
 
 // SetDatabasePublicAccessWithBodyWithResponse request with arbitrary body returning *SetDatabasePublicAccessResponse
@@ -32651,12 +34364,47 @@ func (c *ClientWithResponses) RestoreDatabaseWithResponse(ctx context.Context, d
 }
 
 // ResumeDatabaseWithResponse request returning *ResumeDatabaseResponse
-func (c *ClientWithResponses) ResumeDatabaseWithResponse(ctx context.Context, databaseID string, reqEditors ...RequestEditorFn) (*ResumeDatabaseResponse, error) {
+func (c *ClientWithResponses) ResumeDatabaseWithResponse(ctx context.Context, databaseID DatabaseIDPath, reqEditors ...RequestEditorFn) (*ResumeDatabaseResponse, error) {
 	rsp, err := c.ResumeDatabase(ctx, databaseID, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
 	return ParseResumeDatabaseResponse(rsp)
+}
+
+// ListDatabaseSavedQueriesWithResponse request returning *ListDatabaseSavedQueriesResponse
+func (c *ClientWithResponses) ListDatabaseSavedQueriesWithResponse(ctx context.Context, databaseID DatabaseIDPath, reqEditors ...RequestEditorFn) (*ListDatabaseSavedQueriesResponse, error) {
+	rsp, err := c.ListDatabaseSavedQueries(ctx, databaseID, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListDatabaseSavedQueriesResponse(rsp)
+}
+
+// SaveDatabaseSavedQueryWithBodyWithResponse request with arbitrary body returning *SaveDatabaseSavedQueryResponse
+func (c *ClientWithResponses) SaveDatabaseSavedQueryWithBodyWithResponse(ctx context.Context, databaseID DatabaseIDPath, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SaveDatabaseSavedQueryResponse, error) {
+	rsp, err := c.SaveDatabaseSavedQueryWithBody(ctx, databaseID, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSaveDatabaseSavedQueryResponse(rsp)
+}
+
+func (c *ClientWithResponses) SaveDatabaseSavedQueryWithResponse(ctx context.Context, databaseID DatabaseIDPath, body SaveDatabaseSavedQueryJSONRequestBody, reqEditors ...RequestEditorFn) (*SaveDatabaseSavedQueryResponse, error) {
+	rsp, err := c.SaveDatabaseSavedQuery(ctx, databaseID, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSaveDatabaseSavedQueryResponse(rsp)
+}
+
+// DeleteDatabaseSavedQueryWithResponse request returning *DeleteDatabaseSavedQueryResponse
+func (c *ClientWithResponses) DeleteDatabaseSavedQueryWithResponse(ctx context.Context, databaseID DatabaseIDPath, name string, reqEditors ...RequestEditorFn) (*DeleteDatabaseSavedQueryResponse, error) {
+	rsp, err := c.DeleteDatabaseSavedQuery(ctx, databaseID, name, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeleteDatabaseSavedQueryResponse(rsp)
 }
 
 // ScaleDatabaseWithBodyWithResponse request with arbitrary body returning *ScaleDatabaseResponse
@@ -32683,6 +34431,68 @@ func (c *ClientWithResponses) GetDatabaseSlowQueriesWithResponse(ctx context.Con
 		return nil, err
 	}
 	return ParseGetDatabaseSlowQueriesResponse(rsp)
+}
+
+// ListDatabaseUsersWithResponse request returning *ListDatabaseUsersResponse
+func (c *ClientWithResponses) ListDatabaseUsersWithResponse(ctx context.Context, databaseID DatabaseIDPath, reqEditors ...RequestEditorFn) (*ListDatabaseUsersResponse, error) {
+	rsp, err := c.ListDatabaseUsers(ctx, databaseID, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListDatabaseUsersResponse(rsp)
+}
+
+// CreateDatabaseUserWithBodyWithResponse request with arbitrary body returning *CreateDatabaseUserResponse
+func (c *ClientWithResponses) CreateDatabaseUserWithBodyWithResponse(ctx context.Context, databaseID DatabaseIDPath, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateDatabaseUserResponse, error) {
+	rsp, err := c.CreateDatabaseUserWithBody(ctx, databaseID, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateDatabaseUserResponse(rsp)
+}
+
+func (c *ClientWithResponses) CreateDatabaseUserWithResponse(ctx context.Context, databaseID DatabaseIDPath, body CreateDatabaseUserJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateDatabaseUserResponse, error) {
+	rsp, err := c.CreateDatabaseUser(ctx, databaseID, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateDatabaseUserResponse(rsp)
+}
+
+// DeleteDatabaseUserWithResponse request returning *DeleteDatabaseUserResponse
+func (c *ClientWithResponses) DeleteDatabaseUserWithResponse(ctx context.Context, databaseID DatabaseIDPath, name DatabaseUserNamePath, reqEditors ...RequestEditorFn) (*DeleteDatabaseUserResponse, error) {
+	rsp, err := c.DeleteDatabaseUser(ctx, databaseID, name, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeleteDatabaseUserResponse(rsp)
+}
+
+// GetDatabaseUserCredentialWithResponse request returning *GetDatabaseUserCredentialResponse
+func (c *ClientWithResponses) GetDatabaseUserCredentialWithResponse(ctx context.Context, databaseID DatabaseIDPath, name DatabaseUserNamePath, reqEditors ...RequestEditorFn) (*GetDatabaseUserCredentialResponse, error) {
+	rsp, err := c.GetDatabaseUserCredential(ctx, databaseID, name, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetDatabaseUserCredentialResponse(rsp)
+}
+
+// RotateDatabaseUserWithResponse request returning *RotateDatabaseUserResponse
+func (c *ClientWithResponses) RotateDatabaseUserWithResponse(ctx context.Context, databaseID DatabaseIDPath, name DatabaseUserNamePath, reqEditors ...RequestEditorFn) (*RotateDatabaseUserResponse, error) {
+	rsp, err := c.RotateDatabaseUser(ctx, databaseID, name, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRotateDatabaseUserResponse(rsp)
+}
+
+// DisconnectDatabaseVPCWithResponse request returning *DisconnectDatabaseVPCResponse
+func (c *ClientWithResponses) DisconnectDatabaseVPCWithResponse(ctx context.Context, databaseID DatabaseIDPath, reqEditors ...RequestEditorFn) (*DisconnectDatabaseVPCResponse, error) {
+	rsp, err := c.DisconnectDatabaseVPC(ctx, databaseID, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDisconnectDatabaseVPCResponse(rsp)
 }
 
 // ConnectDatabaseVPCWithBodyWithResponse request with arbitrary body returning *ConnectDatabaseVPCResponse
@@ -37066,6 +38876,72 @@ func ParseCreateDatabaseBackupResponse(rsp *http.Response) (*CreateDatabaseBacku
 	return response, nil
 }
 
+// ParseBrowseDatabaseResponse parses an HTTP response from a BrowseDatabaseWithResponse call
+func ParseBrowseDatabaseResponse(rsp *http.Response) (*BrowseDatabaseResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &BrowseDatabaseResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			Columns *[]string              `json:"columns,omitempty"`
+			Kind    *BrowseDatabase200Kind `json:"kind,omitempty"`
+
+			// Meta Valkey key type and TTL
+			Meta *map[string]string `json:"meta,omitempty"`
+
+			// NextCursor Pass as `cursor` for the next page; empty on the last page
+			NextCursor *string `json:"next_cursor,omitempty"`
+			Nodes      *[]struct {
+				// Detail Short extra detail, for example a row estimate
+				Detail *string `json:"detail,omitempty"`
+
+				// Kind `schema`, `table`, `view`, `matview`, or a Valkey key type
+				Kind *string `json:"kind,omitempty"`
+				Name *string `json:"name,omitempty"`
+			} `json:"nodes,omitempty"`
+			Rows    *[]DatabaseRow `json:"rows,omitempty"`
+			Success *bool          `json:"success,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest BadRequest
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest Unauthorized
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest NotFound
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseGetDatabaseConnectionResponse parses an HTTP response from a GetDatabaseConnectionWithResponse call
 func ParseGetDatabaseConnectionResponse(rsp *http.Response) (*GetDatabaseConnectionResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -37082,7 +38958,7 @@ func ParseGetDatabaseConnectionResponse(rsp *http.Response) (*GetDatabaseConnect
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest struct {
-			// CaCert PEM CA bundle your client must trust, for engines whose certificates come from a private CA (currently Kafka). Empty for other engines.
+			// CaCert PEM CA that signs the database's certificate. Kafka clients must trust it; for PostgreSQL, use it with `sslmode=verify-full`.
 			CaCert *string `json:"ca_cert,omitempty"`
 
 			// ConnectionURI Ready-to-use connection URI (includes the password only when revealed)
@@ -37098,11 +38974,125 @@ func ParseGetDatabaseConnectionResponse(rsp *http.Response) (*GetDatabaseConnect
 			Password *string `json:"password,omitempty"`
 
 			// Port Endpoint port
-			Port    *int  `json:"port,omitempty"`
-			Success *bool `json:"success,omitempty"`
+			Port *int `json:"port,omitempty"`
+
+			// PublicConnectionURI Ready-to-use URI for the public endpoint (includes the password only when revealed). Empty while public access is off.
+			PublicConnectionURI *string `json:"public_connection_uri,omitempty"`
+
+			// PublicHost Public hostname. Empty while public access is off.
+			PublicHost *string `json:"public_host,omitempty"`
+
+			// PublicPort Public port. PostgreSQL uses the standard direct port 5432 (routed by the hostname your client sends in TLS); ClickHouse uses its native TLS port; other engines use `public_port` of the database.
+			PublicPort *int  `json:"public_port,omitempty"`
+			Success    *bool `json:"success,omitempty"`
 
 			// Username Database user
 			Username *string `json:"username,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest Unauthorized
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest NotFound
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseRunDatabaseQueryResponse parses an HTTP response from a RunDatabaseQueryWithResponse call
+func ParseRunDatabaseQueryResponse(rsp *http.Response) (*RunDatabaseQueryResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &RunDatabaseQueryResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			Columns *[]string `json:"columns,omitempty"`
+
+			// Command Engine command tag, for example `SELECT 10` or `INSERT 0 1`
+			Command    *string        `json:"command,omitempty"`
+			DurationMs *float32       `json:"duration_ms,omitempty"`
+			Notices    *[]string      `json:"notices,omitempty"`
+			Rows       *[]DatabaseRow `json:"rows,omitempty"`
+
+			// RowsAffected Rows changed by a write
+			RowsAffected *int  `json:"rows_affected,omitempty"`
+			Success      *bool `json:"success,omitempty"`
+
+			// Truncated More rows existed than `max_rows`
+			Truncated *bool `json:"truncated,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest BadRequest
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest Unauthorized
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest NotFound
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListDatabaseConsumersResponse parses an HTTP response from a ListDatabaseConsumersWithResponse call
+func ParseListDatabaseConsumersResponse(rsp *http.Response) (*ListDatabaseConsumersResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListDatabaseConsumersResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			Consumers *[]DatabaseConsumer `json:"consumers,omitempty"`
+			Success   *bool               `json:"success,omitempty"`
 		}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
@@ -37338,8 +39328,8 @@ func ParseGetDatabaseMetricsResponse(rsp *http.Response) (*GetDatabaseMetricsRes
 			// MemUsedBytes Memory in use, bytes
 			MemUsedBytes *int `json:"mem_used_bytes,omitempty"`
 
-			// MetricsUpdatedAt When this snapshot was taken
-			MetricsUpdatedAt *time.Time `json:"metrics_updated_at,omitempty"`
+			// MetricsUpdatedAt When this snapshot was taken, RFC 3339 (empty before the first sample)
+			MetricsUpdatedAt *string `json:"metrics_updated_at,omitempty"`
 
 			// ReplicationLagBytes Standby/replica lag in bytes (0 without HA or replicas)
 			ReplicationLagBytes *int `json:"replication_lag_bytes,omitempty"`
@@ -37350,6 +39340,51 @@ func ParseGetDatabaseMetricsResponse(rsp *http.Response) (*GetDatabaseMetricsRes
 			// StorageUsedBytes Storage in use, bytes
 			StorageUsedBytes *int  `json:"storage_used_bytes,omitempty"`
 			Success          *bool `json:"success,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest Unauthorized
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest NotFound
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetDatabaseClientTrafficResponse parses an HTTP response from a GetDatabaseClientTrafficWithResponse call
+func ParseGetDatabaseClientTrafficResponse(rsp *http.Response) (*GetDatabaseClientTrafficResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetDatabaseClientTrafficResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			// BucketSeconds Seconds each point covers
+			BucketSeconds *int                     `json:"bucket_seconds,omitempty"`
+			Clients       *[]DatabaseClientTraffic `json:"clients,omitempty"`
+			Success       *bool                    `json:"success,omitempty"`
 		}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
@@ -37395,6 +39430,49 @@ func ParseGetDatabaseMetricsHistoryResponse(rsp *http.Response) (*GetDatabaseMet
 			BucketSeconds *int                    `json:"bucket_seconds,omitempty"`
 			Points        *[]DatabaseMetricsPoint `json:"points,omitempty"`
 			Success       *bool                   `json:"success,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest Unauthorized
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest NotFound
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListDatabaseParametersResponse parses an HTTP response from a ListDatabaseParametersWithResponse call
+func ParseListDatabaseParametersResponse(rsp *http.Response) (*ListDatabaseParametersResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListDatabaseParametersResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			Parameters *[]DatabaseParameter `json:"parameters,omitempty"`
+			Success    *bool                `json:"success,omitempty"`
 		}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
@@ -37487,7 +39565,7 @@ func ParseRestoreDatabaseResponse(rsp *http.Response) (*RestoreDatabaseResponse,
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest struct {
-			// NewDatabaseID Short ID of the new database being created
+			// NewDatabaseID Short ID of the new database being created (empty for an in-place restore)
 			NewDatabaseID *string `json:"new_database_id,omitempty"`
 			Success       *bool   `json:"success,omitempty"`
 		}
@@ -37540,11 +39618,166 @@ func ParseResumeDatabaseResponse(rsp *http.Response) (*ResumeDatabaseResponse, e
 		var dest struct {
 			// Database A managed database instance. The private endpoint `{database_id}.db.raffusercloud.com` lives inside the attached VPC; public access is optional. TLS is always required.
 			Database *Database `json:"database,omitempty"`
+			Success  *bool     `json:"success,omitempty"`
 		}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
 		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest BadRequest
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest Unauthorized
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest NotFound
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListDatabaseSavedQueriesResponse parses an HTTP response from a ListDatabaseSavedQueriesWithResponse call
+func ParseListDatabaseSavedQueriesResponse(rsp *http.Response) (*ListDatabaseSavedQueriesResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListDatabaseSavedQueriesResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			Queries *[]DatabaseSavedQuery `json:"queries,omitempty"`
+			Success *bool                 `json:"success,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest Unauthorized
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest NotFound
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseSaveDatabaseSavedQueryResponse parses an HTTP response from a SaveDatabaseSavedQueryWithResponse call
+func ParseSaveDatabaseSavedQueryResponse(rsp *http.Response) (*SaveDatabaseSavedQueryResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &SaveDatabaseSavedQueryResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			Query   *DatabaseSavedQuery `json:"query,omitempty"`
+			Success *bool               `json:"success,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest BadRequest
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest Unauthorized
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest NotFound
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDeleteDatabaseSavedQueryResponse parses an HTTP response from a DeleteDatabaseSavedQueryWithResponse call
+func ParseDeleteDatabaseSavedQueryResponse(rsp *http.Response) (*DeleteDatabaseSavedQueryResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeleteDatabaseSavedQueryResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest SuccessResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest Unauthorized
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest NotFound
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
 
 	}
 
@@ -37627,6 +39860,293 @@ func ParseGetDatabaseSlowQueriesResponse(rsp *http.Response) (*GetDatabaseSlowQu
 			return nil, err
 		}
 		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest Unauthorized
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest NotFound
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListDatabaseUsersResponse parses an HTTP response from a ListDatabaseUsersWithResponse call
+func ParseListDatabaseUsersResponse(rsp *http.Response) (*ListDatabaseUsersResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListDatabaseUsersResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			Success *bool           `json:"success,omitempty"`
+			Users   *[]DatabaseUser `json:"users,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest Unauthorized
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest NotFound
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCreateDatabaseUserResponse parses an HTTP response from a CreateDatabaseUserWithResponse call
+func ParseCreateDatabaseUserResponse(rsp *http.Response) (*CreateDatabaseUserResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateDatabaseUserResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest struct {
+			// Password The new user's password
+			Password *string       `json:"password,omitempty"`
+			Success  *bool         `json:"success,omitempty"`
+			User     *DatabaseUser `json:"user,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest BadRequest
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest Unauthorized
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest NotFound
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDeleteDatabaseUserResponse parses an HTTP response from a DeleteDatabaseUserWithResponse call
+func ParseDeleteDatabaseUserResponse(rsp *http.Response) (*DeleteDatabaseUserResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeleteDatabaseUserResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest SuccessResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest BadRequest
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest Unauthorized
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest NotFound
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetDatabaseUserCredentialResponse parses an HTTP response from a GetDatabaseUserCredentialWithResponse call
+func ParseGetDatabaseUserCredentialResponse(rsp *http.Response) (*GetDatabaseUserCredentialResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetDatabaseUserCredentialResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			Password *string `json:"password,omitempty"`
+			Success  *bool   `json:"success,omitempty"`
+			Username *string `json:"username,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest Unauthorized
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest NotFound
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseRotateDatabaseUserResponse parses an HTTP response from a RotateDatabaseUserWithResponse call
+func ParseRotateDatabaseUserResponse(rsp *http.Response) (*RotateDatabaseUserResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &RotateDatabaseUserResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			Password *string `json:"password,omitempty"`
+			Success  *bool   `json:"success,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest BadRequest
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest Unauthorized
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest NotFound
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDisconnectDatabaseVPCResponse parses an HTTP response from a DisconnectDatabaseVPCWithResponse call
+func ParseDisconnectDatabaseVPCResponse(rsp *http.Response) (*DisconnectDatabaseVPCResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DisconnectDatabaseVPCResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			// Database A managed database instance. The private endpoint `{database_id}.db.raffusercloud.com` lives inside the attached VPC; public access is optional. TLS is always required.
+			Database *Database `json:"database,omitempty"`
+			Success  *bool     `json:"success,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest BadRequest
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
 		var dest Unauthorized

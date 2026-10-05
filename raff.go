@@ -67,6 +67,7 @@ type Client struct {
 	Functions       FunctionService
 	AppServices     AppServiceService
 	Kubernetes      KubernetesService
+	Databases       DatabaseService
 }
 
 // NewFromToken creates a new Raff API client with the given API key.
@@ -125,6 +126,7 @@ func New(httpClient *http.Client, apiKey string, opts ...ClientOpt) *Client {
 	c.Functions = &FunctionServiceOp{client: c}
 	c.AppServices = &AppServiceServiceOp{client: c}
 	c.Kubernetes = &KubernetesServiceOp{client: c}
+	c.Databases = &DatabaseServiceOp{client: c}
 
 	return c
 }
