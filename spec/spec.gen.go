@@ -2119,6 +2119,24 @@ func (e SSHKeyKeyType) Valid() bool {
 	}
 }
 
+// Defines values for ScaleAppServiceRequestAutoscalingMetric.
+const (
+	CPU         ScaleAppServiceRequestAutoscalingMetric = "cpu"
+	Concurrency ScaleAppServiceRequestAutoscalingMetric = "concurrency"
+)
+
+// Valid indicates whether the value is a known member of the ScaleAppServiceRequestAutoscalingMetric enum.
+func (e ScaleAppServiceRequestAutoscalingMetric) Valid() bool {
+	switch e {
+	case CPU:
+		return true
+	case Concurrency:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for SecurityGroupRuleProtocol.
 const (
 	ALL    SecurityGroupRuleProtocol = "ALL"
@@ -2695,6 +2713,24 @@ func (e UpdateAppSpendSettingsJSONBodyCapAction) Valid() bool {
 	case NotifyOnly:
 		return true
 	case Pause:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for GetAppsUsageParamsPeriod.
+const (
+	Current  GetAppsUsageParamsPeriod = "current"
+	Previous GetAppsUsageParamsPeriod = "previous"
+)
+
+// Valid indicates whether the value is a known member of the GetAppsUsageParamsPeriod enum.
+func (e GetAppsUsageParamsPeriod) Valid() bool {
+	switch e {
+	case Current:
+		return true
+	case Previous:
 		return true
 	default:
 		return false
@@ -3932,17 +3968,25 @@ type CreateAppServiceRequest struct {
 	HTTPPort        *int    `json:"http_port,omitempty"`
 
 	// ImageRef Prebuilt image reference (for source_type `image`)
-	ImageRef    *string `json:"image_ref,omitempty"`
-	MaxReplicas *int    `json:"max_replicas,omitempty"`
+	ImageRef *string `json:"image_ref,omitempty"`
+
+	// MaxReplicas Most instances when autoscaling. An app can have at most 6 instances.
+	MaxReplicas *int `json:"max_replicas,omitempty"`
+
+	// MinReplicas Fewest instances when autoscaling. Cannot be more than `max_replicas`.
 	MinReplicas *int    `json:"min_replicas,omitempty"`
 	Name        string  `json:"name"`
 	Region      *string `json:"region,omitempty"`
-	Replicas    *int    `json:"replicas,omitempty"`
-	RepoBranch  *string `json:"repo_branch,omitempty"`
+
+	// Replicas Fixed number of instances. An app can have at most 6 instances.
+	Replicas   *int    `json:"replicas,omitempty"`
+	RepoBranch *string `json:"repo_branch,omitempty"`
 
 	// RepoFullName GitHub repo (owner/name) for source_type `git`
-	RepoFullName *string                            `json:"repo_full_name,omitempty"`
-	RepoRootDir  *string                            `json:"repo_root_dir,omitempty"`
+	RepoFullName *string `json:"repo_full_name,omitempty"`
+	RepoRootDir  *string `json:"repo_root_dir,omitempty"`
+
+	// ScaleToZero Stop every instance when idle. Only for `web` and `private` apps.
 	ScaleToZero  *bool                              `json:"scale_to_zero,omitempty"`
 	ServiceType  CreateAppServiceRequestServiceType `json:"service_type"`
 	SourceType   *CreateAppServiceRequestSourceType `json:"source_type,omitempty"`
@@ -5817,19 +5861,31 @@ type SaveImageRequest struct {
 	SnapshotID *int `json:"snapshot_id,omitempty"`
 }
 
-// ScaleAppServiceRequest defines model for ScaleAppServiceRequest.
+// ScaleAppServiceRequest An app can have at most 6 instances. The limit is checked only when a
+// value goes up, so an app above it can always scale down.
 type ScaleAppServiceRequest struct {
-	AutoscalingEnabled *bool   `json:"autoscaling_enabled,omitempty"`
-	AutoscalingMetric  *string `json:"autoscaling_metric,omitempty"`
+	AutoscalingEnabled *bool                                    `json:"autoscaling_enabled,omitempty"`
+	AutoscalingMetric  *ScaleAppServiceRequestAutoscalingMetric `json:"autoscaling_metric,omitempty"`
 
 	// AutoscalingSet Set true to apply the autoscaling fields
 	AutoscalingSet    *bool `json:"autoscaling_set,omitempty"`
 	AutoscalingTarget *int  `json:"autoscaling_target,omitempty"`
-	MaxReplicas       *int  `json:"max_replicas,omitempty"`
-	MinReplicas       *int  `json:"min_replicas,omitempty"`
-	Replicas          *int  `json:"replicas,omitempty"`
-	ScaleToZero       *bool `json:"scale_to_zero,omitempty"`
+
+	// MaxReplicas Most instances when autoscaling.
+	MaxReplicas *int `json:"max_replicas,omitempty"`
+
+	// MinReplicas Fewest instances when autoscaling. Cannot be more than `max_replicas`.
+	MinReplicas *int `json:"min_replicas,omitempty"`
+
+	// Replicas Fixed number of instances.
+	Replicas *int `json:"replicas,omitempty"`
+
+	// ScaleToZero Stop every instance when idle. Only for `web` and `private` apps.
+	ScaleToZero *bool `json:"scale_to_zero,omitempty"`
 }
+
+// ScaleAppServiceRequestAutoscalingMetric defines model for ScaleAppServiceRequest.AutoscalingMetric.
+type ScaleAppServiceRequestAutoscalingMetric string
 
 // ScaleDatabaseRequest defines model for ScaleDatabaseRequest.
 type ScaleDatabaseRequest struct {
@@ -6744,10 +6800,17 @@ type ListAppTiersParams struct {
 
 // GetAppsUsageParams defines parameters for GetAppsUsage.
 type GetAppsUsageParams struct {
-	// ServiceID Scope to a single service (omit for all services).
+	// ServiceID Scope to one app, by id or short id (omit for all apps). Apps
+	// deleted during the month are included, so their charges can still
+	// be read.
 	ServiceID *string `form:"service_id,omitempty" json:"service_id,omitempty"`
-	Period    *string `form:"period,omitempty" json:"period,omitempty"`
+
+	// Period `current` is this month so far, `previous` is last month.
+	Period *GetAppsUsageParamsPeriod `form:"period,omitempty" json:"period,omitempty"`
 }
+
+// GetAppsUsageParamsPeriod defines parameters for GetAppsUsage.
+type GetAppsUsageParamsPeriod string
 
 // ListBackupSchedulesParams defines parameters for ListBackupSchedules.
 type ListBackupSchedulesParams struct {
@@ -26368,7 +26431,9 @@ type GetAppsUsageResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON200      *AppUsage
+	JSON400      *BadRequest
 	JSON401      *Unauthorized
+	JSON404      *NotFound
 }
 
 // Status returns HTTPResponse.Status
@@ -36154,12 +36219,26 @@ func ParseGetAppsUsageResponse(rsp *http.Response) (*GetAppsUsageResponse, error
 		}
 		response.JSON200 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest BadRequest
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
 		var dest Unauthorized
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
 		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest NotFound
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
 
 	}
 
