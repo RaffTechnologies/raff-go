@@ -4197,7 +4197,7 @@ type CreateDatabaseRequestRegion string
 
 // CreateDatabaseUserRequest defines model for CreateDatabaseUserRequest.
 type CreateDatabaseUserRequest struct {
-	// Name 3 to 31 characters. Starts with a lowercase letter, then lowercase letters, digits, or underscores.
+	// Name 3 to 31 characters. Starts with a lowercase letter, then lowercase letters, digits, or underscores. Names starting with `app_` or `fnb_` are reserved for Raff Apps and Functions.
 	Name string                        `json:"name"`
 	Role CreateDatabaseUserRequestRole `json:"role"`
 }
