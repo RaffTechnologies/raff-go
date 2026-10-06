@@ -4161,7 +4161,8 @@ type CreateDatabaseRequest struct {
 	// Engine Database engine identifier. Defaults to `postgres` on create; the live catalog (including availability and versions) is `GET /api/v1/databases/engines`.
 	Engine *DatabaseEngine `json:"engine,omitempty"`
 
-	// EngineConfig Engine configuration overrides (allowlisted keys only)
+	// EngineConfig Engine settings you can choose at create. Anything else is refused with 400.
+	// - Valkey `maxmemory-policy`: `noeviction` (default; nothing is ever removed, writes fail when memory is full; for queues and data you cannot lose) or `allkeys-lru` (the least recently used keys are removed when memory is full; for caches).
 	EngineConfig *map[string]string `json:"engine_config,omitempty"`
 
 	// EngineVersion Engine major version from the engine catalog. Omit for the default version.
