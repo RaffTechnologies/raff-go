@@ -4168,6 +4168,9 @@ type CreateDatabaseRequest struct {
 	// EngineVersion Engine major version from the engine catalog. Omit for the default version.
 	EngineVersion *string `json:"engine_version,omitempty"`
 
+	// Extensions PostgreSQL only. Extensions to turn on before the database is marked running, so it is ready for them the moment you connect. Allowed: `vector` (AI embeddings), `pg_trgm`, `pg_stat_statements`, `hstore`, `uuid-ossp`, `citext`, `ltree`, `pgcrypto`, `unaccent`. Other engines or other names are refused with 400. Any other extension the image ships can be turned on later with the extensions endpoint.
+	Extensions *[]string `json:"extensions,omitempty"`
+
 	// HaEnabled Enable high availability (+70% of the plan price)
 	HaEnabled *bool `json:"ha_enabled,omitempty"`
 
