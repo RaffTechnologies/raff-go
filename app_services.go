@@ -57,6 +57,17 @@ type AppService struct {
 	CurrentDeploymentID string `json:"current_deployment_id"`
 	CreatedAt           string `json:"created_at"`
 	UpdatedAt           string `json:"updated_at"`
+
+	CronConcurrency         string `json:"cron_concurrency"`
+	PrimaryDomain           string `json:"primary_domain"`
+	PreviewsEnabled         bool   `json:"previews_enabled"`
+	PreviewCount            int    `json:"preview_count"`
+	MaxPreviews             int    `json:"max_previews"`
+	WaitingForDatabase      bool   `json:"waiting_for_database"`
+	GitHubStatus            string `json:"github_status"`
+	GitHubLogin             string `json:"github_login"`
+	GitHubSettingsURL       string `json:"github_settings_url"`
+	CurrentDeploymentNumber int    `json:"current_deployment_number"`
 }
 
 // CreateAppServiceRequest is the request body for creating an app service.
@@ -86,6 +97,137 @@ type CreateAppServiceRequest struct {
 	// DeployNow immediately queues a build+rollout for prebuilt-image
 	// services. Source-based services deploy after their source is uploaded.
 	DeployNow bool `json:"deploy_now,omitempty"`
+
+	// GitHubInstallationID is the ID of a GitHub connection (ListGitHubConnections)
+	// for SourceType "git".
+	GitHubInstallationID string `json:"github_installation_id,omitempty"`
+	// CronConcurrency is forbid (default), allow or replace.
+	CronConcurrency string `json:"cron_concurrency,omitempty"`
+	// EnvVars are set before the first deploy.
+	EnvVars []AppEnvVarInput `json:"env_vars,omitempty"`
+	// LinkDatabaseID links a managed database: the app deploys once the
+	// database runs, with DATABASE_URL and the other DATABASE_* variables set.
+	LinkDatabaseID string `json:"link_database_id,omitempty"`
+}
+
+// AppEnvVarInput is one environment variable set at create. Scope is
+// runtime (default), build or both.
+type AppEnvVarInput struct {
+	Key      string `json:"key"`
+	Value    string `json:"value"`
+	IsSecret bool   `json:"is_secret,omitempty"`
+	Scope    string `json:"scope,omitempty"`
+}
+
+// UpdateAppServiceRequest changes an app's settings. Only the fields you set
+// are sent. A change that affects how a live app runs (port, start command,
+// health check, size) always rolls out as a new deploy; Redeploy true also
+// redeploys after a change that would not need it.
+type UpdateAppServiceRequest struct {
+	Name            *string `json:"name,omitempty"`
+	Description     *string `json:"description,omitempty"`
+	TierID          *int    `json:"tier_id,omitempty"`
+	StartCommand    *string `json:"start_command,omitempty"`
+	HTTPPort        *int    `json:"http_port,omitempty"`
+	HealthCheckPath *string `json:"health_check_path,omitempty"`
+	CronSchedule    *string `json:"cron_schedule,omitempty"`
+	CronTimezone    *string `json:"cron_timezone,omitempty"`
+	CronConcurrency *string `json:"cron_concurrency,omitempty"`
+	RepoBranch      *string `json:"repo_branch,omitempty"`
+	RepoRootDir     *string `json:"repo_root_dir,omitempty"`
+	DockerfilePath  *string `json:"dockerfile_path,omitempty"`
+	PreviewsEnabled *bool   `json:"previews_enabled,omitempty"`
+	Redeploy        *bool   `json:"redeploy,omitempty"`
+}
+
+// AppTemplate is a ready-to-run app: create it with SourceType "image" and
+// the template's ImageRef, HTTPPort, Env and HealthCheckPath.
+type AppTemplate struct {
+	ID               string            `json:"id"`
+	Name             string            `json:"name"`
+	Description      string            `json:"description"`
+	Category         string            `json:"category"`
+	ServiceType      string            `json:"service_type"`
+	ImageRef         string            `json:"image_ref"`
+	Builder          string            `json:"builder"`
+	DefaultTierID    int               `json:"default_tier_id"`
+	MinTierID        int               `json:"min_tier_id"`
+	HTTPPort         int               `json:"http_port"`
+	HealthCheckPath  string            `json:"health_check_path"`
+	Companions       []string          `json:"companions"`
+	DatabaseOptional bool              `json:"database_optional"`
+	Env              map[string]string `json:"env"`
+	Popular          bool              `json:"popular"`
+}
+
+// AppGitHubConnection is a GitHub account or organization connected to Raff.
+type AppGitHubConnection struct {
+	ID             string `json:"id"`
+	InstallationID int64  `json:"installation_id"`
+	GitHubLogin    string `json:"github_login"`
+	AccountType    string `json:"account_type"`
+	Status         string `json:"status"`
+	Suspended      bool   `json:"suspended"`
+	SettingsURL    string `json:"settings_url"`
+	CreatedAt      string `json:"created_at"`
+}
+
+// AppBinding links an app to a managed database.
+type AppBinding struct {
+	ID            string   `json:"id"`
+	ServiceID     string   `json:"service_id"`
+	BindingType   string   `json:"binding_type"`
+	ResourceID    string   `json:"resource_id"`
+	ResourceName  string   `json:"resource_name"`
+	EnvPrefix     string   `json:"env_prefix"`
+	InjectedKeys  []string `json:"injected_keys"`
+	Status        string   `json:"status"`
+	StatusMessage string   `json:"status_message"`
+	CreatedAt     string   `json:"created_at"`
+}
+
+// CreateAppBindingRequest links a database to an app. BindingType is
+// "database"; EnvPrefix is optional (DATABASE by default).
+type CreateAppBindingRequest struct {
+	BindingType string `json:"binding_type"`
+	ResourceID  string `json:"resource_id"`
+	EnvPrefix   string `json:"env_prefix,omitempty"`
+}
+
+// AppPreview is a pull request preview of a web app from GitHub.
+type AppPreview struct {
+	ID                  string `json:"id"`
+	ServiceID           string `json:"service_id"`
+	PRNumber            int    `json:"pr_number"`
+	PRTitle             string `json:"pr_title"`
+	Branch              string `json:"branch"`
+	HeadSHA             string `json:"head_sha"`
+	Status              string `json:"status"`
+	StatusMessage       string `json:"status_message"`
+	URL                 string `json:"url"`
+	CurrentDeploymentID string `json:"current_deployment_id"`
+	ExpiresAt           string `json:"expires_at"`
+	CreatedAt           string `json:"created_at"`
+	UpdatedAt           string `json:"updated_at"`
+}
+
+// AppEvent is one line of an app's activity timeline.
+type AppEvent struct {
+	ID        string `json:"id"`
+	ServiceID string `json:"service_id"`
+	EventType string `json:"event_type"`
+	Message   string `json:"message"`
+	Metadata  string `json:"metadata"`
+	CreatedAt string `json:"created_at"`
+}
+
+// AppInstance is one running instance of an app.
+type AppInstance struct {
+	Name      string `json:"name"`
+	Phase     string `json:"phase"`
+	Ready     bool   `json:"ready"`
+	Restarts  int    `json:"restarts"`
+	StartedAt string `json:"started_at"`
 }
 
 // AppTier is one Apps pricing tier (compute size + price).
@@ -318,6 +460,18 @@ type AppServiceService interface {
 	GetUsage(ctx context.Context, ref string) (*AppUsage, *Response, error)
 	GetSpendSettings(ctx context.Context) (*AppSpendSettings, *Response, error)
 	UpdateSpendSettings(ctx context.Context, req *UpdateAppSpendSettingsRequest) (*AppSpendSettings, *Response, error)
+	Update(ctx context.Context, ref string, req *UpdateAppServiceRequest) (*AppService, string, *Response, error)
+	ListTemplates(ctx context.Context) ([]AppTemplate, *Response, error)
+	ListGitHubConnections(ctx context.Context) ([]AppGitHubConnection, *Response, error)
+	ListBindings(ctx context.Context, ref string) ([]AppBinding, *Response, error)
+	CreateBinding(ctx context.Context, ref string, req *CreateAppBindingRequest) (*AppBinding, *Response, error)
+	DeleteBinding(ctx context.Context, bindingID string) (*Response, error)
+	RotateBinding(ctx context.Context, bindingID string) (*AppBinding, *Response, error)
+	ListPreviews(ctx context.Context, ref string) ([]AppPreview, *Response, error)
+	DeletePreview(ctx context.Context, previewID string) (*Response, error)
+	RedeployPreview(ctx context.Context, previewID string) (*AppPreview, string, *Response, error)
+	ListEvents(ctx context.Context, ref string, limit int) ([]AppEvent, *Response, error)
+	ListInstances(ctx context.Context, ref string) ([]AppInstance, *Response, error)
 }
 
 // AppMetricSeries is one named metric series (values aligned to timestamps).
@@ -380,7 +534,7 @@ func (s *AppServiceServiceOp) doJSON(ctx context.Context, method, path string, b
 	return responseFrom(resp, 0), nil
 }
 
-// ListTiers returns the public Apps pricing catalog (no auth needed).
+// ListTiers returns the Apps sizes and prices.
 func (s *AppServiceServiceOp) ListTiers(ctx context.Context) ([]AppTier, *Response, error) {
 	var data struct {
 		Tiers []AppTier `json:"tiers"`
@@ -764,4 +918,145 @@ func (s *AppServiceServiceOp) UpdateSpendSettings(ctx context.Context, req *Upda
 		return nil, resp, err
 	}
 	return data.Settings, resp, nil
+}
+
+// Update changes an app's settings. The returned deployment ID is set when
+// the change rolled out as a new deploy.
+func (s *AppServiceServiceOp) Update(ctx context.Context, ref string, req *UpdateAppServiceRequest) (*AppService, string, *Response, error) {
+	var data struct {
+		Service      *AppService `json:"service"`
+		DeploymentID string      `json:"deployment_id"`
+	}
+	resp, err := s.doJSON(ctx, http.MethodPatch, "/api/v1/apps/services/"+url.PathEscape(ref), req, &data)
+	if err != nil {
+		return nil, "", resp, err
+	}
+	return data.Service, data.DeploymentID, resp, nil
+}
+
+// ListTemplates returns the ready-to-run app templates.
+func (s *AppServiceServiceOp) ListTemplates(ctx context.Context) ([]AppTemplate, *Response, error) {
+	var data struct {
+		Templates []AppTemplate `json:"templates"`
+	}
+	resp, err := s.doJSON(ctx, http.MethodGet, "/api/v1/apps/templates", nil, &data)
+	if err != nil {
+		return nil, resp, err
+	}
+	return data.Templates, resp, nil
+}
+
+// ListGitHubConnections returns the account's GitHub connections; the ID of
+// one is CreateAppServiceRequest.GitHubInstallationID.
+func (s *AppServiceServiceOp) ListGitHubConnections(ctx context.Context) ([]AppGitHubConnection, *Response, error) {
+	var data struct {
+		Installations []AppGitHubConnection `json:"installations"`
+	}
+	resp, err := s.doJSON(ctx, http.MethodGet, "/api/v1/apps/github/installations", nil, &data)
+	if err != nil {
+		return nil, resp, err
+	}
+	return data.Installations, resp, nil
+}
+
+// ListBindings returns the databases linked to an app.
+func (s *AppServiceServiceOp) ListBindings(ctx context.Context, ref string) ([]AppBinding, *Response, error) {
+	var data struct {
+		Bindings []AppBinding `json:"bindings"`
+	}
+	resp, err := s.doJSON(ctx, http.MethodGet, "/api/v1/apps/services/"+url.PathEscape(ref)+"/bindings", nil, &data)
+	if err != nil {
+		return nil, resp, err
+	}
+	return data.Bindings, resp, nil
+}
+
+// CreateBinding links a database to an app and redeploys it with the
+// DATABASE_* variables set.
+func (s *AppServiceServiceOp) CreateBinding(ctx context.Context, ref string, req *CreateAppBindingRequest) (*AppBinding, *Response, error) {
+	var data struct {
+		Binding *AppBinding `json:"binding"`
+	}
+	resp, err := s.doJSON(ctx, http.MethodPost, "/api/v1/apps/services/"+url.PathEscape(ref)+"/bindings", req, &data)
+	if err != nil {
+		return nil, resp, err
+	}
+	return data.Binding, resp, nil
+}
+
+// DeleteBinding unlinks a database: the app's database user is removed and
+// the DATABASE_* variables are cleared.
+func (s *AppServiceServiceOp) DeleteBinding(ctx context.Context, bindingID string) (*Response, error) {
+	return s.doJSON(ctx, http.MethodDelete, "/api/v1/apps/bindings/"+url.PathEscape(bindingID), nil, nil)
+}
+
+// RotateBinding gives the app new database credentials and redeploys it.
+func (s *AppServiceServiceOp) RotateBinding(ctx context.Context, bindingID string) (*AppBinding, *Response, error) {
+	var data struct {
+		Binding *AppBinding `json:"binding"`
+	}
+	resp, err := s.doJSON(ctx, http.MethodPost, "/api/v1/apps/bindings/"+url.PathEscape(bindingID)+"/rotate", struct{}{}, &data)
+	if err != nil {
+		return nil, resp, err
+	}
+	return data.Binding, resp, nil
+}
+
+// ListPreviews returns an app's pull request previews.
+func (s *AppServiceServiceOp) ListPreviews(ctx context.Context, ref string) ([]AppPreview, *Response, error) {
+	var data struct {
+		Previews []AppPreview `json:"previews"`
+	}
+	resp, err := s.doJSON(ctx, http.MethodGet, "/api/v1/apps/services/"+url.PathEscape(ref)+"/previews", nil, &data)
+	if err != nil {
+		return nil, resp, err
+	}
+	return data.Previews, resp, nil
+}
+
+// DeletePreview removes a pull request preview.
+func (s *AppServiceServiceOp) DeletePreview(ctx context.Context, previewID string) (*Response, error) {
+	return s.doJSON(ctx, http.MethodDelete, "/api/v1/apps/previews/"+url.PathEscape(previewID), nil, nil)
+}
+
+// RedeployPreview builds and deploys the pull request's latest commit again.
+func (s *AppServiceServiceOp) RedeployPreview(ctx context.Context, previewID string) (*AppPreview, string, *Response, error) {
+	var data struct {
+		Preview      *AppPreview `json:"preview"`
+		DeploymentID string      `json:"deployment_id"`
+	}
+	resp, err := s.doJSON(ctx, http.MethodPost, "/api/v1/apps/previews/"+url.PathEscape(previewID)+"/redeploy", struct{}{}, &data)
+	if err != nil {
+		return nil, "", resp, err
+	}
+	return data.Preview, data.DeploymentID, resp, nil
+}
+
+// ListEvents returns an app's activity timeline, newest first. A limit of 0
+// uses the API default.
+func (s *AppServiceServiceOp) ListEvents(ctx context.Context, ref string, limit int) ([]AppEvent, *Response, error) {
+	var data struct {
+		Events []AppEvent `json:"events"`
+	}
+	path := "/api/v1/apps/services/" + url.PathEscape(ref) + "/events"
+	if limit > 0 {
+		path += "?limit=" + strconv.Itoa(limit)
+	}
+	resp, err := s.doJSON(ctx, http.MethodGet, path, nil, &data)
+	if err != nil {
+		return nil, resp, err
+	}
+	return data.Events, resp, nil
+}
+
+// ListInstances returns an app's running instances.
+func (s *AppServiceServiceOp) ListInstances(ctx context.Context, ref string) ([]AppInstance, *Response, error) {
+	var data struct {
+		Instances []AppInstance `json:"instances"`
+	}
+	resp, err := s.doJSON(ctx, http.MethodGet, "/api/v1/apps/services/"+url.PathEscape(ref)+"/instances", nil, &data)
+	if err != nil {
+		return nil, resp, err
+	}
+	return data.Instances, resp, nil
 }

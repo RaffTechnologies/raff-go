@@ -88,6 +88,48 @@ func (e APIKeyWithSecretScope) Valid() bool {
 	}
 }
 
+// Defines values for AppBindingBindingType.
+const (
+	AppBindingBindingTypeDatabase AppBindingBindingType = "database"
+)
+
+// Valid indicates whether the value is a known member of the AppBindingBindingType enum.
+func (e AppBindingBindingType) Valid() bool {
+	switch e {
+	case AppBindingBindingTypeDatabase:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for AppBindingStatus.
+const (
+	AppBindingStatusActive       AppBindingStatus = "active"
+	AppBindingStatusDeleting     AppBindingStatus = "deleting"
+	AppBindingStatusError        AppBindingStatus = "error"
+	AppBindingStatusProvisioning AppBindingStatus = "provisioning"
+	AppBindingStatusRotating     AppBindingStatus = "rotating"
+)
+
+// Valid indicates whether the value is a known member of the AppBindingStatus enum.
+func (e AppBindingStatus) Valid() bool {
+	switch e {
+	case AppBindingStatusActive:
+		return true
+	case AppBindingStatusDeleting:
+		return true
+	case AppBindingStatusError:
+		return true
+	case AppBindingStatusProvisioning:
+		return true
+	case AppBindingStatusRotating:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for AppCustomDomainStatus.
 const (
 	AppCustomDomainStatusActive      AppCustomDomainStatus = "active"
@@ -124,6 +166,7 @@ const (
 	AppDeploymentChannelCompose  AppDeploymentChannel = "compose"
 	AppDeploymentChannelConsole  AppDeploymentChannel = "console"
 	AppDeploymentChannelGitPush  AppDeploymentChannel = "git_push"
+	AppDeploymentChannelPreview  AppDeploymentChannel = "preview"
 	AppDeploymentChannelRollback AppDeploymentChannel = "rollback"
 )
 
@@ -137,6 +180,8 @@ func (e AppDeploymentChannel) Valid() bool {
 	case AppDeploymentChannelConsole:
 		return true
 	case AppDeploymentChannelGitPush:
+		return true
+	case AppDeploymentChannelPreview:
 		return true
 	case AppDeploymentChannelRollback:
 		return true
@@ -199,6 +244,78 @@ func (e AppEnvVarScope) Valid() bool {
 	}
 }
 
+// Defines values for AppEnvVarInputScope.
+const (
+	AppEnvVarInputScopeBoth    AppEnvVarInputScope = "both"
+	AppEnvVarInputScopeBuild   AppEnvVarInputScope = "build"
+	AppEnvVarInputScopeRuntime AppEnvVarInputScope = "runtime"
+)
+
+// Valid indicates whether the value is a known member of the AppEnvVarInputScope enum.
+func (e AppEnvVarInputScope) Valid() bool {
+	switch e {
+	case AppEnvVarInputScopeBoth:
+		return true
+	case AppEnvVarInputScopeBuild:
+		return true
+	case AppEnvVarInputScopeRuntime:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for AppInstancePhase.
+const (
+	AppInstancePhaseFailed    AppInstancePhase = "Failed"
+	AppInstancePhasePending   AppInstancePhase = "Pending"
+	AppInstancePhaseRunning   AppInstancePhase = "Running"
+	AppInstancePhaseSucceeded AppInstancePhase = "Succeeded"
+)
+
+// Valid indicates whether the value is a known member of the AppInstancePhase enum.
+func (e AppInstancePhase) Valid() bool {
+	switch e {
+	case AppInstancePhaseFailed:
+		return true
+	case AppInstancePhasePending:
+		return true
+	case AppInstancePhaseRunning:
+		return true
+	case AppInstancePhaseSucceeded:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for AppJobRunStatus.
+const (
+	AppJobRunStatusCanceled  AppJobRunStatus = "canceled"
+	AppJobRunStatusFailed    AppJobRunStatus = "failed"
+	AppJobRunStatusPending   AppJobRunStatus = "pending"
+	AppJobRunStatusRunning   AppJobRunStatus = "running"
+	AppJobRunStatusSucceeded AppJobRunStatus = "succeeded"
+)
+
+// Valid indicates whether the value is a known member of the AppJobRunStatus enum.
+func (e AppJobRunStatus) Valid() bool {
+	switch e {
+	case AppJobRunStatusCanceled:
+		return true
+	case AppJobRunStatusFailed:
+		return true
+	case AppJobRunStatusPending:
+		return true
+	case AppJobRunStatusRunning:
+		return true
+	case AppJobRunStatusSucceeded:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for AppJobRunTrigger.
 const (
 	AppJobRunTriggerManual   AppJobRunTrigger = "manual"
@@ -211,6 +328,42 @@ func (e AppJobRunTrigger) Valid() bool {
 	case AppJobRunTriggerManual:
 		return true
 	case AppJobRunTriggerSchedule:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for AppPreviewStatus.
+const (
+	AppPreviewStatusBuilding  AppPreviewStatus = "building"
+	AppPreviewStatusDeleted   AppPreviewStatus = "deleted"
+	AppPreviewStatusDeleting  AppPreviewStatus = "deleting"
+	AppPreviewStatusDeploying AppPreviewStatus = "deploying"
+	AppPreviewStatusError     AppPreviewStatus = "error"
+	AppPreviewStatusLive      AppPreviewStatus = "live"
+	AppPreviewStatusPaused    AppPreviewStatus = "paused"
+	AppPreviewStatusPending   AppPreviewStatus = "pending"
+)
+
+// Valid indicates whether the value is a known member of the AppPreviewStatus enum.
+func (e AppPreviewStatus) Valid() bool {
+	switch e {
+	case AppPreviewStatusBuilding:
+		return true
+	case AppPreviewStatusDeleted:
+		return true
+	case AppPreviewStatusDeleting:
+		return true
+	case AppPreviewStatusDeploying:
+		return true
+	case AppPreviewStatusError:
+		return true
+	case AppPreviewStatusLive:
+		return true
+	case AppPreviewStatusPaused:
+		return true
+	case AppPreviewStatusPending:
 		return true
 	default:
 		return false
@@ -250,6 +403,54 @@ func (e AppServiceBuilder) Valid() bool {
 	case AppServiceBuilderDockerfile:
 		return true
 	case AppServiceBuilderImage:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for AppServiceCronConcurrency.
+const (
+	AppServiceCronConcurrencyAllow   AppServiceCronConcurrency = "allow"
+	AppServiceCronConcurrencyForbid  AppServiceCronConcurrency = "forbid"
+	AppServiceCronConcurrencyReplace AppServiceCronConcurrency = "replace"
+)
+
+// Valid indicates whether the value is a known member of the AppServiceCronConcurrency enum.
+func (e AppServiceCronConcurrency) Valid() bool {
+	switch e {
+	case AppServiceCronConcurrencyAllow:
+		return true
+	case AppServiceCronConcurrencyForbid:
+		return true
+	case AppServiceCronConcurrencyReplace:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for AppServiceGithubStatus.
+const (
+	AppServiceGithubStatusDisconnected AppServiceGithubStatus = "disconnected"
+	AppServiceGithubStatusEmpty        AppServiceGithubStatus = ""
+	AppServiceGithubStatusNoRepoAccess AppServiceGithubStatus = "no_repo_access"
+	AppServiceGithubStatusRepoNotFound AppServiceGithubStatus = "repo_not_found"
+	AppServiceGithubStatusSuspended    AppServiceGithubStatus = "suspended"
+)
+
+// Valid indicates whether the value is a known member of the AppServiceGithubStatus enum.
+func (e AppServiceGithubStatus) Valid() bool {
+	switch e {
+	case AppServiceGithubStatusDisconnected:
+		return true
+	case AppServiceGithubStatusEmpty:
+		return true
+	case AppServiceGithubStatusNoRepoAccess:
+		return true
+	case AppServiceGithubStatusRepoNotFound:
+		return true
+	case AppServiceGithubStatusSuspended:
 		return true
 	default:
 		return false
@@ -550,6 +751,21 @@ func (e CreateAPIKeyRequestRateLimitTier) Valid() bool {
 	}
 }
 
+// Defines values for CreateAppBindingRequestBindingType.
+const (
+	CreateAppBindingRequestBindingTypeDatabase CreateAppBindingRequestBindingType = "database"
+)
+
+// Valid indicates whether the value is a known member of the CreateAppBindingRequestBindingType enum.
+func (e CreateAppBindingRequestBindingType) Valid() bool {
+	switch e {
+	case CreateAppBindingRequestBindingTypeDatabase:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for CreateAppDeploymentRequestChannel.
 const (
 	CreateAppDeploymentRequestChannelCli     CreateAppDeploymentRequestChannel = "cli"
@@ -595,6 +811,27 @@ func (e CreateAppServiceRequestBuilder) Valid() bool {
 	}
 }
 
+// Defines values for CreateAppServiceRequestCronConcurrency.
+const (
+	CreateAppServiceRequestCronConcurrencyAllow   CreateAppServiceRequestCronConcurrency = "allow"
+	CreateAppServiceRequestCronConcurrencyForbid  CreateAppServiceRequestCronConcurrency = "forbid"
+	CreateAppServiceRequestCronConcurrencyReplace CreateAppServiceRequestCronConcurrency = "replace"
+)
+
+// Valid indicates whether the value is a known member of the CreateAppServiceRequestCronConcurrency enum.
+func (e CreateAppServiceRequestCronConcurrency) Valid() bool {
+	switch e {
+	case CreateAppServiceRequestCronConcurrencyAllow:
+		return true
+	case CreateAppServiceRequestCronConcurrencyForbid:
+		return true
+	case CreateAppServiceRequestCronConcurrencyReplace:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for CreateAppServiceRequestServiceType.
 const (
 	CreateAppServiceRequestServiceTypeCron    CreateAppServiceRequestServiceType = "cron"
@@ -625,6 +862,7 @@ func (e CreateAppServiceRequestServiceType) Valid() bool {
 // Defines values for CreateAppServiceRequestSourceType.
 const (
 	CreateAppServiceRequestSourceTypeCompose  CreateAppServiceRequestSourceType = "compose"
+	CreateAppServiceRequestSourceTypeConsole  CreateAppServiceRequestSourceType = "console"
 	CreateAppServiceRequestSourceTypeGit      CreateAppServiceRequestSourceType = "git"
 	CreateAppServiceRequestSourceTypeImage    CreateAppServiceRequestSourceType = "image"
 	CreateAppServiceRequestSourceTypeTemplate CreateAppServiceRequestSourceType = "template"
@@ -634,6 +872,8 @@ const (
 func (e CreateAppServiceRequestSourceType) Valid() bool {
 	switch e {
 	case CreateAppServiceRequestSourceTypeCompose:
+		return true
+	case CreateAppServiceRequestSourceTypeConsole:
 		return true
 	case CreateAppServiceRequestSourceTypeGit:
 		return true
@@ -1099,6 +1339,7 @@ const (
 	DatabaseStatusDeleting  DatabaseStatus = "deleting"
 	DatabaseStatusDeploying DatabaseStatus = "deploying"
 	DatabaseStatusFailed    DatabaseStatus = "failed"
+	DatabaseStatusMoving    DatabaseStatus = "moving"
 	DatabaseStatusPending   DatabaseStatus = "pending"
 	DatabaseStatusResizing  DatabaseStatus = "resizing"
 	DatabaseStatusRestoring DatabaseStatus = "restoring"
@@ -1117,6 +1358,8 @@ func (e DatabaseStatus) Valid() bool {
 	case DatabaseStatusDeploying:
 		return true
 	case DatabaseStatusFailed:
+		return true
+	case DatabaseStatusMoving:
 		return true
 	case DatabaseStatusPending:
 		return true
@@ -1157,6 +1400,7 @@ func (e DatabaseBackupBackupType) Valid() bool {
 const (
 	DatabaseBackupStatusCompleted DatabaseBackupStatus = "completed"
 	DatabaseBackupStatusFailed    DatabaseBackupStatus = "failed"
+	DatabaseBackupStatusPending   DatabaseBackupStatus = "pending"
 	DatabaseBackupStatusRunning   DatabaseBackupStatus = "running"
 )
 
@@ -1166,6 +1410,8 @@ func (e DatabaseBackupStatus) Valid() bool {
 	case DatabaseBackupStatusCompleted:
 		return true
 	case DatabaseBackupStatusFailed:
+		return true
+	case DatabaseBackupStatusPending:
 		return true
 	case DatabaseBackupStatusRunning:
 		return true
@@ -2226,15 +2472,12 @@ func (e SSHKeyKeyType) Valid() bool {
 
 // Defines values for ScaleAppServiceRequestAutoscalingMetric.
 const (
-	CPU         ScaleAppServiceRequestAutoscalingMetric = "cpu"
 	Concurrency ScaleAppServiceRequestAutoscalingMetric = "concurrency"
 )
 
 // Valid indicates whether the value is a known member of the ScaleAppServiceRequestAutoscalingMetric enum.
 func (e ScaleAppServiceRequestAutoscalingMetric) Valid() bool {
 	switch e {
-	case CPU:
-		return true
 	case Concurrency:
 		return true
 	default:
@@ -2386,6 +2629,27 @@ func (e UpdateAPIKeyRequestRateLimitTier) Valid() bool {
 	case UpdateAPIKeyRequestRateLimitTierHigh:
 		return true
 	case UpdateAPIKeyRequestRateLimitTierStandard:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for UpdateAppServiceRequestCronConcurrency.
+const (
+	Allow   UpdateAppServiceRequestCronConcurrency = "allow"
+	Forbid  UpdateAppServiceRequestCronConcurrency = "forbid"
+	Replace UpdateAppServiceRequestCronConcurrency = "replace"
+)
+
+// Valid indicates whether the value is a known member of the UpdateAppServiceRequestCronConcurrency enum.
+func (e UpdateAppServiceRequestCronConcurrency) Valid() bool {
+	switch e {
+	case Allow:
+		return true
+	case Forbid:
+		return true
+	case Replace:
 		return true
 	default:
 		return false
@@ -2787,19 +3051,19 @@ func (e SetAppEnvVarJSONBodyScope) Valid() bool {
 
 // Defines values for BulkSetAppEnvVarsJSONBodyVarsScope.
 const (
-	Both    BulkSetAppEnvVarsJSONBodyVarsScope = "both"
-	Build   BulkSetAppEnvVarsJSONBodyVarsScope = "build"
-	Runtime BulkSetAppEnvVarsJSONBodyVarsScope = "runtime"
+	BulkSetAppEnvVarsJSONBodyVarsScopeBoth    BulkSetAppEnvVarsJSONBodyVarsScope = "both"
+	BulkSetAppEnvVarsJSONBodyVarsScopeBuild   BulkSetAppEnvVarsJSONBodyVarsScope = "build"
+	BulkSetAppEnvVarsJSONBodyVarsScopeRuntime BulkSetAppEnvVarsJSONBodyVarsScope = "runtime"
 )
 
 // Valid indicates whether the value is a known member of the BulkSetAppEnvVarsJSONBodyVarsScope enum.
 func (e BulkSetAppEnvVarsJSONBodyVarsScope) Valid() bool {
 	switch e {
-	case Both:
+	case BulkSetAppEnvVarsJSONBodyVarsScopeBoth:
 		return true
-	case Build:
+	case BulkSetAppEnvVarsJSONBodyVarsScopeBuild:
 		return true
-	case Runtime:
+	case BulkSetAppEnvVarsJSONBodyVarsScopeRuntime:
 		return true
 	default:
 		return false
@@ -3201,31 +3465,31 @@ func (e ListVMsParamsRegion) Valid() bool {
 
 // Defines values for ListVMsParamsStatus.
 const (
-	Active       ListVMsParamsStatus = "active"
-	Booting      ListVMsParamsStatus = "booting"
-	Failure      ListVMsParamsStatus = "failure"
-	Finalizing   ListVMsParamsStatus = "finalizing"
-	Initiating   ListVMsParamsStatus = "initiating"
-	Passive      ListVMsParamsStatus = "passive"
-	Provisioning ListVMsParamsStatus = "provisioning"
+	ListVMsParamsStatusActive       ListVMsParamsStatus = "active"
+	ListVMsParamsStatusBooting      ListVMsParamsStatus = "booting"
+	ListVMsParamsStatusFailure      ListVMsParamsStatus = "failure"
+	ListVMsParamsStatusFinalizing   ListVMsParamsStatus = "finalizing"
+	ListVMsParamsStatusInitiating   ListVMsParamsStatus = "initiating"
+	ListVMsParamsStatusPassive      ListVMsParamsStatus = "passive"
+	ListVMsParamsStatusProvisioning ListVMsParamsStatus = "provisioning"
 )
 
 // Valid indicates whether the value is a known member of the ListVMsParamsStatus enum.
 func (e ListVMsParamsStatus) Valid() bool {
 	switch e {
-	case Active:
+	case ListVMsParamsStatusActive:
 		return true
-	case Booting:
+	case ListVMsParamsStatusBooting:
 		return true
-	case Failure:
+	case ListVMsParamsStatusFailure:
 		return true
-	case Finalizing:
+	case ListVMsParamsStatusFinalizing:
 		return true
-	case Initiating:
+	case ListVMsParamsStatusInitiating:
 		return true
-	case Passive:
+	case ListVMsParamsStatusPassive:
 		return true
-	case Provisioning:
+	case ListVMsParamsStatusProvisioning:
 		return true
 	default:
 		return false
@@ -3474,6 +3738,30 @@ type AddVMTagRequest struct {
 	Priority *int `json:"priority,omitempty"`
 }
 
+// AppBinding A managed database linked to an app.
+type AppBinding struct {
+	BindingType *AppBindingBindingType `json:"binding_type,omitempty"`
+	CreatedAt   *time.Time             `json:"created_at,omitempty"`
+
+	// EnvPrefix Prefix of the variables this link sets (`DATABASE` by default)
+	EnvPrefix    *string             `json:"env_prefix,omitempty"`
+	ID           *openapi_types.UUID `json:"id,omitempty"`
+	InjectedKeys *[]string           `json:"injected_keys,omitempty"`
+
+	// ResourceID The database's ID
+	ResourceID    *openapi_types.UUID `json:"resource_id,omitempty"`
+	ResourceName  *string             `json:"resource_name,omitempty"`
+	ServiceID     *openapi_types.UUID `json:"service_id,omitempty"`
+	Status        *AppBindingStatus   `json:"status,omitempty"`
+	StatusMessage *string             `json:"status_message,omitempty"`
+}
+
+// AppBindingBindingType defines model for AppBinding.BindingType.
+type AppBindingBindingType string
+
+// AppBindingStatus defines model for AppBinding.Status.
+type AppBindingStatus string
+
 // AppBuildLogLine defines model for AppBuildLogLine.
 type AppBuildLogLine struct {
 	Component *string    `json:"component,omitempty"`
@@ -3510,10 +3798,12 @@ type AppDeployment struct {
 	CommitSha        *string               `json:"commit_sha,omitempty"`
 	CreatedAt        *time.Time            `json:"created_at,omitempty"`
 	DeploymentNumber *int                  `json:"deployment_number,omitempty"`
-	Error            *string               `json:"error,omitempty"`
-	FinishedAt       *time.Time            `json:"finished_at,omitempty"`
-	ID               *openapi_types.UUID   `json:"id,omitempty"`
-	ImageDigest      *string               `json:"image_digest,omitempty"`
+
+	// Error Why the deploy failed or was canceled, in plain words. A failed build ends with the last lines of its build log.
+	Error       *string             `json:"error,omitempty"`
+	FinishedAt  *time.Time          `json:"finished_at,omitempty"`
+	ID          *openapi_types.UUID `json:"id,omitempty"`
+	ImageDigest *string             `json:"image_digest,omitempty"`
 
 	// RollbackOf Set when this deployment is a rollback
 	RollbackOf *openapi_types.UUID  `json:"rollback_of,omitempty"`
@@ -3572,19 +3862,88 @@ type AppEnvVar struct {
 // inside the image. Prefer `runtime` for credentials.
 type AppEnvVarScope string
 
+// AppEnvVarInput defines model for AppEnvVarInput.
+type AppEnvVarInput struct {
+	IsSecret *bool `json:"is_secret,omitempty"`
+
+	// Key Letters, digits and underscores, not starting with a digit
+	Key string `json:"key"`
+
+	// Scope `build` is refused for apps from an image (they are never built)
+	Scope *AppEnvVarInputScope `json:"scope,omitempty"`
+	Value string               `json:"value"`
+}
+
+// AppEnvVarInputScope `build` is refused for apps from an image (they are never built)
+type AppEnvVarInputScope string
+
+// AppEvent defines model for AppEvent.
+type AppEvent struct {
+	CreatedAt *time.Time `json:"created_at,omitempty"`
+
+	// EventType For example `deploy.live`, `config.updated`, `database.linked`
+	EventType *string `json:"event_type,omitempty"`
+	ID        *string `json:"id,omitempty"`
+	Message   *string `json:"message,omitempty"`
+
+	// Metadata Extra details as JSON text, or empty
+	Metadata  *string             `json:"metadata,omitempty"`
+	ServiceID *openapi_types.UUID `json:"service_id,omitempty"`
+}
+
+// AppGitHubConnection defines model for AppGitHubConnection.
+type AppGitHubConnection struct {
+	// AccountType The GitHub account type (a user or an organization)
+	AccountType *string    `json:"account_type,omitempty"`
+	CreatedAt   *time.Time `json:"created_at,omitempty"`
+	GithubLogin *string    `json:"github_login,omitempty"`
+
+	// ID Use as `github_installation_id`
+	ID *openapi_types.UUID `json:"id,omitempty"`
+
+	// InstallationID GitHub's own installation number
+	InstallationID *int `json:"installation_id,omitempty"`
+
+	// SettingsURL Where to change which repositories Raff can see
+	SettingsURL *string `json:"settings_url,omitempty"`
+	Status      *string `json:"status,omitempty"`
+	Suspended   *bool   `json:"suspended,omitempty"`
+}
+
+// AppInstance defines model for AppInstance.
+type AppInstance struct {
+	Name     *string           `json:"name,omitempty"`
+	Phase    *AppInstancePhase `json:"phase,omitempty"`
+	Ready    *bool             `json:"ready,omitempty"`
+	Restarts *int              `json:"restarts,omitempty"`
+
+	// StartedAt Empty until the instance starts
+	StartedAt *string `json:"started_at,omitempty"`
+}
+
+// AppInstancePhase defines model for AppInstance.Phase.
+type AppInstancePhase string
+
 // AppJobRun defines model for AppJobRun.
 type AppJobRun struct {
 	DeploymentID *openapi_types.UUID `json:"deployment_id,omitempty"`
-	Error        *string             `json:"error,omitempty"`
+
+	// Error Why the run failed or was canceled, in plain words.
+	Error *string `json:"error,omitempty"`
+
+	// ExitCode The program's exit code. Null while the run is still going and for a canceled run.
 	ExitCode     *int                `json:"exit_code,omitempty"`
 	FinishedAt   *time.Time          `json:"finished_at,omitempty"`
 	ID           *openapi_types.UUID `json:"id,omitempty"`
 	ScheduledFor *time.Time          `json:"scheduled_for,omitempty"`
 	ServiceID    *openapi_types.UUID `json:"service_id,omitempty"`
 	StartedAt    *time.Time          `json:"started_at,omitempty"`
-	Status       *string             `json:"status,omitempty"`
+	Status       *AppJobRunStatus    `json:"status,omitempty"`
 	Trigger      *AppJobRunTrigger   `json:"trigger,omitempty"`
 }
+
+// AppJobRunStatus defines model for AppJobRun.Status.
+type AppJobRunStatus string
 
 // AppJobRunTrigger defines model for AppJobRun.Trigger.
 type AppJobRunTrigger string
@@ -3607,6 +3966,26 @@ type AppMetricSeries struct {
 	Values     *[]float32   `json:"values,omitempty"`
 }
 
+// AppPreview defines model for AppPreview.
+type AppPreview struct {
+	Branch              *string             `json:"branch,omitempty"`
+	CreatedAt           *time.Time          `json:"created_at,omitempty"`
+	CurrentDeploymentID *string             `json:"current_deployment_id,omitempty"`
+	ExpiresAt           *string             `json:"expires_at,omitempty"`
+	HeadSha             *string             `json:"head_sha,omitempty"`
+	ID                  *openapi_types.UUID `json:"id,omitempty"`
+	PrNumber            *int                `json:"pr_number,omitempty"`
+	PrTitle             *string             `json:"pr_title,omitempty"`
+	ServiceID           *openapi_types.UUID `json:"service_id,omitempty"`
+	Status              *AppPreviewStatus   `json:"status,omitempty"`
+	StatusMessage       *string             `json:"status_message,omitempty"`
+	UpdatedAt           *time.Time          `json:"updated_at,omitempty"`
+	URL                 *string             `json:"url,omitempty"`
+}
+
+// AppPreviewStatus defines model for AppPreview.Status.
+type AppPreviewStatus string
+
 // AppService An app service on the Raff PaaS — a web service, private service, worker, cron job, or one-off job.
 type AppService struct {
 	AutoscalingEnabled *bool                  `json:"autoscaling_enabled,omitempty"`
@@ -3616,33 +3995,54 @@ type AppService struct {
 	Builder            *AppServiceBuilder     `json:"builder,omitempty"`
 	CreatedAt          *time.Time             `json:"created_at,omitempty"`
 
+	// CronConcurrency Cron services only. What happens when a run is due while the last one still runs.
+	CronConcurrency *AppServiceCronConcurrency `json:"cron_concurrency,omitempty"`
+
 	// CronSchedule Cron services only
-	CronSchedule        *string             `json:"cron_schedule,omitempty"`
-	CronTimezone        *string             `json:"cron_timezone,omitempty"`
-	CurrentDeploymentID *openapi_types.UUID `json:"current_deployment_id,omitempty"`
-	Description         *string             `json:"description,omitempty"`
-	DockerfilePath      *string             `json:"dockerfile_path,omitempty"`
-	HealthCheckPath     *string             `json:"health_check_path,omitempty"`
-	HTTPPort            *int                `json:"http_port,omitempty"`
-	ID                  *openapi_types.UUID `json:"id,omitempty"`
+	CronSchedule *string `json:"cron_schedule,omitempty"`
+	CronTimezone *string `json:"cron_timezone,omitempty"`
+
+	// CurrentDeploymentID Empty until a deployment goes live
+	CurrentDeploymentID     *string `json:"current_deployment_id,omitempty"`
+	CurrentDeploymentNumber *int    `json:"current_deployment_number,omitempty"`
+	Description             *string `json:"description,omitempty"`
+	DockerfilePath          *string `json:"dockerfile_path,omitempty"`
+	GithubLogin             *string `json:"github_login,omitempty"`
+	GithubSettingsURL       *string `json:"github_settings_url,omitempty"`
+
+	// GithubStatus Empty when Raff can reach the app's repository; otherwise why not (reconnect GitHub in the dashboard)
+	GithubStatus    *AppServiceGithubStatus `json:"github_status,omitempty"`
+	HealthCheckPath *string                 `json:"health_check_path,omitempty"`
+	HTTPPort        *int                    `json:"http_port,omitempty"`
+	ID              *openapi_types.UUID     `json:"id,omitempty"`
 
 	// ImageRef Prebuilt image source only
 	ImageRef *string `json:"image_ref,omitempty"`
 
-	// InternalHost In-cluster hostname (private services)
+	// InternalHost In-cluster hostname (private services); reach it on `http_port`
 	InternalHost *string `json:"internal_host,omitempty"`
-	MaxReplicas  *int    `json:"max_replicas,omitempty"`
-	MinReplicas  *int    `json:"min_replicas,omitempty"`
+
+	// MaxPreviews Previews this app's size allows
+	MaxPreviews *int `json:"max_previews,omitempty"`
+	MaxReplicas *int `json:"max_replicas,omitempty"`
+	MinReplicas *int `json:"min_replicas,omitempty"`
 
 	// Name Display name, unique within the project
 	Name *string `json:"name,omitempty"`
 
 	// PausedByCap True when a spend cap paused the service
-	PausedByCap *bool               `json:"paused_by_cap,omitempty"`
-	ProjectID   *openapi_types.UUID `json:"project_id,omitempty"`
-	Region      *string             `json:"region,omitempty"`
-	Replicas    *int                `json:"replicas,omitempty"`
-	RepoBranch  *string             `json:"repo_branch,omitempty"`
+	PausedByCap  *bool `json:"paused_by_cap,omitempty"`
+	PreviewCount *int  `json:"preview_count,omitempty"`
+
+	// PreviewsEnabled Pull request previews are on (web apps from GitHub)
+	PreviewsEnabled *bool `json:"previews_enabled,omitempty"`
+
+	// PrimaryDomain The first verified custom domain, if any
+	PrimaryDomain *string             `json:"primary_domain,omitempty"`
+	ProjectID     *openapi_types.UUID `json:"project_id,omitempty"`
+	Region        *string             `json:"region,omitempty"`
+	Replicas      *int                `json:"replicas,omitempty"`
+	RepoBranch    *string             `json:"repo_branch,omitempty"`
 
 	// RepoFullName GitHub source only (owner/name)
 	RepoFullName *string `json:"repo_full_name,omitempty"`
@@ -3654,11 +4054,13 @@ type AppService struct {
 	ServiceType *AppServiceServiceType `json:"service_type,omitempty"`
 
 	// Slug URL label — the name plus a short random suffix
-	Slug          *string               `json:"slug,omitempty"`
-	SourceType    *AppServiceSourceType `json:"source_type,omitempty"`
-	StartCommand  *string               `json:"start_command,omitempty"`
-	Status        *AppServiceStatus     `json:"status,omitempty"`
-	StatusMessage *string               `json:"status_message,omitempty"`
+	Slug         *string               `json:"slug,omitempty"`
+	SourceType   *AppServiceSourceType `json:"source_type,omitempty"`
+	StartCommand *string               `json:"start_command,omitempty"`
+	Status       *AppServiceStatus     `json:"status,omitempty"`
+
+	// StatusMessage When status is error, what went wrong, in plain words.
+	StatusMessage *string `json:"status_message,omitempty"`
 
 	// TierID Pricing tier ID (see `GET /api/v1/apps/tiers`)
 	TierID    *int       `json:"tier_id,omitempty"`
@@ -3667,6 +4069,9 @@ type AppService struct {
 
 	// URL Public HTTPS endpoint (web services; automatic TLS)
 	URL *string `json:"url,omitempty"`
+
+	// WaitingForDatabase Created with `link_database_id`; the app deploys once the database runs and is linked
+	WaitingForDatabase *bool `json:"waiting_for_database,omitempty"`
 }
 
 // AppServiceBillingType defines model for AppService.BillingType.
@@ -3674,6 +4079,12 @@ type AppServiceBillingType string
 
 // AppServiceBuilder defines model for AppService.Builder.
 type AppServiceBuilder string
+
+// AppServiceCronConcurrency Cron services only. What happens when a run is due while the last one still runs.
+type AppServiceCronConcurrency string
+
+// AppServiceGithubStatus Empty when Raff can reach the app's repository; otherwise why not (reconnect GitHub in the dashboard)
+type AppServiceGithubStatus string
 
 // AppServiceServiceType defines model for AppService.ServiceType.
 type AppServiceServiceType string
@@ -3696,6 +4107,35 @@ type AppSpendSettings struct {
 
 // AppSpendSettingsCapAction defines model for AppSpendSettings.CapAction.
 type AppSpendSettingsCapAction string
+
+// AppTemplate defines model for AppTemplate.
+type AppTemplate struct {
+	Builder  *string `json:"builder,omitempty"`
+	Category *string `json:"category,omitempty"`
+
+	// Companions `database:postgres` when the template uses Postgres
+	Companions *[]string `json:"companions,omitempty"`
+
+	// DatabaseOptional With a Postgres companion, the template also runs without one (its data stays inside the app)
+	DatabaseOptional *bool   `json:"database_optional,omitempty"`
+	DefaultTierID    *int    `json:"default_tier_id,omitempty"`
+	Description      *string `json:"description,omitempty"`
+
+	// Env Settings the template needs to start; `{url}` stands for the app's address
+	Env *map[string]string `json:"env,omitempty"`
+
+	// HealthCheckPath The page that answers once the app is ready
+	HealthCheckPath *string `json:"health_check_path,omitempty"`
+	HTTPPort        *int    `json:"http_port,omitempty"`
+	ID              *string `json:"id,omitempty"`
+	ImageRef        *string `json:"image_ref,omitempty"`
+
+	// MinTierID Smallest size the template runs on (0 = any)
+	MinTierID   *int    `json:"min_tier_id,omitempty"`
+	Name        *string `json:"name,omitempty"`
+	Popular     *bool   `json:"popular,omitempty"`
+	ServiceType *string `json:"service_type,omitempty"`
+}
 
 // AppTier One Apps pricing tier — compute size and price.
 type AppTier struct {
@@ -3928,7 +4368,7 @@ type BrowseDatabaseRequest struct {
 	// Match Valkey key pattern
 	Match *string `json:"match,omitempty"`
 
-	// Path `[]`, `[schema]`, or `[schema, table]`; for Valkey `[]` or `[key]`
+	// Path `[]`, `[schema]`, or `[schema, table]`; for Valkey `[]` or `[key]`; for Kafka `[]`, `[topic]`, or `[topic, partition]`
 	Path *[]string `json:"path,omitempty"`
 }
 
@@ -4059,7 +4499,22 @@ type CreateAPIKeyRequest struct {
 // CreateAPIKeyRequestRateLimitTier `standard` (30 RPS) by default. `high` (100 RPS) requires support approval — request via email if you need it.
 type CreateAPIKeyRequestRateLimitTier string
 
-// CreateAppDeploymentRequest Provide a source_blob_key or an image_ref. Git-connected services deploy their branch head when neither is given.
+// CreateAppBindingRequest defines model for CreateAppBindingRequest.
+type CreateAppBindingRequest struct {
+	BindingType CreateAppBindingRequestBindingType `json:"binding_type"`
+
+	// EnvPrefix Prefix for the variables, uppercase letters, digits and underscores
+	// (default `DATABASE`). Give a second database its own prefix.
+	EnvPrefix *string `json:"env_prefix,omitempty"`
+
+	// ResourceID A running managed database of this account
+	ResourceID openapi_types.UUID `json:"resource_id"`
+}
+
+// CreateAppBindingRequestBindingType defines model for CreateAppBindingRequest.BindingType.
+type CreateAppBindingRequestBindingType string
+
+// CreateAppDeploymentRequest Provide a source_blob_key or an image_ref. With neither, the app redeploys what runs now; it does not fetch a new commit.
 type CreateAppDeploymentRequest struct {
 	Channel *CreateAppDeploymentRequestChannel `json:"channel,omitempty"`
 
@@ -4077,18 +4532,38 @@ type CreateAppDeploymentRequestChannel string
 type CreateAppServiceRequest struct {
 	AutoscalingEnabled *bool                           `json:"autoscaling_enabled,omitempty"`
 	Builder            *CreateAppServiceRequestBuilder `json:"builder,omitempty"`
-	CronSchedule       *string                         `json:"cron_schedule,omitempty"`
-	CronTimezone       *string                         `json:"cron_timezone,omitempty"`
 
-	// DeployNow Queue a deployment immediately (prebuilt-image services)
-	DeployNow       *bool   `json:"deploy_now,omitempty"`
-	Description     *string `json:"description,omitempty"`
-	DockerfilePath  *string `json:"dockerfile_path,omitempty"`
-	HealthCheckPath *string `json:"health_check_path,omitempty"`
-	HTTPPort        *int    `json:"http_port,omitempty"`
+	// CronConcurrency Cron services only
+	CronConcurrency *CreateAppServiceRequestCronConcurrency `json:"cron_concurrency,omitempty"`
+	CronSchedule    *string                                 `json:"cron_schedule,omitempty"`
+	CronTimezone    *string                                 `json:"cron_timezone,omitempty"`
+
+	// DeployNow Deploy right away. For apps from an image or GitHub; refused for an
+	// app built from uploaded source (upload, then create a deployment).
+	DeployNow      *bool   `json:"deploy_now,omitempty"`
+	Description    *string `json:"description,omitempty"`
+	DockerfilePath *string `json:"dockerfile_path,omitempty"`
+
+	// EnvVars Environment variables set before the first deploy
+	EnvVars *[]AppEnvVarInput `json:"env_vars,omitempty"`
+
+	// GithubInstallationID For source_type `git`: the `id` of a GitHub connection, from
+	// [List GitHub connections](/api-reference/apps/list-app-github-connections).
+	// The API key's owner must have used **Continue with GitHub** on
+	// the Raff create page in the last 7 days, and their GitHub account
+	// must see the repository; otherwise the create is refused.
+	GithubInstallationID *openapi_types.UUID `json:"github_installation_id,omitempty"`
+	HealthCheckPath      *string             `json:"health_check_path,omitempty"`
+	HTTPPort             *int                `json:"http_port,omitempty"`
 
 	// ImageRef Prebuilt image reference (for source_type `image`)
 	ImageRef *string `json:"image_ref,omitempty"`
+
+	// LinkDatabaseID A managed Postgres of this account (its short ID or UUID) to link
+	// before the first deploy.
+	// The app waits until the database runs (`waiting_for_database`),
+	// links it and then deploys, so `DATABASE_URL` is set from the start.
+	LinkDatabaseID *string `json:"link_database_id,omitempty"`
 
 	// MaxReplicas Most instances when autoscaling. An app can have at most 6 instances.
 	MaxReplicas *int `json:"max_replicas,omitempty"`
@@ -4107,8 +4582,17 @@ type CreateAppServiceRequest struct {
 	RepoRootDir  *string `json:"repo_root_dir,omitempty"`
 
 	// ScaleToZero Stop every instance when idle. Only for `web` and `private` apps.
-	ScaleToZero  *bool                              `json:"scale_to_zero,omitempty"`
-	ServiceType  CreateAppServiceRequestServiceType `json:"service_type"`
+	ScaleToZero *bool                              `json:"scale_to_zero,omitempty"`
+	ServiceType CreateAppServiceRequestServiceType `json:"service_type"`
+
+	// SourceType `image` runs `image_ref` (the builder is `image`); use it for a
+	// Docker image and for a template, with the template's `image_ref`,
+	// `http_port`, `env` and `health_check_path` from
+	// [List app templates](/api-reference/apps/list-app-templates).
+	// `git` builds a GitHub repository. `console` builds source you
+	// upload ([Request source upload](/api-reference/apps/request-app-source-upload),
+	// then create a deployment). `template` and `compose` are labels
+	// only and build like `console`.
 	SourceType   *CreateAppServiceRequestSourceType `json:"source_type,omitempty"`
 	StartCommand *string                            `json:"start_command,omitempty"`
 	TierID       *int                               `json:"tier_id,omitempty"`
@@ -4117,10 +4601,20 @@ type CreateAppServiceRequest struct {
 // CreateAppServiceRequestBuilder defines model for CreateAppServiceRequest.Builder.
 type CreateAppServiceRequestBuilder string
 
+// CreateAppServiceRequestCronConcurrency Cron services only
+type CreateAppServiceRequestCronConcurrency string
+
 // CreateAppServiceRequestServiceType defines model for CreateAppServiceRequest.ServiceType.
 type CreateAppServiceRequestServiceType string
 
-// CreateAppServiceRequestSourceType defines model for CreateAppServiceRequest.SourceType.
+// CreateAppServiceRequestSourceType `image` runs `image_ref` (the builder is `image`); use it for a
+// Docker image and for a template, with the template's `image_ref`,
+// `http_port`, `env` and `health_check_path` from
+// [List app templates](/api-reference/apps/list-app-templates).
+// `git` builds a GitHub repository. `console` builds source you
+// upload ([Request source upload](/api-reference/apps/request-app-source-upload),
+// then create a deployment). `template` and `compose` are labels
+// only and build like `console`.
 type CreateAppServiceRequestSourceType string
 
 // CreateBackupRequest defines model for CreateBackupRequest.
@@ -4171,25 +4665,25 @@ type CreateDatabaseRequest struct {
 	// Extensions PostgreSQL only. Extensions to turn on before the database is marked running, so it is ready for them the moment you connect. Allowed: `vector` (AI embeddings), `pg_trgm`, `pg_stat_statements`, `hstore`, `uuid-ossp`, `citext`, `ltree`, `pgcrypto`, `unaccent`. Other engines or other names are refused with 400. Any other extension the image ships can be turned on later with the extensions endpoint.
 	Extensions *[]string `json:"extensions,omitempty"`
 
-	// HaEnabled Enable high availability (+70% of the plan price)
+	// HaEnabled Enable high availability (+70% of the plan price for PostgreSQL, Valkey and ClickHouse, +140% for MySQL and Kafka). Not available on the free plan.
 	HaEnabled *bool `json:"ha_enabled,omitempty"`
 
-	// Name Display name, unique within the account
+	// Name Display name, unique within the project across all engines. Lowercase letters, digits and hyphens work everywhere.
 	Name string `json:"name"`
 
 	// PlanID Pricing plan ID from `GET /api/v1/databases/plans`
 	PlanID int `json:"plan_id"`
 
-	// PublicAccess Enable public access at create time
+	// PublicAccess Give the database a public address (TLS required) as soon as it is created. If the public address cannot be set up, the database is still created, without it; check `public_access` in the response of `GET /api/v1/databases/{database_id}`. Kafka is private only.
 	PublicAccess *bool `json:"public_access,omitempty"`
 
 	// Region Data center region
 	Region *CreateDatabaseRequestRegion `json:"region,omitempty"`
 
-	// ReplicaCount Read replicas (PostgreSQL only; Valkey rejects a count above 0)
+	// ReplicaCount Read replicas, PostgreSQL only. Each costs the same as the plan. Not available on the free plan.
 	ReplicaCount *int `json:"replica_count,omitempty"`
 
-	// StorageGb Storage in GB. Omit to use the plan's included allotment; storage above it bills at $0.12/GB/month.
+	// StorageGb Storage in GB. Omit to use the plan's included storage; storage above it is billed per GB per month ($0.15 today). Fixed on the free plan.
 	StorageGb *int `json:"storage_gb,omitempty"`
 
 	// VpcID VPC to place the private endpoint in. Omit to create without VPC connectivity and attach one later via `POST /api/v1/databases/{database_id}/vpc`.
@@ -4534,15 +5028,18 @@ type Database struct {
 	// BillingType Billing type for this database
 	BillingType *DatabaseBillingType `json:"billing_type,omitempty"`
 
-	// ConnectionHost Private endpoint hostname, resolvable inside the attached VPC
+	// ConnectionHost Private endpoint hostname, resolvable inside the attached VPC. Use it only when `vpc_id` is set; without a VPC the database has no private address you can reach.
 	ConnectionHost *string `json:"connection_host,omitempty"`
 
-	// ConnectionPort Private endpoint port. PostgreSQL: 6432 pooled (PgBouncer, transaction mode), 5432 direct. Valkey: 6379 (TLS).
+	// ConnectionPort Private endpoint port. PostgreSQL: 5432 direct; the pooler (PgBouncer, transaction mode) is on 6432 of the same host. MySQL: 3306. Valkey: 6379. ClickHouse: 8443 (HTTPS), 9440 (native). Kafka: 9092. Use TLS: databases created from October 13, 2026 refuse unencrypted connections.
 	ConnectionPort *int       `json:"connection_port,omitempty"`
 	CreatedAt      *time.Time `json:"created_at,omitempty"`
 
 	// DatabaseID Short reference id used in URLs and DNS hostnames, e.g. `a1b2c3d4`
 	DatabaseID *string `json:"database_id,omitempty"`
+
+	// DownSince When the database stopped answering, RFC 3339 (empty while it answers). Set with status `warning`.
+	DownSince *string `json:"down_since,omitempty"`
 
 	// Engine Database engine identifier. Defaults to `postgres` on create; the live catalog (including availability and versions) is `GET /api/v1/databases/engines`.
 	Engine *DatabaseEngine `json:"engine,omitempty"`
@@ -4550,7 +5047,7 @@ type Database struct {
 	// EngineVersion Engine major version
 	EngineVersion *string `json:"engine_version,omitempty"`
 
-	// HaEnabled High availability — a standby that takes over automatically on failure (Sentinel failover for Valkey). Adds 70% of the plan price.
+	// HaEnabled High availability: copies on separate servers that take over automatically on failure. PostgreSQL and Valkey run a primary and a standby, ClickHouse two replicas, MySQL a 3-node cluster, Kafka 3 brokers. Adds 70% of the plan price for PostgreSQL, Valkey and ClickHouse, 140% for MySQL and Kafka (`ha_pricing` in `GET /api/v1/databases/plans`).
 	HaEnabled *bool `json:"ha_enabled,omitempty"`
 
 	// ID Unique database identifier
@@ -4558,6 +5055,27 @@ type Database struct {
 
 	// IsFree True for a free-tier database. Free databases pause after 7 days without connections.
 	IsFree *bool `json:"is_free,omitempty"`
+
+	// Metrics Latest live numbers, sampled every minute. `null` until the first sample.
+	Metrics *struct {
+		CacheHitPct       *float32 `json:"cache_hit_pct,omitempty"`
+		ConnectionsActive *int     `json:"connections_active,omitempty"`
+		ConnectionsMax    *int     `json:"connections_max,omitempty"`
+
+		// MetricsUpdatedAt When the numbers were sampled, RFC 3339
+		MetricsUpdatedAt *string `json:"metrics_updated_at,omitempty"`
+
+		// OpsPerSec Transactions (PostgreSQL), queries (MySQL, ClickHouse) or commands (Valkey) per second
+		OpsPerSec *float32 `json:"ops_per_sec,omitempty"`
+
+		// PooledConnectionsActive PostgreSQL pooler
+		PooledConnectionsActive *int `json:"pooled_connections_active,omitempty"`
+
+		// PooledConnectionsMax PostgreSQL pooler
+		PooledConnectionsMax *int `json:"pooled_connections_max,omitempty"`
+		StorageCapacityBytes *int `json:"storage_capacity_bytes,omitempty"`
+		StorageUsedBytes     *int `json:"storage_used_bytes,omitempty"`
+	} `json:"metrics,omitempty"`
 
 	// MonthlyPrice Monthly price in USD
 	MonthlyPrice *float32 `json:"monthly_price,omitempty"`
@@ -4583,22 +5101,31 @@ type Database struct {
 	// PublicDNSHostname Public endpoint hostname (empty when public access is off)
 	PublicDNSHostname *string `json:"public_dns_hostname,omitempty"`
 
-	// PublicPort Public port from the reserved range 25060–26060; `0` when public access is off. For PostgreSQL, `public_port` is the pooled endpoint and `public_port + 1` is the direct endpoint. PostgreSQL is also reachable on the standard ports 6543 (pooled) and 5432 (direct) of `public_dns_hostname`.
+	// PublicPort The database's own public port on `public_dns_hostname`; `0` when public access is off. For PostgreSQL and ClickHouse, `public_port` and `public_port + 1` (PostgreSQL: pooled and direct; ClickHouse: HTTPS and native). PostgreSQL is also reachable on the standard ports 6543 (pooled) and 5432 (direct), routed by the hostname the client sends over TLS; use `public_port` for old clients that do not send it. The port stays the same when public access is turned off and on again.
 	PublicPort *int `json:"public_port,omitempty"`
 
 	// Region Data center region
 	Region *DatabaseRegion `json:"region,omitempty"`
 
-	// ReplicaCount Number of read replicas (PostgreSQL only; always 0 for Valkey)
+	// ReplicaCount Number of read replicas (PostgreSQL only; 0 for other engines). Each costs the same as the plan.
 	ReplicaCount *int `json:"replica_count,omitempty"`
 
-	// Status Lifecycle status. Creation: `pending` → `deploying` → `running`. `warning` means running with a degraded component. `resizing` and `restoring` mean a scale or in-place restore is in progress. `suspended` means a free-tier database paused for idleness (resume any time, data is kept). `failed` means provisioning or a scale operation failed.
+	// Status Lifecycle status.
+	//
+	// - Creation: `pending`, then `deploying`, then `running`. A database with public access reports `running` only once its public address accepts connections.
+	// - `warning`: running with a problem (a component down, storage full). When the database stopped answering, `down_since` is set.
+	// - `resizing`: a plan, storage, high availability or replica change is being applied (a short restart, not an outage).
+	// - `restoring`: an in-place restore is in progress.
+	// - `moving`: Raff is moving the database to other hardware for maintenance.
+	// - `suspended`: a free database paused after 7 days without connections. Data is kept; resume with `POST /api/v1/databases/{database_id}/resume`.
+	// - `failed`: provisioning did not complete.
+	// - `deleting`, `deleted`: being deleted, deleted.
 	Status *DatabaseStatus `json:"status,omitempty"`
 
-	// StatusMessage Human-readable detail for `warning` and `failed` states
+	// StatusMessage Plain-words detail for `warning`, `resizing` and `failed`
 	StatusMessage *string `json:"status_message,omitempty"`
 
-	// StorageGb Provisioned storage in GB. Storage above the plan's included allotment bills at $0.12/GB/month.
+	// StorageGb Provisioned storage in GB. Storage above the plan's included storage is billed per GB per month (`storage_pricing` in `GET /api/v1/databases/plans`, $0.15 today).
 	StorageGb *int `json:"storage_gb,omitempty"`
 
 	// SubscriptionID Subscription ID if billing_type is subscription (empty otherwise)
@@ -4618,7 +5145,16 @@ type DatabaseBillingType string
 // DatabaseRegion Data center region
 type DatabaseRegion string
 
-// DatabaseStatus Lifecycle status. Creation: `pending` → `deploying` → `running`. `warning` means running with a degraded component. `resizing` and `restoring` mean a scale or in-place restore is in progress. `suspended` means a free-tier database paused for idleness (resume any time, data is kept). `failed` means provisioning or a scale operation failed.
+// DatabaseStatus Lifecycle status.
+//
+// - Creation: `pending`, then `deploying`, then `running`. A database with public access reports `running` only once its public address accepts connections.
+// - `warning`: running with a problem (a component down, storage full). When the database stopped answering, `down_since` is set.
+// - `resizing`: a plan, storage, high availability or replica change is being applied (a short restart, not an outage).
+// - `restoring`: an in-place restore is in progress.
+// - `moving`: Raff is moving the database to other hardware for maintenance.
+// - `suspended`: a free database paused after 7 days without connections. Data is kept; resume with `POST /api/v1/databases/{database_id}/resume`.
+// - `failed`: provisioning did not complete.
+// - `deleting`, `deleted`: being deleted, deleted.
 type DatabaseStatus string
 
 // DatabaseBackup defines model for DatabaseBackup.
@@ -4645,11 +5181,8 @@ type DatabaseBackup struct {
 	// Restorable Whether this backup can be used as `backup_id` for a restore. Backups from before the last in-place restore are kept for reference but cannot be restored.
 	Restorable *bool `json:"restorable,omitempty"`
 
-	// RestoreWindowStart RFC 3339. Earliest point in time a PostgreSQL restore can target (the same on every backup in the list). Empty when unknown.
+	// RestoreWindowStart RFC 3339. Earliest point in time a point-in-time restore can target (the same on every backup in the list). Empty when unknown.
 	RestoreWindowStart *string `json:"restore_window_start,omitempty"`
-
-	// S3Path Object storage location of the backup artifact
-	S3Path *string `json:"s3_path,omitempty"`
 
 	// SizeBytes Backup size in bytes (0 while running)
 	SizeBytes *int `json:"size_bytes,omitempty"`
@@ -4721,7 +5254,7 @@ type DatabaseConnection struct {
 	// Password Password — empty unless the request was made with `reveal=true`
 	Password *string `json:"password,omitempty"`
 
-	// Port Endpoint port
+	// Port Endpoint port (PostgreSQL 5432 direct; its pooler is on 6432)
 	Port *int `json:"port,omitempty"`
 
 	// PublicConnectionURI Ready-to-use URI for the public endpoint (includes the password only when revealed). Empty while public access is off.
@@ -4781,7 +5314,8 @@ type DatabaseExtension struct {
 	Version *string `json:"version,omitempty"`
 }
 
-// DatabaseHAPricing High availability pricing for one engine. An HA plan costs `price_per_month * (1 + price_multiplier)`.
+// DatabaseHAPricing High availability pricing for one engine. A plan with high availability costs `price_per_month * (1 + price_multiplier)`.
+// Today: 0.7 (+70%) for PostgreSQL, Valkey and ClickHouse, 1.4 (+140%) for MySQL and Kafka, whose high availability runs three nodes.
 type DatabaseHAPricing struct {
 	// Engine Database engine identifier. Defaults to `postgres` on create; the live catalog (including availability and versions) is `GET /api/v1/databases/engines`.
 	Engine *DatabaseEngine `json:"engine,omitempty"`
@@ -4795,6 +5329,18 @@ type DatabaseMetrics struct {
 	// ArchiveLagBytes WAL archiving lag in bytes (PostgreSQL)
 	ArchiveLagBytes *int `json:"archive_lag_bytes,omitempty"`
 
+	// CacheHitPct Share of reads served from memory, percent. `-1` when not measured
+	CacheHitPct *float32 `json:"cache_hit_pct,omitempty"`
+
+	// CompressionRatio Data size before compression divided by size on disk (ClickHouse). `-1` for other engines
+	CompressionRatio *float32 `json:"compression_ratio,omitempty"`
+
+	// ConnIdleTimeoutSecs Seconds after which idle connections are closed. `-1` when not set
+	ConnIdleTimeoutSecs *int `json:"conn_idle_timeout_secs,omitempty"`
+
+	// ConnRejectedTotal Connections refused because the limit was reached, since the database started. `-1` when not measured
+	ConnRejectedTotal *int `json:"conn_rejected_total,omitempty"`
+
 	// ConnectionsActive Active client connections
 	ConnectionsActive *int `json:"connections_active,omitempty"`
 
@@ -4807,20 +5353,59 @@ type DatabaseMetrics struct {
 	// CPUUsedMillicores CPU in use, millicores
 	CPUUsedMillicores *int `json:"cpu_used_millicores,omitempty"`
 
+	// EvictionsPerMin Keys removed because memory was full, per minute (Valkey). `-1` for other engines
+	EvictionsPerMin *float32 `json:"evictions_per_min,omitempty"`
+
 	// MemCapacityBytes Memory capacity, bytes
 	MemCapacityBytes *int `json:"mem_capacity_bytes,omitempty"`
 
 	// MemUsedBytes Memory in use, bytes
 	MemUsedBytes *int `json:"mem_used_bytes,omitempty"`
 
+	// MergesRunning Background merges running (ClickHouse). `-1` for other engines
+	MergesRunning *int `json:"merges_running,omitempty"`
+
 	// MetricsUpdatedAt When this snapshot was taken, RFC 3339 (empty before the first sample)
 	MetricsUpdatedAt *string `json:"metrics_updated_at,omitempty"`
+
+	// OpsPerSec Transactions (PostgreSQL), queries (MySQL, ClickHouse) or commands (Valkey) per second. `-1` when not measured
+	OpsPerSec *float32 `json:"ops_per_sec,omitempty"`
+
+	// PooledConnectionsActive Client connections on the pooler (PostgreSQL)
+	PooledConnectionsActive *int `json:"pooled_connections_active,omitempty"`
+
+	// PooledConnectionsMax Pooler connection limit (PostgreSQL)
+	PooledConnectionsMax *int `json:"pooled_connections_max,omitempty"`
+
+	// PoolerClWaiting Client connections waiting for a server connection (PostgreSQL). Above 0 for long means the pool is too small for the load
+	PoolerClWaiting *int `json:"pooler_cl_waiting,omitempty"`
+
+	// PoolerMaxwaitUs Longest current wait for a server connection, microseconds (PostgreSQL)
+	PoolerMaxwaitUs *int `json:"pooler_maxwait_us,omitempty"`
+
+	// PoolerServerActive Server connections the pooler is using (PostgreSQL). `-1` without a pooler
+	PoolerServerActive *int `json:"pooler_server_active,omitempty"`
+
+	// PoolerServerIdle Idle server connections in the pool (PostgreSQL). `-1` without a pooler
+	PoolerServerIdle *int `json:"pooler_server_idle,omitempty"`
+
+	// PoolerVersion Pooler version (PostgreSQL)
+	PoolerVersion *string `json:"pooler_version,omitempty"`
 
 	// ReplicationLagBytes Standby/replica lag in bytes (0 without HA or replicas)
 	ReplicationLagBytes *int `json:"replication_lag_bytes,omitempty"`
 
 	// StorageCapacityBytes Storage capacity, bytes
 	StorageCapacityBytes *int `json:"storage_capacity_bytes,omitempty"`
+
+	// StorageDataBytes Part of `storage_used_bytes` taken by data. `-1` when not measured
+	StorageDataBytes *int `json:"storage_data_bytes,omitempty"`
+
+	// StorageLogBytes Part of `storage_used_bytes` taken by the write-ahead or binary log. `-1` when not measured
+	StorageLogBytes *int `json:"storage_log_bytes,omitempty"`
+
+	// StorageReadOnly True while storage is at 95% or more and PostgreSQL or MySQL accept reads only. Writes come back below 90%
+	StorageReadOnly *bool `json:"storage_read_only,omitempty"`
 
 	// StorageUsedBytes Storage in use, bytes
 	StorageUsedBytes *int `json:"storage_used_bytes,omitempty"`
@@ -4868,6 +5453,9 @@ type DatabasePricingPlan struct {
 	// MaxConnections Client connection limit enforced by the engine. 0 means the engine default.
 	MaxConnections *int `json:"max_connections,omitempty"`
 
+	// MaxPooledConnections PostgreSQL only. Client connections the pooler (port 6432 private, 6543 public) accepts. 0 for other engines.
+	MaxPooledConnections *int `json:"max_pooled_connections,omitempty"`
+
 	// MemoryGib RAM in GiB
 	MemoryGib int `json:"memory_gib"`
 
@@ -4898,7 +5486,10 @@ type DatabasePricingPlanRegion string
 
 // DatabasePublicAccessRequest defines model for DatabasePublicAccessRequest.
 type DatabasePublicAccessRequest struct {
-	// Allowlist Source CIDRs allowed to connect. Omit to keep the stored list; pass `[]` to allow all sources.
+	// Allowlist IPv4 addresses or CIDR ranges allowed to connect. Omit to keep the stored list; pass `[]` to allow all sources (the password and TLS are still required).
+	// - Up to 20 entries.
+	// - A single address such as `203.0.113.7` is stored as `203.0.113.7/32`.
+	// - `0.0.0.0/0` is refused: pass `[]` instead.
 	Allowlist *[]string `json:"allowlist,omitempty"`
 
 	// Enabled Enable or disable public access
@@ -4922,15 +5513,15 @@ type DatabaseQueryResult struct {
 	Truncated *bool `json:"truncated,omitempty"`
 }
 
-// DatabaseReplicaPricing Read replica pricing for one engine.
+// DatabaseReplicaPricing Read replica pricing for one engine (PostgreSQL only). Each replica costs the database plan's `price_per_month * price_multiplier`; today the multiplier is 1.0, so a replica costs the same as the plan.
 type DatabaseReplicaPricing struct {
 	// Engine Database engine identifier. Defaults to `postgres` on create; the live catalog (including availability and versions) is `GET /api/v1/databases/engines`.
 	Engine *DatabaseEngine `json:"engine,omitempty"`
 
-	// PriceMultiplier Multiplier applied to the replica base price
+	// PriceMultiplier Each replica costs the plan's monthly price times this
 	PriceMultiplier *float32 `json:"price_multiplier,omitempty"`
 
-	// PricePerMonth Monthly price per read replica in USD
+	// PricePerMonth Not used for billing; the replica price follows the plan (see `price_multiplier`).
 	PricePerMonth *float32 `json:"price_per_month,omitempty"`
 }
 
@@ -4980,7 +5571,7 @@ type DatabaseStoragePricing struct {
 	// MinGb Minimum storage in GB
 	MinGb *int `json:"min_gb,omitempty"`
 
-	// PricePerGbMonth Price per GB per month in USD
+	// PricePerGbMonth Price per GB per month in USD for storage above the plan's included storage
 	PricePerGbMonth *float32 `json:"price_per_gb_month,omitempty"`
 }
 
@@ -6062,7 +6653,7 @@ type RestoreDatabaseRequest struct {
 	// CloneToNew Restore into a new database
 	CloneToNew *bool `json:"clone_to_new,omitempty"`
 
-	// HaEnabled Enable high availability on the new database (+70% of the plan price). Never inherited from the source.
+	// HaEnabled Enable high availability on the new database (+70% of the plan price for PostgreSQL, Valkey and ClickHouse, +140% for MySQL and Kafka). Never inherited from the source.
 	HaEnabled *bool `json:"ha_enabled,omitempty"`
 
 	// InPlace Restore over this database. Data written after the restore point is lost.
@@ -6151,12 +6742,24 @@ type SaveImageRequest struct {
 // ScaleAppServiceRequest An app can have at most 6 instances. The limit is checked only when a
 // value goes up, so an app above it can always scale down.
 type ScaleAppServiceRequest struct {
-	AutoscalingEnabled *bool                                    `json:"autoscaling_enabled,omitempty"`
-	AutoscalingMetric  *ScaleAppServiceRequestAutoscalingMetric `json:"autoscaling_metric,omitempty"`
+	// AutoscalingEnabled Only read when `autoscaling_set` is true.
+	AutoscalingEnabled *bool `json:"autoscaling_enabled,omitempty"`
 
-	// AutoscalingSet Set true to apply the autoscaling fields
-	AutoscalingSet    *bool `json:"autoscaling_set,omitempty"`
-	AutoscalingTarget *int  `json:"autoscaling_target,omitempty"`
+	// AutoscalingMetric What autoscaling follows: `concurrency`, the requests in progress
+	// per instance. Autoscaling is for `web` apps and for `private` apps
+	// with `scale_to_zero`; a worker or an always-on private app runs a
+	// fixed number of instances.
+	AutoscalingMetric *ScaleAppServiceRequestAutoscalingMetric `json:"autoscaling_metric,omitempty"`
+
+	// AutoscalingSet Send `true` to change the autoscaling fields: `autoscaling_enabled`,
+	// `min_replicas`, `max_replicas`, `autoscaling_metric`,
+	// `autoscaling_target` and `scale_to_zero`. With it,
+	// `autoscaling_enabled` and `scale_to_zero` are set exactly as sent,
+	// so leaving one out turns it off. Without it, only `replicas` changes.
+	AutoscalingSet *bool `json:"autoscaling_set,omitempty"`
+
+	// AutoscalingTarget Requests in progress per instance before another instance starts.
+	AutoscalingTarget *int `json:"autoscaling_target,omitempty"`
 
 	// MaxReplicas Most instances when autoscaling.
 	MaxReplicas *int `json:"max_replicas,omitempty"`
@@ -6167,11 +6770,16 @@ type ScaleAppServiceRequest struct {
 	// Replicas Fixed number of instances.
 	Replicas *int `json:"replicas,omitempty"`
 
-	// ScaleToZero Stop every instance when idle. Only for `web` and `private` apps.
+	// ScaleToZero Stop every instance when idle (the app sleeps about 15 minutes
+	// after its last request and wakes on the next one). Only for `web`
+	// and `private` apps, and only read when `autoscaling_set` is true.
 	ScaleToZero *bool `json:"scale_to_zero,omitempty"`
 }
 
-// ScaleAppServiceRequestAutoscalingMetric defines model for ScaleAppServiceRequest.AutoscalingMetric.
+// ScaleAppServiceRequestAutoscalingMetric What autoscaling follows: `concurrency`, the requests in progress
+// per instance. Autoscaling is for `web` apps and for `private` apps
+// with `scale_to_zero`; a worker or an always-on private app runs a
+// fixed number of instances.
 type ScaleAppServiceRequestAutoscalingMetric string
 
 // ScaleDatabaseRequest defines model for ScaleDatabaseRequest.
@@ -6250,7 +6858,7 @@ type SetDatabaseExtensionRequest struct {
 	// Enabled `true` to install, `false` to remove
 	Enabled bool `json:"enabled"`
 
-	// Name Extension name from the allowlist (see `GET /api/v1/databases/{database_id}/extensions`)
+	// Name Extension name as listed by `GET /api/v1/databases/{database_id}/extensions`
 	Name string `json:"name"`
 }
 
@@ -6395,6 +7003,45 @@ type UpdateAPIKeyRequest struct {
 
 // UpdateAPIKeyRequestRateLimitTier defines model for UpdateAPIKeyRequest.RateLimitTier.
 type UpdateAPIKeyRequestRateLimitTier string
+
+// UpdateAppServiceRequest Every field is optional. Leave a field out to keep it.
+type UpdateAppServiceRequest struct {
+	CronConcurrency *UpdateAppServiceRequestCronConcurrency `json:"cron_concurrency,omitempty"`
+
+	// CronSchedule Cron apps only
+	CronSchedule *string `json:"cron_schedule,omitempty"`
+	CronTimezone *string `json:"cron_timezone,omitempty"`
+
+	// Description Send "" to clear it
+	Description    *string `json:"description,omitempty"`
+	DockerfilePath *string `json:"dockerfile_path,omitempty"`
+
+	// HealthCheckPath Must start with `/`
+	HealthCheckPath *string `json:"health_check_path,omitempty"`
+
+	// HTTPPort Web and private apps only
+	HTTPPort *int `json:"http_port,omitempty"`
+
+	// Name Display name (the address does not change)
+	Name *string `json:"name,omitempty"`
+
+	// PreviewsEnabled Pull request previews (web apps from GitHub)
+	PreviewsEnabled *bool `json:"previews_enabled,omitempty"`
+
+	// Redeploy Deploy now even when the change alone would not
+	Redeploy *bool `json:"redeploy,omitempty"`
+
+	// RepoBranch GitHub apps only
+	RepoBranch   *string `json:"repo_branch,omitempty"`
+	RepoRootDir  *string `json:"repo_root_dir,omitempty"`
+	StartCommand *string `json:"start_command,omitempty"`
+
+	// TierID New size (see `GET /api/v1/apps/tiers`). Apps on a subscription change size through support for now.
+	TierID *int `json:"tier_id,omitempty"`
+}
+
+// UpdateAppServiceRequestCronConcurrency defines model for UpdateAppServiceRequest.CronConcurrency.
+type UpdateAppServiceRequestCronConcurrency string
 
 // UpdateBackupScheduleRequest defines model for UpdateBackupScheduleRequest.
 type UpdateBackupScheduleRequest struct {
@@ -6909,11 +7556,17 @@ type VolumeStatus string
 // VolumeVolumeType Storage class
 type VolumeVolumeType string
 
+// AppBindingIDPath defines model for AppBindingIDPath.
+type AppBindingIDPath = openapi_types.UUID
+
 // AppDeploymentIDPath defines model for AppDeploymentIDPath.
 type AppDeploymentIDPath = openapi_types.UUID
 
 // AppDomainIDPath defines model for AppDomainIDPath.
 type AppDomainIDPath = openapi_types.UUID
+
+// AppPreviewIDPath defines model for AppPreviewIDPath.
+type AppPreviewIDPath = openapi_types.UUID
 
 // AppServiceRef defines model for AppServiceRef.
 type AppServiceRef = string
@@ -6968,6 +7621,9 @@ type BadRequest = Error
 
 // BillingValidationFailed Billing validation error response. Returned when the account is not in good standing for paid operations.
 type BillingValidationFailed = BillingError
+
+// Conflict defines model for Conflict.
+type Conflict = Error
 
 // InsufficientBalance defines model for InsufficientBalance.
 type InsufficientBalance = Error
@@ -7047,6 +7703,12 @@ type BulkSetAppEnvVarsJSONBody struct {
 
 // BulkSetAppEnvVarsJSONBodyVarsScope defines parameters for BulkSetAppEnvVars.
 type BulkSetAppEnvVarsJSONBodyVarsScope string
+
+// ListAppEventsParams defines parameters for ListAppEvents.
+type ListAppEventsParams struct {
+	// Limit How many events to return (1 to 200, default 50)
+	Limit *int `form:"limit,omitempty" json:"limit,omitempty"`
+}
 
 // ListAppLogsParams defines parameters for ListAppLogs.
 type ListAppLogsParams struct {
@@ -8101,6 +8763,12 @@ type UpdateAPIKeyJSONRequestBody = UpdateAPIKeyRequest
 // CreateAppServiceJSONRequestBody defines body for CreateAppService for application/json ContentType.
 type CreateAppServiceJSONRequestBody = CreateAppServiceRequest
 
+// UpdateAppServiceJSONRequestBody defines body for UpdateAppService for application/json ContentType.
+type UpdateAppServiceJSONRequestBody = UpdateAppServiceRequest
+
+// CreateAppBindingJSONRequestBody defines body for CreateAppBinding for application/json ContentType.
+type CreateAppBindingJSONRequestBody = CreateAppBindingRequest
+
 // CreateAppDeploymentJSONRequestBody defines body for CreateAppDeployment for application/json ContentType.
 type CreateAppDeploymentJSONRequestBody = CreateAppDeploymentRequest
 
@@ -8433,6 +9101,12 @@ type ClientInterface interface {
 	// RegenerateAPIKey request
 	RegenerateAPIKey(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// DeleteAppBinding request
+	DeleteAppBinding(ctx context.Context, bindingID AppBindingIDPath, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// RotateAppBinding request
+	RotateAppBinding(ctx context.Context, bindingID AppBindingIDPath, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// GetAppDeployment request
 	GetAppDeployment(ctx context.Context, deploymentID AppDeploymentIDPath, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -8445,8 +9119,17 @@ type ClientInterface interface {
 	// RetryAppDomainVerification request
 	RetryAppDomainVerification(ctx context.Context, domainID AppDomainIDPath, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// ListAppGitHubConnections request
+	ListAppGitHubConnections(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// CancelAppJobRun request
 	CancelAppJobRun(ctx context.Context, runID openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DeleteAppPreview request
+	DeleteAppPreview(ctx context.Context, previewID AppPreviewIDPath, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// RedeployAppPreview request
+	RedeployAppPreview(ctx context.Context, previewID AppPreviewIDPath, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListAppServices request
 	ListAppServices(ctx context.Context, params *ListAppServicesParams, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -8461,6 +9144,19 @@ type ClientInterface interface {
 
 	// GetAppService request
 	GetAppService(ctx context.Context, serviceID AppServiceRef, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// UpdateAppServiceWithBody request with any body
+	UpdateAppServiceWithBody(ctx context.Context, serviceID AppServiceRef, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	UpdateAppService(ctx context.Context, serviceID AppServiceRef, body UpdateAppServiceJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ListAppBindings request
+	ListAppBindings(ctx context.Context, serviceID AppServiceRef, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateAppBindingWithBody request with any body
+	CreateAppBindingWithBody(ctx context.Context, serviceID AppServiceRef, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreateAppBinding(ctx context.Context, serviceID AppServiceRef, body CreateAppBindingJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListAppDeployments request
 	ListAppDeployments(ctx context.Context, serviceID AppServiceRef, params *ListAppDeploymentsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -8497,6 +9193,12 @@ type ClientInterface interface {
 	// DeleteAppEnvVar request
 	DeleteAppEnvVar(ctx context.Context, serviceID AppServiceRef, key string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// ListAppEvents request
+	ListAppEvents(ctx context.Context, serviceID AppServiceRef, params *ListAppEventsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ListAppInstances request
+	ListAppInstances(ctx context.Context, serviceID AppServiceRef, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// RunAppJob request
 	RunAppJob(ctx context.Context, serviceID AppServiceRef, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -8511,6 +9213,9 @@ type ClientInterface interface {
 
 	// PauseAppService request
 	PauseAppService(ctx context.Context, serviceID AppServiceRef, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ListAppPreviews request
+	ListAppPreviews(ctx context.Context, serviceID AppServiceRef, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ResumeAppService request
 	ResumeAppService(ctx context.Context, serviceID AppServiceRef, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -8535,6 +9240,9 @@ type ClientInterface interface {
 	UpdateAppSpendSettingsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	UpdateAppSpendSettings(ctx context.Context, body UpdateAppSpendSettingsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ListAppTemplates request
+	ListAppTemplates(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListAppTiers request
 	ListAppTiers(ctx context.Context, params *ListAppTiersParams, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -9431,6 +10139,30 @@ func (c *Client) RegenerateAPIKey(ctx context.Context, id openapi_types.UUID, re
 	return c.Client.Do(req)
 }
 
+func (c *Client) DeleteAppBinding(ctx context.Context, bindingID AppBindingIDPath, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteAppBindingRequest(c.Server, bindingID)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) RotateAppBinding(ctx context.Context, bindingID AppBindingIDPath, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRotateAppBindingRequest(c.Server, bindingID)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) GetAppDeployment(ctx context.Context, deploymentID AppDeploymentIDPath, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetAppDeploymentRequest(c.Server, deploymentID)
 	if err != nil {
@@ -9479,8 +10211,44 @@ func (c *Client) RetryAppDomainVerification(ctx context.Context, domainID AppDom
 	return c.Client.Do(req)
 }
 
+func (c *Client) ListAppGitHubConnections(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListAppGitHubConnectionsRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) CancelAppJobRun(ctx context.Context, runID openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewCancelAppJobRunRequest(c.Server, runID)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DeleteAppPreview(ctx context.Context, previewID AppPreviewIDPath, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteAppPreviewRequest(c.Server, previewID)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) RedeployAppPreview(ctx context.Context, previewID AppPreviewIDPath, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRedeployAppPreviewRequest(c.Server, previewID)
 	if err != nil {
 		return nil, err
 	}
@@ -9541,6 +10309,66 @@ func (c *Client) DeleteAppService(ctx context.Context, serviceID AppServiceRef, 
 
 func (c *Client) GetAppService(ctx context.Context, serviceID AppServiceRef, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetAppServiceRequest(c.Server, serviceID)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdateAppServiceWithBody(ctx context.Context, serviceID AppServiceRef, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateAppServiceRequestWithBody(c.Server, serviceID, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdateAppService(ctx context.Context, serviceID AppServiceRef, body UpdateAppServiceJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateAppServiceRequest(c.Server, serviceID, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ListAppBindings(ctx context.Context, serviceID AppServiceRef, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListAppBindingsRequest(c.Server, serviceID)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateAppBindingWithBody(ctx context.Context, serviceID AppServiceRef, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateAppBindingRequestWithBody(c.Server, serviceID, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateAppBinding(ctx context.Context, serviceID AppServiceRef, body CreateAppBindingJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateAppBindingRequest(c.Server, serviceID, body)
 	if err != nil {
 		return nil, err
 	}
@@ -9707,6 +10535,30 @@ func (c *Client) DeleteAppEnvVar(ctx context.Context, serviceID AppServiceRef, k
 	return c.Client.Do(req)
 }
 
+func (c *Client) ListAppEvents(ctx context.Context, serviceID AppServiceRef, params *ListAppEventsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListAppEventsRequest(c.Server, serviceID, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ListAppInstances(ctx context.Context, serviceID AppServiceRef, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListAppInstancesRequest(c.Server, serviceID)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) RunAppJob(ctx context.Context, serviceID AppServiceRef, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewRunAppJobRequest(c.Server, serviceID)
 	if err != nil {
@@ -9757,6 +10609,18 @@ func (c *Client) GetAppServiceMetrics(ctx context.Context, serviceID AppServiceR
 
 func (c *Client) PauseAppService(ctx context.Context, serviceID AppServiceRef, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewPauseAppServiceRequest(c.Server, serviceID)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ListAppPreviews(ctx context.Context, serviceID AppServiceRef, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListAppPreviewsRequest(c.Server, serviceID)
 	if err != nil {
 		return nil, err
 	}
@@ -9865,6 +10729,18 @@ func (c *Client) UpdateAppSpendSettingsWithBody(ctx context.Context, contentType
 
 func (c *Client) UpdateAppSpendSettings(ctx context.Context, body UpdateAppSpendSettingsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewUpdateAppSpendSettingsRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ListAppTemplates(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListAppTemplatesRequest(c.Server)
 	if err != nil {
 		return nil, err
 	}
@@ -13625,6 +14501,74 @@ func NewRegenerateAPIKeyRequest(server string, id openapi_types.UUID) (*http.Req
 	return req, nil
 }
 
+// NewDeleteAppBindingRequest generates requests for DeleteAppBinding
+func NewDeleteAppBindingRequest(server string, bindingID AppBindingIDPath) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "binding_id", bindingID, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/apps/bindings/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("DELETE", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewRotateAppBindingRequest generates requests for RotateAppBinding
+func NewRotateAppBindingRequest(server string, bindingID AppBindingIDPath) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "binding_id", bindingID, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/apps/bindings/%s/rotate", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewGetAppDeploymentRequest generates requests for GetAppDeployment
 func NewGetAppDeploymentRequest(server string, deploymentID AppDeploymentIDPath) (*http.Request, error) {
 	var err error
@@ -13761,6 +14705,33 @@ func NewRetryAppDomainVerificationRequest(server string, domainID AppDomainIDPat
 	return req, nil
 }
 
+// NewListAppGitHubConnectionsRequest generates requests for ListAppGitHubConnections
+func NewListAppGitHubConnectionsRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/apps/github/installations")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewCancelAppJobRunRequest generates requests for CancelAppJobRun
 func NewCancelAppJobRunRequest(server string, runID openapi_types.UUID) (*http.Request, error) {
 	var err error
@@ -13778,6 +14749,74 @@ func NewCancelAppJobRunRequest(server string, runID openapi_types.UUID) (*http.R
 	}
 
 	operationPath := fmt.Sprintf("/api/v1/apps/jobs/runs/%s/cancel", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewDeleteAppPreviewRequest generates requests for DeleteAppPreview
+func NewDeleteAppPreviewRequest(server string, previewID AppPreviewIDPath) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "preview_id", previewID, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/apps/previews/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("DELETE", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewRedeployAppPreviewRequest generates requests for RedeployAppPreview
+func NewRedeployAppPreviewRequest(server string, previewID AppPreviewIDPath) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "preview_id", previewID, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/apps/previews/%s/redeploy", pathParam0)
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -13993,6 +15032,134 @@ func NewGetAppServiceRequest(server string, serviceID AppServiceRef) (*http.Requ
 	if err != nil {
 		return nil, err
 	}
+
+	return req, nil
+}
+
+// NewUpdateAppServiceRequest calls the generic UpdateAppService builder with application/json body
+func NewUpdateAppServiceRequest(server string, serviceID AppServiceRef, body UpdateAppServiceJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewUpdateAppServiceRequestWithBody(server, serviceID, "application/json", bodyReader)
+}
+
+// NewUpdateAppServiceRequestWithBody generates requests for UpdateAppService with any type of body
+func NewUpdateAppServiceRequestWithBody(server string, serviceID AppServiceRef, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "service_id", serviceID, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/apps/services/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PATCH", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewListAppBindingsRequest generates requests for ListAppBindings
+func NewListAppBindingsRequest(server string, serviceID AppServiceRef) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "service_id", serviceID, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/apps/services/%s/bindings", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewCreateAppBindingRequest calls the generic CreateAppBinding builder with application/json body
+func NewCreateAppBindingRequest(server string, serviceID AppServiceRef, body CreateAppBindingJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateAppBindingRequestWithBody(server, serviceID, "application/json", bodyReader)
+}
+
+// NewCreateAppBindingRequestWithBody generates requests for CreateAppBinding with any type of body
+func NewCreateAppBindingRequestWithBody(server string, serviceID AppServiceRef, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "service_id", serviceID, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/apps/services/%s/bindings", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
 
 	return req, nil
 }
@@ -14384,6 +15551,96 @@ func NewDeleteAppEnvVarRequest(server string, serviceID AppServiceRef, key strin
 	return req, nil
 }
 
+// NewListAppEventsRequest generates requests for ListAppEvents
+func NewListAppEventsRequest(server string, serviceID AppServiceRef, params *ListAppEventsParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "service_id", serviceID, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/apps/services/%s/events", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.Limit != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "limit", *params.Limit, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "integer", Format: ""}); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewListAppInstancesRequest generates requests for ListAppInstances
+func NewListAppInstancesRequest(server string, serviceID AppServiceRef) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "service_id", serviceID, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/apps/services/%s/instances", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewRunAppJobRequest generates requests for RunAppJob
 func NewRunAppJobRequest(server string, serviceID AppServiceRef) (*http.Request, error) {
 	var err error
@@ -14662,6 +15919,40 @@ func NewPauseAppServiceRequest(server string, serviceID AppServiceRef) (*http.Re
 	return req, nil
 }
 
+// NewListAppPreviewsRequest generates requests for ListAppPreviews
+func NewListAppPreviewsRequest(server string, serviceID AppServiceRef) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "service_id", serviceID, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/apps/services/%s/previews", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewResumeAppServiceRequest generates requests for ResumeAppService
 func NewResumeAppServiceRequest(server string, serviceID AppServiceRef) (*http.Request, error) {
 	var err error
@@ -14887,6 +16178,33 @@ func NewUpdateAppSpendSettingsRequestWithBody(server string, contentType string,
 	}
 
 	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewListAppTemplatesRequest generates requests for ListAppTemplates
+func NewListAppTemplatesRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/apps/templates")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
 
 	return req, nil
 }
@@ -25777,6 +27095,12 @@ type ClientWithResponsesInterface interface {
 	// RegenerateAPIKeyWithResponse request
 	RegenerateAPIKeyWithResponse(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*RegenerateAPIKeyResponse, error)
 
+	// DeleteAppBindingWithResponse request
+	DeleteAppBindingWithResponse(ctx context.Context, bindingID AppBindingIDPath, reqEditors ...RequestEditorFn) (*DeleteAppBindingResponse, error)
+
+	// RotateAppBindingWithResponse request
+	RotateAppBindingWithResponse(ctx context.Context, bindingID AppBindingIDPath, reqEditors ...RequestEditorFn) (*RotateAppBindingResponse, error)
+
 	// GetAppDeploymentWithResponse request
 	GetAppDeploymentWithResponse(ctx context.Context, deploymentID AppDeploymentIDPath, reqEditors ...RequestEditorFn) (*GetAppDeploymentResponse, error)
 
@@ -25789,8 +27113,17 @@ type ClientWithResponsesInterface interface {
 	// RetryAppDomainVerificationWithResponse request
 	RetryAppDomainVerificationWithResponse(ctx context.Context, domainID AppDomainIDPath, reqEditors ...RequestEditorFn) (*RetryAppDomainVerificationResponse, error)
 
+	// ListAppGitHubConnectionsWithResponse request
+	ListAppGitHubConnectionsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListAppGitHubConnectionsResponse, error)
+
 	// CancelAppJobRunWithResponse request
 	CancelAppJobRunWithResponse(ctx context.Context, runID openapi_types.UUID, reqEditors ...RequestEditorFn) (*CancelAppJobRunResponse, error)
+
+	// DeleteAppPreviewWithResponse request
+	DeleteAppPreviewWithResponse(ctx context.Context, previewID AppPreviewIDPath, reqEditors ...RequestEditorFn) (*DeleteAppPreviewResponse, error)
+
+	// RedeployAppPreviewWithResponse request
+	RedeployAppPreviewWithResponse(ctx context.Context, previewID AppPreviewIDPath, reqEditors ...RequestEditorFn) (*RedeployAppPreviewResponse, error)
 
 	// ListAppServicesWithResponse request
 	ListAppServicesWithResponse(ctx context.Context, params *ListAppServicesParams, reqEditors ...RequestEditorFn) (*ListAppServicesResponse, error)
@@ -25805,6 +27138,19 @@ type ClientWithResponsesInterface interface {
 
 	// GetAppServiceWithResponse request
 	GetAppServiceWithResponse(ctx context.Context, serviceID AppServiceRef, reqEditors ...RequestEditorFn) (*GetAppServiceResponse, error)
+
+	// UpdateAppServiceWithBodyWithResponse request with any body
+	UpdateAppServiceWithBodyWithResponse(ctx context.Context, serviceID AppServiceRef, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateAppServiceResponse, error)
+
+	UpdateAppServiceWithResponse(ctx context.Context, serviceID AppServiceRef, body UpdateAppServiceJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateAppServiceResponse, error)
+
+	// ListAppBindingsWithResponse request
+	ListAppBindingsWithResponse(ctx context.Context, serviceID AppServiceRef, reqEditors ...RequestEditorFn) (*ListAppBindingsResponse, error)
+
+	// CreateAppBindingWithBodyWithResponse request with any body
+	CreateAppBindingWithBodyWithResponse(ctx context.Context, serviceID AppServiceRef, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateAppBindingResponse, error)
+
+	CreateAppBindingWithResponse(ctx context.Context, serviceID AppServiceRef, body CreateAppBindingJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateAppBindingResponse, error)
 
 	// ListAppDeploymentsWithResponse request
 	ListAppDeploymentsWithResponse(ctx context.Context, serviceID AppServiceRef, params *ListAppDeploymentsParams, reqEditors ...RequestEditorFn) (*ListAppDeploymentsResponse, error)
@@ -25841,6 +27187,12 @@ type ClientWithResponsesInterface interface {
 	// DeleteAppEnvVarWithResponse request
 	DeleteAppEnvVarWithResponse(ctx context.Context, serviceID AppServiceRef, key string, reqEditors ...RequestEditorFn) (*DeleteAppEnvVarResponse, error)
 
+	// ListAppEventsWithResponse request
+	ListAppEventsWithResponse(ctx context.Context, serviceID AppServiceRef, params *ListAppEventsParams, reqEditors ...RequestEditorFn) (*ListAppEventsResponse, error)
+
+	// ListAppInstancesWithResponse request
+	ListAppInstancesWithResponse(ctx context.Context, serviceID AppServiceRef, reqEditors ...RequestEditorFn) (*ListAppInstancesResponse, error)
+
 	// RunAppJobWithResponse request
 	RunAppJobWithResponse(ctx context.Context, serviceID AppServiceRef, reqEditors ...RequestEditorFn) (*RunAppJobResponse, error)
 
@@ -25855,6 +27207,9 @@ type ClientWithResponsesInterface interface {
 
 	// PauseAppServiceWithResponse request
 	PauseAppServiceWithResponse(ctx context.Context, serviceID AppServiceRef, reqEditors ...RequestEditorFn) (*PauseAppServiceResponse, error)
+
+	// ListAppPreviewsWithResponse request
+	ListAppPreviewsWithResponse(ctx context.Context, serviceID AppServiceRef, reqEditors ...RequestEditorFn) (*ListAppPreviewsResponse, error)
 
 	// ResumeAppServiceWithResponse request
 	ResumeAppServiceWithResponse(ctx context.Context, serviceID AppServiceRef, reqEditors ...RequestEditorFn) (*ResumeAppServiceResponse, error)
@@ -25879,6 +27234,9 @@ type ClientWithResponsesInterface interface {
 	UpdateAppSpendSettingsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateAppSpendSettingsResponse, error)
 
 	UpdateAppSpendSettingsWithResponse(ctx context.Context, body UpdateAppSpendSettingsJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateAppSpendSettingsResponse, error)
+
+	// ListAppTemplatesWithResponse request
+	ListAppTemplatesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListAppTemplatesResponse, error)
 
 	// ListAppTiersWithResponse request
 	ListAppTiersWithResponse(ctx context.Context, params *ListAppTiersParams, reqEditors ...RequestEditorFn) (*ListAppTiersResponse, error)
@@ -26833,6 +28191,63 @@ func (r RegenerateAPIKeyResponse) StatusCode() int {
 	return 0
 }
 
+type DeleteAppBindingResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		Accepted *bool `json:"accepted,omitempty"`
+		Success  *bool `json:"success,omitempty"`
+	}
+	JSON401 *Unauthorized
+	JSON404 *NotFound
+}
+
+// Status returns HTTPResponse.Status
+func (r DeleteAppBindingResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeleteAppBindingResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type RotateAppBindingResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		// Binding A managed database linked to an app.
+		Binding *AppBinding `json:"binding,omitempty"`
+		Success *bool       `json:"success,omitempty"`
+	}
+	JSON400 *BadRequest
+	JSON401 *Unauthorized
+	JSON404 *NotFound
+	JSON409 *Conflict
+}
+
+// Status returns HTTPResponse.Status
+func (r RotateAppBindingResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r RotateAppBindingResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type GetAppDeploymentResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -26942,6 +28357,32 @@ func (r RetryAppDomainVerificationResponse) StatusCode() int {
 	return 0
 }
 
+type ListAppGitHubConnectionsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		Installations *[]AppGitHubConnection `json:"installations,omitempty"`
+		Success       *bool                  `json:"success,omitempty"`
+	}
+	JSON401 *Unauthorized
+}
+
+// Status returns HTTPResponse.Status
+func (r ListAppGitHubConnectionsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListAppGitHubConnectionsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type CancelAppJobRunResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -26963,6 +28404,62 @@ func (r CancelAppJobRunResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r CancelAppJobRunResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type DeleteAppPreviewResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		Accepted *bool `json:"accepted,omitempty"`
+		Success  *bool `json:"success,omitempty"`
+	}
+	JSON401 *Unauthorized
+	JSON404 *NotFound
+}
+
+// Status returns HTTPResponse.Status
+func (r DeleteAppPreviewResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeleteAppPreviewResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type RedeployAppPreviewResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		DeploymentID *openapi_types.UUID `json:"deployment_id,omitempty"`
+		Preview      *AppPreview         `json:"preview,omitempty"`
+		Success      *bool               `json:"success,omitempty"`
+	}
+	JSON400 *BadRequest
+	JSON401 *Unauthorized
+	JSON404 *NotFound
+}
+
+// Status returns HTTPResponse.Status
+func (r RedeployAppPreviewResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r RedeployAppPreviewResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -27077,6 +28574,95 @@ func (r GetAppServiceResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r GetAppServiceResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type UpdateAppServiceResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		DeploymentID *openapi_types.UUID `json:"deployment_id,omitempty"`
+
+		// Service An app service on the Raff PaaS — a web service, private service, worker, cron job, or one-off job.
+		Service *AppService `json:"service,omitempty"`
+		Success *bool       `json:"success,omitempty"`
+	}
+	JSON400 *BadRequest
+	JSON401 *Unauthorized
+	JSON404 *NotFound
+	JSON409 *Conflict
+}
+
+// Status returns HTTPResponse.Status
+func (r UpdateAppServiceResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r UpdateAppServiceResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type ListAppBindingsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		Bindings *[]AppBinding `json:"bindings,omitempty"`
+		Success  *bool         `json:"success,omitempty"`
+	}
+	JSON401 *Unauthorized
+	JSON404 *NotFound
+}
+
+// Status returns HTTPResponse.Status
+func (r ListAppBindingsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListAppBindingsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type CreateAppBindingResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		// Binding A managed database linked to an app.
+		Binding *AppBinding `json:"binding,omitempty"`
+		Success *bool       `json:"success,omitempty"`
+	}
+	JSON400 *BadRequest
+	JSON401 *Unauthorized
+	JSON404 *NotFound
+	JSON409 *Conflict
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateAppBindingResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateAppBindingResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -27328,6 +28914,60 @@ func (r DeleteAppEnvVarResponse) StatusCode() int {
 	return 0
 }
 
+type ListAppEventsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		Events  *[]AppEvent `json:"events,omitempty"`
+		Success *bool       `json:"success,omitempty"`
+	}
+	JSON401 *Unauthorized
+	JSON404 *NotFound
+}
+
+// Status returns HTTPResponse.Status
+func (r ListAppEventsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListAppEventsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type ListAppInstancesResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		Instances *[]AppInstance `json:"instances,omitempty"`
+		Success   *bool          `json:"success,omitempty"`
+	}
+	JSON401 *Unauthorized
+	JSON404 *NotFound
+}
+
+// Status returns HTTPResponse.Status
+func (r ListAppInstancesResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListAppInstancesResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type RunAppJobResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -27458,6 +29098,33 @@ func (r PauseAppServiceResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r PauseAppServiceResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type ListAppPreviewsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		Previews *[]AppPreview `json:"previews,omitempty"`
+		Success  *bool         `json:"success,omitempty"`
+	}
+	JSON401 *Unauthorized
+	JSON404 *NotFound
+}
+
+// Status returns HTTPResponse.Status
+func (r ListAppPreviewsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListAppPreviewsResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -27625,6 +29292,32 @@ func (r UpdateAppSpendSettingsResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r UpdateAppSpendSettingsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type ListAppTemplatesResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		Success   *bool          `json:"success,omitempty"`
+		Templates *[]AppTemplate `json:"templates,omitempty"`
+	}
+	JSON401 *Unauthorized
+}
+
+// Status returns HTTPResponse.Status
+func (r ListAppTemplatesResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListAppTemplatesResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -28004,6 +29697,7 @@ type CreateDatabaseResponse struct {
 	JSON401 *Unauthorized
 	JSON402 *InsufficientBalance
 	JSON403 *BillingValidationFailed
+	JSON409 *Conflict
 }
 
 // Status returns HTTPResponse.Status
@@ -28140,6 +29834,7 @@ type UpdateDatabaseResponse struct {
 	JSON400 *BadRequest
 	JSON401 *Unauthorized
 	JSON404 *NotFound
+	JSON409 *Conflict
 }
 
 // Status returns HTTPResponse.Status
@@ -28276,7 +29971,7 @@ type GetDatabaseConnectionResponse struct {
 		// Password Password — empty unless the request was made with `reveal=true`
 		Password *string `json:"password,omitempty"`
 
-		// Port Endpoint port
+		// Port Endpoint port (PostgreSQL 5432 direct; its pooler is on 6432)
 		Port *int `json:"port,omitempty"`
 
 		// PublicConnectionURI Ready-to-use URI for the public endpoint (includes the password only when revealed). Empty while public access is off.
@@ -28489,6 +30184,18 @@ type GetDatabaseMetricsResponse struct {
 		// ArchiveLagBytes WAL archiving lag in bytes (PostgreSQL)
 		ArchiveLagBytes *int `json:"archive_lag_bytes,omitempty"`
 
+		// CacheHitPct Share of reads served from memory, percent. `-1` when not measured
+		CacheHitPct *float32 `json:"cache_hit_pct,omitempty"`
+
+		// CompressionRatio Data size before compression divided by size on disk (ClickHouse). `-1` for other engines
+		CompressionRatio *float32 `json:"compression_ratio,omitempty"`
+
+		// ConnIdleTimeoutSecs Seconds after which idle connections are closed. `-1` when not set
+		ConnIdleTimeoutSecs *int `json:"conn_idle_timeout_secs,omitempty"`
+
+		// ConnRejectedTotal Connections refused because the limit was reached, since the database started. `-1` when not measured
+		ConnRejectedTotal *int `json:"conn_rejected_total,omitempty"`
+
 		// ConnectionsActive Active client connections
 		ConnectionsActive *int `json:"connections_active,omitempty"`
 
@@ -28501,20 +30208,59 @@ type GetDatabaseMetricsResponse struct {
 		// CPUUsedMillicores CPU in use, millicores
 		CPUUsedMillicores *int `json:"cpu_used_millicores,omitempty"`
 
+		// EvictionsPerMin Keys removed because memory was full, per minute (Valkey). `-1` for other engines
+		EvictionsPerMin *float32 `json:"evictions_per_min,omitempty"`
+
 		// MemCapacityBytes Memory capacity, bytes
 		MemCapacityBytes *int `json:"mem_capacity_bytes,omitempty"`
 
 		// MemUsedBytes Memory in use, bytes
 		MemUsedBytes *int `json:"mem_used_bytes,omitempty"`
 
+		// MergesRunning Background merges running (ClickHouse). `-1` for other engines
+		MergesRunning *int `json:"merges_running,omitempty"`
+
 		// MetricsUpdatedAt When this snapshot was taken, RFC 3339 (empty before the first sample)
 		MetricsUpdatedAt *string `json:"metrics_updated_at,omitempty"`
+
+		// OpsPerSec Transactions (PostgreSQL), queries (MySQL, ClickHouse) or commands (Valkey) per second. `-1` when not measured
+		OpsPerSec *float32 `json:"ops_per_sec,omitempty"`
+
+		// PooledConnectionsActive Client connections on the pooler (PostgreSQL)
+		PooledConnectionsActive *int `json:"pooled_connections_active,omitempty"`
+
+		// PooledConnectionsMax Pooler connection limit (PostgreSQL)
+		PooledConnectionsMax *int `json:"pooled_connections_max,omitempty"`
+
+		// PoolerClWaiting Client connections waiting for a server connection (PostgreSQL). Above 0 for long means the pool is too small for the load
+		PoolerClWaiting *int `json:"pooler_cl_waiting,omitempty"`
+
+		// PoolerMaxwaitUs Longest current wait for a server connection, microseconds (PostgreSQL)
+		PoolerMaxwaitUs *int `json:"pooler_maxwait_us,omitempty"`
+
+		// PoolerServerActive Server connections the pooler is using (PostgreSQL). `-1` without a pooler
+		PoolerServerActive *int `json:"pooler_server_active,omitempty"`
+
+		// PoolerServerIdle Idle server connections in the pool (PostgreSQL). `-1` without a pooler
+		PoolerServerIdle *int `json:"pooler_server_idle,omitempty"`
+
+		// PoolerVersion Pooler version (PostgreSQL)
+		PoolerVersion *string `json:"pooler_version,omitempty"`
 
 		// ReplicationLagBytes Standby/replica lag in bytes (0 without HA or replicas)
 		ReplicationLagBytes *int `json:"replication_lag_bytes,omitempty"`
 
 		// StorageCapacityBytes Storage capacity, bytes
 		StorageCapacityBytes *int `json:"storage_capacity_bytes,omitempty"`
+
+		// StorageDataBytes Part of `storage_used_bytes` taken by data. `-1` when not measured
+		StorageDataBytes *int `json:"storage_data_bytes,omitempty"`
+
+		// StorageLogBytes Part of `storage_used_bytes` taken by the write-ahead or binary log. `-1` when not measured
+		StorageLogBytes *int `json:"storage_log_bytes,omitempty"`
+
+		// StorageReadOnly True while storage is at 95% or more and PostgreSQL or MySQL accept reads only. Writes come back below 90%
+		StorageReadOnly *bool `json:"storage_read_only,omitempty"`
 
 		// StorageUsedBytes Storage in use, bytes
 		StorageUsedBytes *int  `json:"storage_used_bytes,omitempty"`
@@ -28801,6 +30547,7 @@ type ScaleDatabaseResponse struct {
 	}
 	JSON400 *BadRequest
 	JSON401 *Unauthorized
+	JSON402 *InsufficientBalance
 	JSON404 *NotFound
 }
 
@@ -28888,6 +30635,7 @@ type CreateDatabaseUserResponse struct {
 	JSON400 *BadRequest
 	JSON401 *Unauthorized
 	JSON404 *NotFound
+	JSON409 *Conflict
 }
 
 // Status returns HTTPResponse.Status
@@ -32896,11 +34644,22 @@ func (r RenameVMResponse) StatusCode() int {
 type ResetVMPasswordResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *SuccessResponse
-	JSON400      *MissingProjectID
-	JSON401      *Unauthorized
-	JSON404      *NotFound
+	JSON200      *struct {
+		// Error Why the password was not reset (only when `success` is false).
+		Error *string `json:"error,omitempty"`
+
+		// Message Where the password went and when it takes effect.
+		Message *string `json:"message,omitempty"`
+
+		// Result `set`: the server confirmed the new password. `applying`: it takes effect as `message` says.
+		Result  *ResetVMPassword200Result `json:"result,omitempty"`
+		Success *bool                     `json:"success,omitempty"`
+	}
+	JSON400 *MissingProjectID
+	JSON401 *Unauthorized
+	JSON404 *NotFound
 }
+type ResetVMPassword200Result string
 
 // Status returns HTTPResponse.Status
 func (r ResetVMPasswordResponse) Status() string {
@@ -33638,6 +35397,24 @@ func (c *ClientWithResponses) RegenerateAPIKeyWithResponse(ctx context.Context, 
 	return ParseRegenerateAPIKeyResponse(rsp)
 }
 
+// DeleteAppBindingWithResponse request returning *DeleteAppBindingResponse
+func (c *ClientWithResponses) DeleteAppBindingWithResponse(ctx context.Context, bindingID AppBindingIDPath, reqEditors ...RequestEditorFn) (*DeleteAppBindingResponse, error) {
+	rsp, err := c.DeleteAppBinding(ctx, bindingID, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeleteAppBindingResponse(rsp)
+}
+
+// RotateAppBindingWithResponse request returning *RotateAppBindingResponse
+func (c *ClientWithResponses) RotateAppBindingWithResponse(ctx context.Context, bindingID AppBindingIDPath, reqEditors ...RequestEditorFn) (*RotateAppBindingResponse, error) {
+	rsp, err := c.RotateAppBinding(ctx, bindingID, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRotateAppBindingResponse(rsp)
+}
+
 // GetAppDeploymentWithResponse request returning *GetAppDeploymentResponse
 func (c *ClientWithResponses) GetAppDeploymentWithResponse(ctx context.Context, deploymentID AppDeploymentIDPath, reqEditors ...RequestEditorFn) (*GetAppDeploymentResponse, error) {
 	rsp, err := c.GetAppDeployment(ctx, deploymentID, reqEditors...)
@@ -33674,6 +35451,15 @@ func (c *ClientWithResponses) RetryAppDomainVerificationWithResponse(ctx context
 	return ParseRetryAppDomainVerificationResponse(rsp)
 }
 
+// ListAppGitHubConnectionsWithResponse request returning *ListAppGitHubConnectionsResponse
+func (c *ClientWithResponses) ListAppGitHubConnectionsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListAppGitHubConnectionsResponse, error) {
+	rsp, err := c.ListAppGitHubConnections(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListAppGitHubConnectionsResponse(rsp)
+}
+
 // CancelAppJobRunWithResponse request returning *CancelAppJobRunResponse
 func (c *ClientWithResponses) CancelAppJobRunWithResponse(ctx context.Context, runID openapi_types.UUID, reqEditors ...RequestEditorFn) (*CancelAppJobRunResponse, error) {
 	rsp, err := c.CancelAppJobRun(ctx, runID, reqEditors...)
@@ -33681,6 +35467,24 @@ func (c *ClientWithResponses) CancelAppJobRunWithResponse(ctx context.Context, r
 		return nil, err
 	}
 	return ParseCancelAppJobRunResponse(rsp)
+}
+
+// DeleteAppPreviewWithResponse request returning *DeleteAppPreviewResponse
+func (c *ClientWithResponses) DeleteAppPreviewWithResponse(ctx context.Context, previewID AppPreviewIDPath, reqEditors ...RequestEditorFn) (*DeleteAppPreviewResponse, error) {
+	rsp, err := c.DeleteAppPreview(ctx, previewID, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeleteAppPreviewResponse(rsp)
+}
+
+// RedeployAppPreviewWithResponse request returning *RedeployAppPreviewResponse
+func (c *ClientWithResponses) RedeployAppPreviewWithResponse(ctx context.Context, previewID AppPreviewIDPath, reqEditors ...RequestEditorFn) (*RedeployAppPreviewResponse, error) {
+	rsp, err := c.RedeployAppPreview(ctx, previewID, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRedeployAppPreviewResponse(rsp)
 }
 
 // ListAppServicesWithResponse request returning *ListAppServicesResponse
@@ -33725,6 +35529,49 @@ func (c *ClientWithResponses) GetAppServiceWithResponse(ctx context.Context, ser
 		return nil, err
 	}
 	return ParseGetAppServiceResponse(rsp)
+}
+
+// UpdateAppServiceWithBodyWithResponse request with arbitrary body returning *UpdateAppServiceResponse
+func (c *ClientWithResponses) UpdateAppServiceWithBodyWithResponse(ctx context.Context, serviceID AppServiceRef, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateAppServiceResponse, error) {
+	rsp, err := c.UpdateAppServiceWithBody(ctx, serviceID, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateAppServiceResponse(rsp)
+}
+
+func (c *ClientWithResponses) UpdateAppServiceWithResponse(ctx context.Context, serviceID AppServiceRef, body UpdateAppServiceJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateAppServiceResponse, error) {
+	rsp, err := c.UpdateAppService(ctx, serviceID, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateAppServiceResponse(rsp)
+}
+
+// ListAppBindingsWithResponse request returning *ListAppBindingsResponse
+func (c *ClientWithResponses) ListAppBindingsWithResponse(ctx context.Context, serviceID AppServiceRef, reqEditors ...RequestEditorFn) (*ListAppBindingsResponse, error) {
+	rsp, err := c.ListAppBindings(ctx, serviceID, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListAppBindingsResponse(rsp)
+}
+
+// CreateAppBindingWithBodyWithResponse request with arbitrary body returning *CreateAppBindingResponse
+func (c *ClientWithResponses) CreateAppBindingWithBodyWithResponse(ctx context.Context, serviceID AppServiceRef, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateAppBindingResponse, error) {
+	rsp, err := c.CreateAppBindingWithBody(ctx, serviceID, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateAppBindingResponse(rsp)
+}
+
+func (c *ClientWithResponses) CreateAppBindingWithResponse(ctx context.Context, serviceID AppServiceRef, body CreateAppBindingJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateAppBindingResponse, error) {
+	rsp, err := c.CreateAppBinding(ctx, serviceID, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateAppBindingResponse(rsp)
 }
 
 // ListAppDeploymentsWithResponse request returning *ListAppDeploymentsResponse
@@ -33840,6 +35687,24 @@ func (c *ClientWithResponses) DeleteAppEnvVarWithResponse(ctx context.Context, s
 	return ParseDeleteAppEnvVarResponse(rsp)
 }
 
+// ListAppEventsWithResponse request returning *ListAppEventsResponse
+func (c *ClientWithResponses) ListAppEventsWithResponse(ctx context.Context, serviceID AppServiceRef, params *ListAppEventsParams, reqEditors ...RequestEditorFn) (*ListAppEventsResponse, error) {
+	rsp, err := c.ListAppEvents(ctx, serviceID, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListAppEventsResponse(rsp)
+}
+
+// ListAppInstancesWithResponse request returning *ListAppInstancesResponse
+func (c *ClientWithResponses) ListAppInstancesWithResponse(ctx context.Context, serviceID AppServiceRef, reqEditors ...RequestEditorFn) (*ListAppInstancesResponse, error) {
+	rsp, err := c.ListAppInstances(ctx, serviceID, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListAppInstancesResponse(rsp)
+}
+
 // RunAppJobWithResponse request returning *RunAppJobResponse
 func (c *ClientWithResponses) RunAppJobWithResponse(ctx context.Context, serviceID AppServiceRef, reqEditors ...RequestEditorFn) (*RunAppJobResponse, error) {
 	rsp, err := c.RunAppJob(ctx, serviceID, reqEditors...)
@@ -33883,6 +35748,15 @@ func (c *ClientWithResponses) PauseAppServiceWithResponse(ctx context.Context, s
 		return nil, err
 	}
 	return ParsePauseAppServiceResponse(rsp)
+}
+
+// ListAppPreviewsWithResponse request returning *ListAppPreviewsResponse
+func (c *ClientWithResponses) ListAppPreviewsWithResponse(ctx context.Context, serviceID AppServiceRef, reqEditors ...RequestEditorFn) (*ListAppPreviewsResponse, error) {
+	rsp, err := c.ListAppPreviews(ctx, serviceID, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListAppPreviewsResponse(rsp)
 }
 
 // ResumeAppServiceWithResponse request returning *ResumeAppServiceResponse
@@ -33961,6 +35835,15 @@ func (c *ClientWithResponses) UpdateAppSpendSettingsWithResponse(ctx context.Con
 		return nil, err
 	}
 	return ParseUpdateAppSpendSettingsResponse(rsp)
+}
+
+// ListAppTemplatesWithResponse request returning *ListAppTemplatesResponse
+func (c *ClientWithResponses) ListAppTemplatesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListAppTemplatesResponse, error) {
+	rsp, err := c.ListAppTemplates(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListAppTemplatesResponse(rsp)
 }
 
 // ListAppTiersWithResponse request returning *ListAppTiersResponse
@@ -36715,6 +38598,107 @@ func ParseRegenerateAPIKeyResponse(rsp *http.Response) (*RegenerateAPIKeyRespons
 	return response, nil
 }
 
+// ParseDeleteAppBindingResponse parses an HTTP response from a DeleteAppBindingWithResponse call
+func ParseDeleteAppBindingResponse(rsp *http.Response) (*DeleteAppBindingResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeleteAppBindingResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			Accepted *bool `json:"accepted,omitempty"`
+			Success  *bool `json:"success,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest Unauthorized
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest NotFound
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseRotateAppBindingResponse parses an HTTP response from a RotateAppBindingWithResponse call
+func ParseRotateAppBindingResponse(rsp *http.Response) (*RotateAppBindingResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &RotateAppBindingResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			// Binding A managed database linked to an app.
+			Binding *AppBinding `json:"binding,omitempty"`
+			Success *bool       `json:"success,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest BadRequest
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest Unauthorized
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest NotFound
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest Conflict
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseGetAppDeploymentResponse parses an HTTP response from a GetAppDeploymentWithResponse call
 func ParseGetAppDeploymentResponse(rsp *http.Response) (*GetAppDeploymentResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -36888,6 +38872,42 @@ func ParseRetryAppDomainVerificationResponse(rsp *http.Response) (*RetryAppDomai
 	return response, nil
 }
 
+// ParseListAppGitHubConnectionsResponse parses an HTTP response from a ListAppGitHubConnectionsWithResponse call
+func ParseListAppGitHubConnectionsResponse(rsp *http.Response) (*ListAppGitHubConnectionsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListAppGitHubConnectionsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			Installations *[]AppGitHubConnection `json:"installations,omitempty"`
+			Success       *bool                  `json:"success,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest Unauthorized
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseCancelAppJobRunResponse parses an HTTP response from a CancelAppJobRunWithResponse call
 func ParseCancelAppJobRunResponse(rsp *http.Response) (*CancelAppJobRunResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -36911,6 +38931,100 @@ func ParseCancelAppJobRunResponse(rsp *http.Response) (*CancelAppJobRunResponse,
 			return nil, err
 		}
 		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest Unauthorized
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest NotFound
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDeleteAppPreviewResponse parses an HTTP response from a DeleteAppPreviewWithResponse call
+func ParseDeleteAppPreviewResponse(rsp *http.Response) (*DeleteAppPreviewResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeleteAppPreviewResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			Accepted *bool `json:"accepted,omitempty"`
+			Success  *bool `json:"success,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest Unauthorized
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest NotFound
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseRedeployAppPreviewResponse parses an HTTP response from a RedeployAppPreviewWithResponse call
+func ParseRedeployAppPreviewResponse(rsp *http.Response) (*RedeployAppPreviewResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &RedeployAppPreviewResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			DeploymentID *openapi_types.UUID `json:"deployment_id,omitempty"`
+			Preview      *AppPreview         `json:"preview,omitempty"`
+			Success      *bool               `json:"success,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest BadRequest
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
 		var dest Unauthorized
@@ -37109,6 +39223,167 @@ func ParseGetAppServiceResponse(rsp *http.Response) (*GetAppServiceResponse, err
 			return nil, err
 		}
 		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseUpdateAppServiceResponse parses an HTTP response from a UpdateAppServiceWithResponse call
+func ParseUpdateAppServiceResponse(rsp *http.Response) (*UpdateAppServiceResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &UpdateAppServiceResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			DeploymentID *openapi_types.UUID `json:"deployment_id,omitempty"`
+
+			// Service An app service on the Raff PaaS — a web service, private service, worker, cron job, or one-off job.
+			Service *AppService `json:"service,omitempty"`
+			Success *bool       `json:"success,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest BadRequest
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest Unauthorized
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest NotFound
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest Conflict
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListAppBindingsResponse parses an HTTP response from a ListAppBindingsWithResponse call
+func ParseListAppBindingsResponse(rsp *http.Response) (*ListAppBindingsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListAppBindingsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			Bindings *[]AppBinding `json:"bindings,omitempty"`
+			Success  *bool         `json:"success,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest Unauthorized
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest NotFound
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCreateAppBindingResponse parses an HTTP response from a CreateAppBindingWithResponse call
+func ParseCreateAppBindingResponse(rsp *http.Response) (*CreateAppBindingResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateAppBindingResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			// Binding A managed database linked to an app.
+			Binding *AppBinding `json:"binding,omitempty"`
+			Success *bool       `json:"success,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest BadRequest
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest Unauthorized
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest NotFound
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest Conflict
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
 
 	}
 
@@ -37498,6 +39773,92 @@ func ParseDeleteAppEnvVarResponse(rsp *http.Response) (*DeleteAppEnvVarResponse,
 	return response, nil
 }
 
+// ParseListAppEventsResponse parses an HTTP response from a ListAppEventsWithResponse call
+func ParseListAppEventsResponse(rsp *http.Response) (*ListAppEventsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListAppEventsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			Events  *[]AppEvent `json:"events,omitempty"`
+			Success *bool       `json:"success,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest Unauthorized
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest NotFound
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListAppInstancesResponse parses an HTTP response from a ListAppInstancesWithResponse call
+func ParseListAppInstancesResponse(rsp *http.Response) (*ListAppInstancesResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListAppInstancesResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			Instances *[]AppInstance `json:"instances,omitempty"`
+			Success   *bool          `json:"success,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest Unauthorized
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest NotFound
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseRunAppJobResponse parses an HTTP response from a RunAppJobWithResponse call
 func ParseRunAppJobResponse(rsp *http.Response) (*RunAppJobResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -37689,6 +40050,49 @@ func ParsePauseAppServiceResponse(rsp *http.Response) (*PauseAppServiceResponse,
 			// Service An app service on the Raff PaaS — a web service, private service, worker, cron job, or one-off job.
 			Service *AppService `json:"service,omitempty"`
 			Success *bool       `json:"success,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest Unauthorized
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest NotFound
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListAppPreviewsResponse parses an HTTP response from a ListAppPreviewsWithResponse call
+func ParseListAppPreviewsResponse(rsp *http.Response) (*ListAppPreviewsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListAppPreviewsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			Previews *[]AppPreview `json:"previews,omitempty"`
+			Success  *bool         `json:"success,omitempty"`
 		}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
@@ -37970,6 +40374,42 @@ func ParseUpdateAppSpendSettingsResponse(rsp *http.Response) (*UpdateAppSpendSet
 			return nil, err
 		}
 		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest Unauthorized
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListAppTemplatesResponse parses an HTTP response from a ListAppTemplatesWithResponse call
+func ParseListAppTemplatesResponse(rsp *http.Response) (*ListAppTemplatesResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListAppTemplatesResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			Success   *bool          `json:"success,omitempty"`
+			Templates *[]AppTemplate `json:"templates,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
 		var dest Unauthorized
@@ -38579,6 +41019,13 @@ func ParseCreateDatabaseResponse(rsp *http.Response) (*CreateDatabaseResponse, e
 		}
 		response.JSON403 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest Conflict
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
 	}
 
 	return response, nil
@@ -38789,6 +41236,13 @@ func ParseUpdateDatabaseResponse(rsp *http.Response) (*UpdateDatabaseResponse, e
 		}
 		response.JSON404 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest Conflict
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
 	}
 
 	return response, nil
@@ -38977,7 +41431,7 @@ func ParseGetDatabaseConnectionResponse(rsp *http.Response) (*GetDatabaseConnect
 			// Password Password — empty unless the request was made with `reveal=true`
 			Password *string `json:"password,omitempty"`
 
-			// Port Endpoint port
+			// Port Endpoint port (PostgreSQL 5432 direct; its pooler is on 6432)
 			Port *int `json:"port,omitempty"`
 
 			// PublicConnectionURI Ready-to-use URI for the public endpoint (includes the password only when revealed). Empty while public access is off.
@@ -39314,6 +41768,18 @@ func ParseGetDatabaseMetricsResponse(rsp *http.Response) (*GetDatabaseMetricsRes
 			// ArchiveLagBytes WAL archiving lag in bytes (PostgreSQL)
 			ArchiveLagBytes *int `json:"archive_lag_bytes,omitempty"`
 
+			// CacheHitPct Share of reads served from memory, percent. `-1` when not measured
+			CacheHitPct *float32 `json:"cache_hit_pct,omitempty"`
+
+			// CompressionRatio Data size before compression divided by size on disk (ClickHouse). `-1` for other engines
+			CompressionRatio *float32 `json:"compression_ratio,omitempty"`
+
+			// ConnIdleTimeoutSecs Seconds after which idle connections are closed. `-1` when not set
+			ConnIdleTimeoutSecs *int `json:"conn_idle_timeout_secs,omitempty"`
+
+			// ConnRejectedTotal Connections refused because the limit was reached, since the database started. `-1` when not measured
+			ConnRejectedTotal *int `json:"conn_rejected_total,omitempty"`
+
 			// ConnectionsActive Active client connections
 			ConnectionsActive *int `json:"connections_active,omitempty"`
 
@@ -39326,20 +41792,59 @@ func ParseGetDatabaseMetricsResponse(rsp *http.Response) (*GetDatabaseMetricsRes
 			// CPUUsedMillicores CPU in use, millicores
 			CPUUsedMillicores *int `json:"cpu_used_millicores,omitempty"`
 
+			// EvictionsPerMin Keys removed because memory was full, per minute (Valkey). `-1` for other engines
+			EvictionsPerMin *float32 `json:"evictions_per_min,omitempty"`
+
 			// MemCapacityBytes Memory capacity, bytes
 			MemCapacityBytes *int `json:"mem_capacity_bytes,omitempty"`
 
 			// MemUsedBytes Memory in use, bytes
 			MemUsedBytes *int `json:"mem_used_bytes,omitempty"`
 
+			// MergesRunning Background merges running (ClickHouse). `-1` for other engines
+			MergesRunning *int `json:"merges_running,omitempty"`
+
 			// MetricsUpdatedAt When this snapshot was taken, RFC 3339 (empty before the first sample)
 			MetricsUpdatedAt *string `json:"metrics_updated_at,omitempty"`
+
+			// OpsPerSec Transactions (PostgreSQL), queries (MySQL, ClickHouse) or commands (Valkey) per second. `-1` when not measured
+			OpsPerSec *float32 `json:"ops_per_sec,omitempty"`
+
+			// PooledConnectionsActive Client connections on the pooler (PostgreSQL)
+			PooledConnectionsActive *int `json:"pooled_connections_active,omitempty"`
+
+			// PooledConnectionsMax Pooler connection limit (PostgreSQL)
+			PooledConnectionsMax *int `json:"pooled_connections_max,omitempty"`
+
+			// PoolerClWaiting Client connections waiting for a server connection (PostgreSQL). Above 0 for long means the pool is too small for the load
+			PoolerClWaiting *int `json:"pooler_cl_waiting,omitempty"`
+
+			// PoolerMaxwaitUs Longest current wait for a server connection, microseconds (PostgreSQL)
+			PoolerMaxwaitUs *int `json:"pooler_maxwait_us,omitempty"`
+
+			// PoolerServerActive Server connections the pooler is using (PostgreSQL). `-1` without a pooler
+			PoolerServerActive *int `json:"pooler_server_active,omitempty"`
+
+			// PoolerServerIdle Idle server connections in the pool (PostgreSQL). `-1` without a pooler
+			PoolerServerIdle *int `json:"pooler_server_idle,omitempty"`
+
+			// PoolerVersion Pooler version (PostgreSQL)
+			PoolerVersion *string `json:"pooler_version,omitempty"`
 
 			// ReplicationLagBytes Standby/replica lag in bytes (0 without HA or replicas)
 			ReplicationLagBytes *int `json:"replication_lag_bytes,omitempty"`
 
 			// StorageCapacityBytes Storage capacity, bytes
 			StorageCapacityBytes *int `json:"storage_capacity_bytes,omitempty"`
+
+			// StorageDataBytes Part of `storage_used_bytes` taken by data. `-1` when not measured
+			StorageDataBytes *int `json:"storage_data_bytes,omitempty"`
+
+			// StorageLogBytes Part of `storage_used_bytes` taken by the write-ahead or binary log. `-1` when not measured
+			StorageLogBytes *int `json:"storage_log_bytes,omitempty"`
+
+			// StorageReadOnly True while storage is at 95% or more and PostgreSQL or MySQL accept reads only. Writes come back below 90%
+			StorageReadOnly *bool `json:"storage_read_only,omitempty"`
 
 			// StorageUsedBytes Storage in use, bytes
 			StorageUsedBytes *int  `json:"storage_used_bytes,omitempty"`
@@ -39827,6 +42332,13 @@ func ParseScaleDatabaseResponse(rsp *http.Response) (*ScaleDatabaseResponse, err
 		}
 		response.JSON401 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 402:
+		var dest InsufficientBalance
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON402 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
 		var dest NotFound
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
@@ -39973,6 +42485,13 @@ func ParseCreateDatabaseUserResponse(rsp *http.Response) (*CreateDatabaseUserRes
 			return nil, err
 		}
 		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest Conflict
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
 
 	}
 
@@ -46058,7 +48577,17 @@ func ParseResetVMPasswordResponse(rsp *http.Response) (*ResetVMPasswordResponse,
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest SuccessResponse
+		var dest struct {
+			// Error Why the password was not reset (only when `success` is false).
+			Error *string `json:"error,omitempty"`
+
+			// Message Where the password went and when it takes effect.
+			Message *string `json:"message,omitempty"`
+
+			// Result `set`: the server confirmed the new password. `applying`: it takes effect as `message` says.
+			Result  *ResetVMPassword200Result `json:"result,omitempty"`
+			Success *bool                     `json:"success,omitempty"`
+		}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
