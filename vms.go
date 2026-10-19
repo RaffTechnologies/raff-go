@@ -412,6 +412,11 @@ func (s *VMServiceOp) action(ctx context.Context, vmID string, a vmAction) (*Res
 		if resp.StatusCode() >= 400 {
 			return responseFrom(resp.HTTPResponse, 0), errorFromResponse(resp.StatusCode(), resp.Body)
 		}
+		// A server that refused the new password (e.g. its password policy) answers 200 with success false and the
+		// server's reason in error; the old password still works.
+		if resp.JSON200 != nil && resp.JSON200.Success != nil && !*resp.JSON200.Success {
+			return responseFrom(resp.HTTPResponse, 0), errorFromResponse(resp.StatusCode(), resp.Body)
+		}
 		return responseFrom(resp.HTTPResponse, 0), nil
 	case actionFactoryReset:
 		resp, err := s.client.spec.FactoryResetVMWithResponse(ctx, id, &spec.FactoryResetVMParams{XProjectID: projectID})
