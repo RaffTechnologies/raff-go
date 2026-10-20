@@ -2445,11 +2445,13 @@ func (e RoleScope) Valid() bool {
 
 // Defines values for SSHKeyKeyType.
 const (
-	EcdsaSha2Nistp256 SSHKeyKeyType = "ecdsa-sha2-nistp256"
-	EcdsaSha2Nistp384 SSHKeyKeyType = "ecdsa-sha2-nistp384"
-	EcdsaSha2Nistp521 SSHKeyKeyType = "ecdsa-sha2-nistp521"
-	SSHEd25519        SSHKeyKeyType = "ssh-ed25519"
-	SSHRsa            SSHKeyKeyType = "ssh-rsa"
+	EcdsaSha2Nistp256             SSHKeyKeyType = "ecdsa-sha2-nistp256"
+	EcdsaSha2Nistp384             SSHKeyKeyType = "ecdsa-sha2-nistp384"
+	EcdsaSha2Nistp521             SSHKeyKeyType = "ecdsa-sha2-nistp521"
+	SSHEd25519                    SSHKeyKeyType = "ssh-ed25519"
+	SSHRsa                        SSHKeyKeyType = "ssh-rsa"
+	SkEcdsaSha2Nistp256OpensshCom SSHKeyKeyType = "sk-ecdsa-sha2-nistp256@openssh.com"
+	SkSSHEd25519OpensshCom        SSHKeyKeyType = "sk-ssh-ed25519@openssh.com"
 )
 
 // Valid indicates whether the value is a known member of the SSHKeyKeyType enum.
@@ -2464,6 +2466,10 @@ func (e SSHKeyKeyType) Valid() bool {
 	case SSHEd25519:
 		return true
 	case SSHRsa:
+		return true
+	case SkEcdsaSha2Nistp256OpensshCom:
+		return true
+	case SkSSHEd25519OpensshCom:
 		return true
 	default:
 		return false
@@ -4883,7 +4889,7 @@ type CreateSSHKeyRequest struct {
 	// Name SSH key display name
 	Name string `json:"name"`
 
-	// PublicKey Full SSH public key string
+	// PublicKey One SSH public key, the whole line of a `.pub` file. Accepted types: `ssh-ed25519`, `ecdsa-sha2-nistp256`, `ecdsa-sha2-nistp384`, `ecdsa-sha2-nistp521`, `ssh-rsa` (1024 bits or more) and the security key types `sk-ssh-ed25519@openssh.com` and `sk-ecdsa-sha2-nistp256@openssh.com`.
 	PublicKey string `json:"public_key"`
 }
 
@@ -4950,7 +4956,7 @@ type CreateVMRequest struct {
 	// SkipVpc When `true`, no VPC is created or attached. The VM will only have its public IP — no private networking. Cannot be combined with `skip_public_ip=true`.
 	SkipVpc *bool `json:"skip_vpc,omitempty"`
 
-	// SSHKeys SSH public keys for VM access. Required for Linux VMs if no password is provided. Ignored for Windows VMs.
+	// SSHKeys SSH keys for VM access, each the `id` of a saved SSH key or a public key itself. Every key is checked (see Create SSH key) and an invalid entry refuses the request. Required for Linux VMs if no password is provided. Ignored for Windows VMs.
 	SSHKeys *[]string `json:"ssh_keys,omitempty"`
 
 	// Tags Custom tags for the VM
@@ -6562,7 +6568,7 @@ type ReinstallVMRequest struct {
 	// Password New root/admin password. Either password or auto_generate_password should be provided.
 	Password *string `json:"password,omitempty"`
 
-	// SSHKeys SSH public keys for authentication
+	// SSHKeys SSH keys for authentication, each the `id` of a saved SSH key or a public key itself. Every key is checked and an invalid entry refuses the request.
 	SSHKeys *[]string `json:"ssh_keys,omitempty"`
 
 	// TemplateID ID of the OS template to reinstall with
@@ -6707,6 +6713,9 @@ type RunDatabaseQueryRequest struct {
 type SSHKey struct {
 	CreatedAt *time.Time `json:"created_at,omitempty"`
 
+	// Fingerprint The key's SHA256 fingerprint, as `ssh-keygen -l` shows it. Empty when the saved key is not one valid key.
+	Fingerprint *string `json:"fingerprint,omitempty"`
+
 	// ID SSH key ID
 	ID openapi_types.UUID `json:"id"`
 
@@ -6719,6 +6728,9 @@ type SSHKey struct {
 	// PublicKey Full SSH public key string (e.g. `ssh-ed25519 AAAA... user@host`)
 	PublicKey string     `json:"public_key"`
 	UpdatedAt *time.Time `json:"updated_at,omitempty"`
+
+	// Valid Whether a server accepts this key. A key saved before key checking began can be cut off or not a key; it is `false` and is refused on VM create and reinstall. Delete it and add the key again.
+	Valid *bool `json:"valid,omitempty"`
 }
 
 // SSHKeyKeyType Parsed key algorithm
@@ -34020,6 +34032,7 @@ type CreateSSHKeyResponse struct {
 	}
 	JSON400 *BadRequest
 	JSON401 *Unauthorized
+	JSON409 *Conflict
 }
 
 // Status returns HTTPResponse.Status
@@ -34042,7 +34055,7 @@ type DeleteSSHKeyResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON200      *struct {
-		Data    *SSHKey `json:"data,omitempty"`
+		Message *string `json:"message,omitempty"`
 		Success *bool   `json:"success,omitempty"`
 	}
 	JSON404 *NotFound
@@ -47508,6 +47521,13 @@ func ParseCreateSSHKeyResponse(rsp *http.Response) (*CreateSSHKeyResponse, error
 		}
 		response.JSON401 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest Conflict
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
 	}
 
 	return response, nil
@@ -47529,7 +47549,7 @@ func ParseDeleteSSHKeyResponse(rsp *http.Response) (*DeleteSSHKeyResponse, error
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest struct {
-			Data    *SSHKey `json:"data,omitempty"`
+			Message *string `json:"message,omitempty"`
 			Success *bool   `json:"success,omitempty"`
 		}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
