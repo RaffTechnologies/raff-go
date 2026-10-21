@@ -111,7 +111,7 @@ public OpenAPI spec.
 | Service | Operations |
 |---------|------------|
 | **Compute** | |
-| `client.VMs` | Full lifecycle (29 ops): list, create, delete, start/stop/reboot, resize, rename, reinstall, factory-reset, save-image, attach/detach VPC/IP/security-group, tags, notes |
+| `client.VMs` | Full lifecycle (34 ops): list, create, delete, start/stop/reboot, resize, rename, reinstall, factory-reset, save-image, attach/detach VPC/IP/security-group, tags, notes, SSH keys on a running server (ListSSHKeys, AddSSHKey, RemoveSSHKey) |
 | `client.Volumes` | List, Get, Create, Delete, Resize, Attach, Detach |
 | `client.Snapshots` | List, Get, Create, Rename, Restore, Delete |
 | `client.Backups` | List, Get, Create, Restore, Delete (async on Create+Restore) |

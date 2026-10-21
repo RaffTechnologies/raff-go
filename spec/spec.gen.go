@@ -2992,6 +2992,54 @@ func (e NoteTypePath) Valid() bool {
 	}
 }
 
+// Defines values for ServerSSHKeysRefusedReason.
+const (
+	AgentBlocked    ServerSSHKeysRefusedReason = "agent_blocked"
+	ContextFailed   ServerSSHKeysRefusedReason = "context_failed"
+	HostUnavailable ServerSSHKeysRefusedReason = "host_unavailable"
+	InvalidKey      ServerSSHKeysRefusedReason = "invalid_key"
+	LastKey         ServerSSHKeysRefusedReason = "last_key"
+	NoAnswer        ServerSSHKeysRefusedReason = "no_answer"
+	NoGuestAgent    ServerSSHKeysRefusedReason = "no_guest_agent"
+	NotLinux        ServerSSHKeysRefusedReason = "not_linux"
+	NotOnServer     ServerSSHKeysRefusedReason = "not_on_server"
+	NotRunning      ServerSSHKeysRefusedReason = "not_running"
+	Refused         ServerSSHKeysRefusedReason = "refused"
+	SelinuxBlocked  ServerSSHKeysRefusedReason = "selinux_blocked"
+)
+
+// Valid indicates whether the value is a known member of the ServerSSHKeysRefusedReason enum.
+func (e ServerSSHKeysRefusedReason) Valid() bool {
+	switch e {
+	case AgentBlocked:
+		return true
+	case ContextFailed:
+		return true
+	case HostUnavailable:
+		return true
+	case InvalidKey:
+		return true
+	case LastKey:
+		return true
+	case NoAnswer:
+		return true
+	case NoGuestAgent:
+		return true
+	case NotLinux:
+		return true
+	case NotOnServer:
+		return true
+	case NotRunning:
+		return true
+	case Refused:
+		return true
+	case SelinuxBlocked:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for ListAPIKeysParamsScope.
 const (
 	ListAPIKeysParamsScopePublic ListAPIKeysParamsScope = "public"
@@ -3733,6 +3781,15 @@ type AddProjectMemberRequest struct {
 
 	// TargetUserID User UUID to add. Must already be an account member. Mutually exclusive with `api_key_id`.
 	TargetUserID *openapi_types.UUID `json:"target_user_id,omitempty"`
+}
+
+// AddServerSSHKeyRequest defines model for AddServerSSHKeyRequest.
+type AddServerSSHKeyRequest struct {
+	// SaveAs Also save a public key to your account under this name (ignored for a key you already saved)
+	SaveAs *string `json:"save_as,omitempty"`
+
+	// SSHKey A saved key's ID, or one public key (the whole line of a `.pub` file)
+	SSHKey string `json:"ssh_key"`
 }
 
 // AddVMTagRequest defines model for AddVMTagRequest.
@@ -6726,8 +6783,11 @@ type SSHKey struct {
 	Name string `json:"name"`
 
 	// PublicKey Full SSH public key string (e.g. `ssh-ed25519 AAAA... user@host`)
-	PublicKey string     `json:"public_key"`
-	UpdatedAt *time.Time `json:"updated_at,omitempty"`
+	PublicKey string `json:"public_key"`
+
+	// Servers The list only: the servers in your projects where Raff last saw this key, with when. Raff does not scan servers: a server's keys are recorded when it is created or reinstalled, when they change through Raff and whenever they are read. Absent when none.
+	Servers   *[]SSHKeyServer `json:"servers,omitempty"`
+	UpdatedAt *time.Time      `json:"updated_at,omitempty"`
 
 	// Valid Whether a server accepts this key. A key saved before key checking began can be cut off or not a key; it is `false` and is refused on VM create and reinstall. Delete it and add the key again.
 	Valid *bool `json:"valid,omitempty"`
@@ -6735,6 +6795,18 @@ type SSHKey struct {
 
 // SSHKeyKeyType Parsed key algorithm
 type SSHKeyKeyType string
+
+// SSHKeyServer defines model for SSHKeyServer.
+type SSHKeyServer struct {
+	Name *string `json:"name,omitempty"`
+
+	// SeenAt When Raff last saw the key on the server
+	SeenAt *time.Time `json:"seen_at,omitempty"`
+
+	// Status The server's status now
+	Status *string             `json:"status,omitempty"`
+	VMID   *openapi_types.UUID `json:"vm_id,omitempty"`
+}
 
 // SaveImageRequest defines model for SaveImageRequest.
 type SaveImageRequest struct {
@@ -6863,6 +6935,41 @@ type SecurityGroupTemplate struct {
 	ID    string              `json:"id"`
 	Name  string              `json:"name"`
 	Rules []SecurityGroupRule `json:"rules"`
+}
+
+// ServerSSHKey One key line of root's `authorized_keys` on a server
+type ServerSSHKey struct {
+	Comment     *string `json:"comment,omitempty"`
+	Fingerprint *string `json:"fingerprint,omitempty"`
+
+	// HasOptions The line starts with `authorized_keys` options (`command="..."`, `from="..."`)
+	HasOptions *bool `json:"has_options,omitempty"`
+
+	// PublicKey The key without its options, as a `.pub` file holds it
+	PublicKey *string `json:"public_key,omitempty"`
+
+	// SavedKeyID Your saved key with this fingerprint; empty when it is not saved
+	SavedKeyID   *string `json:"saved_key_id,omitempty"`
+	SavedKeyName *string `json:"saved_key_name,omitempty"`
+	Type         *string `json:"type,omitempty"`
+}
+
+// ServerSSHKeys A server's keys after a read, add or remove
+type ServerSSHKeys struct {
+	// Changed Lines added or removed (0 when the key was already there, or not there)
+	Changed *int            `json:"changed,omitempty"`
+	Keys    *[]ServerSSHKey `json:"keys,omitempty"`
+	ReadAt  *time.Time      `json:"read_at,omitempty"`
+
+	// SavedKeyID The saved key `save_as` created
+	SavedKeyID *string `json:"saved_key_id,omitempty"`
+}
+
+// ServerSSHKeysResponse defines model for ServerSSHKeysResponse.
+type ServerSSHKeysResponse struct {
+	// Data A server's keys after a read, add or remove
+	Data    *ServerSSHKeys `json:"data,omitempty"`
+	Success *bool          `json:"success,omitempty"`
 }
 
 // SetDatabaseExtensionRequest defines model for SetDatabaseExtensionRequest.
@@ -7645,6 +7752,16 @@ type MissingProjectID = Error
 
 // NotFound defines model for NotFound.
 type NotFound = Error
+
+// ServerSSHKeysRefused defines model for ServerSSHKeysRefused.
+type ServerSSHKeysRefused struct {
+	Error   *string                     `json:"error,omitempty"`
+	Reason  *ServerSSHKeysRefusedReason `json:"reason,omitempty"`
+	Success *bool                       `json:"success,omitempty"`
+}
+
+// ServerSSHKeysRefusedReason defines model for ServerSSHKeysRefused.Reason.
+type ServerSSHKeysRefusedReason string
 
 // Unauthorized defines model for Unauthorized.
 type Unauthorized = Error
@@ -8635,6 +8752,12 @@ type DetachVMSecurityGroupParams struct {
 	XProjectID ProjectIDHeader `json:"X-Project-ID"`
 }
 
+// RemoveServerSSHKeyParams defines parameters for RemoveServerSSHKey.
+type RemoveServerSSHKeyParams struct {
+	// ConfirmLast Remove the key even when it is root's last key
+	ConfirmLast *bool `form:"confirm_last,omitempty" json:"confirm_last,omitempty"`
+}
+
 // StartVMParams defines parameters for StartVM.
 type StartVMParams struct {
 	// XProjectID Project ID. Required for all mutating operations (create, delete, power actions, resize).
@@ -8993,6 +9116,9 @@ type SaveVMDiskAsImageJSONRequestBody = SaveImageRequest
 
 // AttachVMSecurityGroupJSONRequestBody defines body for AttachVMSecurityGroup for application/json ContentType.
 type AttachVMSecurityGroupJSONRequestBody = AttachSecurityGroupRequest
+
+// AddServerSSHKeyJSONRequestBody defines body for AddServerSSHKey for application/json ContentType.
+type AddServerSSHKeyJSONRequestBody = AddServerSSHKeyRequest
 
 // AddVMTagJSONRequestBody defines body for AddVMTag for application/json ContentType.
 type AddVMTagJSONRequestBody = AddVMTagRequest
@@ -9974,6 +10100,17 @@ type ClientInterface interface {
 
 	// DetachVMSecurityGroup request
 	DetachVMSecurityGroup(ctx context.Context, id VMIDPath, sgid SecurityGroupIDPath, nicID NICIDPath, params *DetachVMSecurityGroupParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ListServerSSHKeys request
+	ListServerSSHKeys(ctx context.Context, id VMIDPath, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// AddServerSSHKeyWithBody request with any body
+	AddServerSSHKeyWithBody(ctx context.Context, id VMIDPath, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	AddServerSSHKey(ctx context.Context, id VMIDPath, body AddServerSSHKeyJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// RemoveServerSSHKey request
+	RemoveServerSSHKey(ctx context.Context, id VMIDPath, fingerprint string, params *RemoveServerSSHKeyParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// StartVM request
 	StartVM(ctx context.Context, id VMIDPath, params *StartVMParams, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -13885,6 +14022,54 @@ func (c *Client) AttachVMSecurityGroup(ctx context.Context, id VMIDPath, params 
 
 func (c *Client) DetachVMSecurityGroup(ctx context.Context, id VMIDPath, sgid SecurityGroupIDPath, nicID NICIDPath, params *DetachVMSecurityGroupParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewDetachVMSecurityGroupRequest(c.Server, id, sgid, nicID, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ListServerSSHKeys(ctx context.Context, id VMIDPath, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListServerSSHKeysRequest(c.Server, id)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) AddServerSSHKeyWithBody(ctx context.Context, id VMIDPath, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewAddServerSSHKeyRequestWithBody(c.Server, id, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) AddServerSSHKey(ctx context.Context, id VMIDPath, body AddServerSSHKeyJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewAddServerSSHKeyRequest(c.Server, id, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) RemoveServerSSHKey(ctx context.Context, id VMIDPath, fingerprint string, params *RemoveServerSSHKeyParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRemoveServerSSHKeyRequest(c.Server, id, fingerprint, params)
 	if err != nil {
 		return nil, err
 	}
@@ -25911,6 +26096,150 @@ func NewDetachVMSecurityGroupRequest(server string, id VMIDPath, sgid SecurityGr
 	return req, nil
 }
 
+// NewListServerSSHKeysRequest generates requests for ListServerSSHKeys
+func NewListServerSSHKeysRequest(server string, id VMIDPath) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "id", id, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/vms/%s/ssh-keys", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewAddServerSSHKeyRequest calls the generic AddServerSSHKey builder with application/json body
+func NewAddServerSSHKeyRequest(server string, id VMIDPath, body AddServerSSHKeyJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewAddServerSSHKeyRequestWithBody(server, id, "application/json", bodyReader)
+}
+
+// NewAddServerSSHKeyRequestWithBody generates requests for AddServerSSHKey with any type of body
+func NewAddServerSSHKeyRequestWithBody(server string, id VMIDPath, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "id", id, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/vms/%s/ssh-keys", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewRemoveServerSSHKeyRequest generates requests for RemoveServerSSHKey
+func NewRemoveServerSSHKeyRequest(server string, id VMIDPath, fingerprint string, params *RemoveServerSSHKeyParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "id", id, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "fingerprint", fingerprint, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/vms/%s/ssh-keys/%s", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.ConfirmLast != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "confirm_last", *params.ConfirmLast, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "boolean", Format: ""}); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("DELETE", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewStartVMRequest generates requests for StartVM
 func NewStartVMRequest(server string, id VMIDPath, params *StartVMParams) (*http.Request, error) {
 	var err error
@@ -27968,6 +28297,17 @@ type ClientWithResponsesInterface interface {
 
 	// DetachVMSecurityGroupWithResponse request
 	DetachVMSecurityGroupWithResponse(ctx context.Context, id VMIDPath, sgid SecurityGroupIDPath, nicID NICIDPath, params *DetachVMSecurityGroupParams, reqEditors ...RequestEditorFn) (*DetachVMSecurityGroupResponse, error)
+
+	// ListServerSSHKeysWithResponse request
+	ListServerSSHKeysWithResponse(ctx context.Context, id VMIDPath, reqEditors ...RequestEditorFn) (*ListServerSSHKeysResponse, error)
+
+	// AddServerSSHKeyWithBodyWithResponse request with any body
+	AddServerSSHKeyWithBodyWithResponse(ctx context.Context, id VMIDPath, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*AddServerSSHKeyResponse, error)
+
+	AddServerSSHKeyWithResponse(ctx context.Context, id VMIDPath, body AddServerSSHKeyJSONRequestBody, reqEditors ...RequestEditorFn) (*AddServerSSHKeyResponse, error)
+
+	// RemoveServerSSHKeyWithResponse request
+	RemoveServerSSHKeyWithResponse(ctx context.Context, id VMIDPath, fingerprint string, params *RemoveServerSSHKeyParams, reqEditors ...RequestEditorFn) (*RemoveServerSSHKeyResponse, error)
 
 	// StartVMWithResponse request
 	StartVMWithResponse(ctx context.Context, id VMIDPath, params *StartVMParams, reqEditors ...RequestEditorFn) (*StartVMResponse, error)
@@ -34795,6 +35135,103 @@ func (r DetachVMSecurityGroupResponse) StatusCode() int {
 	return 0
 }
 
+type ListServerSSHKeysResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *ServerSSHKeysResponse
+	JSON400      *ServerSSHKeysRefused
+	JSON401      *Unauthorized
+	JSON404      *NotFound
+	JSON409      *ServerSSHKeysRefused
+	JSON503      *ServerSSHKeysRefused
+	JSON504      *ServerSSHKeysRefused
+}
+type ListServerSSHKeys400Reason string
+type ListServerSSHKeys409Reason string
+type ListServerSSHKeys503Reason string
+type ListServerSSHKeys504Reason string
+
+// Status returns HTTPResponse.Status
+func (r ListServerSSHKeysResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListServerSSHKeysResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type AddServerSSHKeyResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *ServerSSHKeysResponse
+	JSON400      *ServerSSHKeysRefused
+	JSON401      *Unauthorized
+	JSON404      *NotFound
+	JSON409      *ServerSSHKeysRefused
+	JSON503      *ServerSSHKeysRefused
+	JSON504      *ServerSSHKeysRefused
+}
+type AddServerSSHKey400Reason string
+type AddServerSSHKey409Reason string
+type AddServerSSHKey503Reason string
+type AddServerSSHKey504Reason string
+
+// Status returns HTTPResponse.Status
+func (r AddServerSSHKeyResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r AddServerSSHKeyResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type RemoveServerSSHKeyResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *ServerSSHKeysResponse
+	JSON400      *ServerSSHKeysRefused
+	JSON401      *Unauthorized
+	JSON404      *ServerSSHKeysRefused
+	JSON409      *ServerSSHKeysRefused
+	JSON503      *ServerSSHKeysRefused
+	JSON504      *ServerSSHKeysRefused
+}
+type RemoveServerSSHKey400Reason string
+type RemoveServerSSHKey404Reason string
+type RemoveServerSSHKey409Reason string
+type RemoveServerSSHKey503Reason string
+type RemoveServerSSHKey504Reason string
+
+// Status returns HTTPResponse.Status
+func (r RemoveServerSSHKeyResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r RemoveServerSSHKeyResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type StartVMResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -38142,6 +38579,41 @@ func (c *ClientWithResponses) DetachVMSecurityGroupWithResponse(ctx context.Cont
 		return nil, err
 	}
 	return ParseDetachVMSecurityGroupResponse(rsp)
+}
+
+// ListServerSSHKeysWithResponse request returning *ListServerSSHKeysResponse
+func (c *ClientWithResponses) ListServerSSHKeysWithResponse(ctx context.Context, id VMIDPath, reqEditors ...RequestEditorFn) (*ListServerSSHKeysResponse, error) {
+	rsp, err := c.ListServerSSHKeys(ctx, id, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListServerSSHKeysResponse(rsp)
+}
+
+// AddServerSSHKeyWithBodyWithResponse request with arbitrary body returning *AddServerSSHKeyResponse
+func (c *ClientWithResponses) AddServerSSHKeyWithBodyWithResponse(ctx context.Context, id VMIDPath, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*AddServerSSHKeyResponse, error) {
+	rsp, err := c.AddServerSSHKeyWithBody(ctx, id, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseAddServerSSHKeyResponse(rsp)
+}
+
+func (c *ClientWithResponses) AddServerSSHKeyWithResponse(ctx context.Context, id VMIDPath, body AddServerSSHKeyJSONRequestBody, reqEditors ...RequestEditorFn) (*AddServerSSHKeyResponse, error) {
+	rsp, err := c.AddServerSSHKey(ctx, id, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseAddServerSSHKeyResponse(rsp)
+}
+
+// RemoveServerSSHKeyWithResponse request returning *RemoveServerSSHKeyResponse
+func (c *ClientWithResponses) RemoveServerSSHKeyWithResponse(ctx context.Context, id VMIDPath, fingerprint string, params *RemoveServerSSHKeyParams, reqEditors ...RequestEditorFn) (*RemoveServerSSHKeyResponse, error) {
+	rsp, err := c.RemoveServerSSHKey(ctx, id, fingerprint, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRemoveServerSSHKeyResponse(rsp)
 }
 
 // StartVMWithResponse request returning *StartVMResponse
@@ -48832,6 +49304,210 @@ func ParseDetachVMSecurityGroupResponse(rsp *http.Response) (*DetachVMSecurityGr
 			return nil, err
 		}
 		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListServerSSHKeysResponse parses an HTTP response from a ListServerSSHKeysWithResponse call
+func ParseListServerSSHKeysResponse(rsp *http.Response) (*ListServerSSHKeysResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListServerSSHKeysResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest ServerSSHKeysResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ServerSSHKeysRefused
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest Unauthorized
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest NotFound
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest ServerSSHKeysRefused
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServerSSHKeysRefused
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 504:
+		var dest ServerSSHKeysRefused
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON504 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseAddServerSSHKeyResponse parses an HTTP response from a AddServerSSHKeyWithResponse call
+func ParseAddServerSSHKeyResponse(rsp *http.Response) (*AddServerSSHKeyResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &AddServerSSHKeyResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest ServerSSHKeysResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ServerSSHKeysRefused
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest Unauthorized
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest NotFound
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest ServerSSHKeysRefused
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServerSSHKeysRefused
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 504:
+		var dest ServerSSHKeysRefused
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON504 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseRemoveServerSSHKeyResponse parses an HTTP response from a RemoveServerSSHKeyWithResponse call
+func ParseRemoveServerSSHKeyResponse(rsp *http.Response) (*RemoveServerSSHKeyResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &RemoveServerSSHKeyResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest ServerSSHKeysResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ServerSSHKeysRefused
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest Unauthorized
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ServerSSHKeysRefused
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest ServerSSHKeysRefused
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServerSSHKeysRefused
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 504:
+		var dest ServerSSHKeysRefused
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON504 = &dest
 
 	}
 

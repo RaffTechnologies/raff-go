@@ -137,6 +137,9 @@ type VMService interface {
 	UpsertNote(ctx context.Context, vmID string, noteType VMNoteType, req *UpsertVMNoteRequest) (*VMNote, *Response, error)
 	UpdateNote(ctx context.Context, vmID string, noteType VMNoteType, req *UpsertVMNoteRequest) (*VMNote, *Response, error)
 	AppendNote(ctx context.Context, vmID string, noteType VMNoteType, req *UpsertVMNoteRequest) (*VMNote, *Response, error)
+	ListSSHKeys(ctx context.Context, vmID string) (*ServerSSHKeys, *Response, error)
+	AddSSHKey(ctx context.Context, vmID string, req *AddServerSSHKeyRequest) (*ServerSSHKeys, *Response, error)
+	RemoveSSHKey(ctx context.Context, vmID, fingerprint string, opts *RemoveServerSSHKeyOptions) (*ServerSSHKeys, *Response, error)
 }
 
 // VMServiceOp implements VMService.
