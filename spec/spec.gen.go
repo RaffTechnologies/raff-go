@@ -2883,14 +2883,17 @@ func (e VMPricingPlanRegion) Valid() bool {
 
 // Defines values for VMPricingPlanVMType.
 const (
-	VMPricingPlanVMTypePremium  VMPricingPlanVMType = "premium"
-	VMPricingPlanVMTypeStandard VMPricingPlanVMType = "standard"
-	VMPricingPlanVMTypeWindows  VMPricingPlanVMType = "windows"
+	VMPricingPlanVMTypeCostOptimized VMPricingPlanVMType = "cost_optimized"
+	VMPricingPlanVMTypePremium       VMPricingPlanVMType = "premium"
+	VMPricingPlanVMTypeStandard      VMPricingPlanVMType = "standard"
+	VMPricingPlanVMTypeWindows       VMPricingPlanVMType = "windows"
 )
 
 // Valid indicates whether the value is a known member of the VMPricingPlanVMType enum.
 func (e VMPricingPlanVMType) Valid() bool {
 	switch e {
+	case VMPricingPlanVMTypeCostOptimized:
+		return true
 	case VMPricingPlanVMTypePremium:
 		return true
 	case VMPricingPlanVMTypeStandard:
@@ -3363,14 +3366,17 @@ func (e ListSnapshotPricingParamsRegion) Valid() bool {
 
 // Defines values for ListVMPricingParamsType.
 const (
-	ListVMPricingParamsTypePremium  ListVMPricingParamsType = "premium"
-	ListVMPricingParamsTypeStandard ListVMPricingParamsType = "standard"
-	ListVMPricingParamsTypeWindows  ListVMPricingParamsType = "windows"
+	ListVMPricingParamsTypeCostOptimized ListVMPricingParamsType = "cost_optimized"
+	ListVMPricingParamsTypePremium       ListVMPricingParamsType = "premium"
+	ListVMPricingParamsTypeStandard      ListVMPricingParamsType = "standard"
+	ListVMPricingParamsTypeWindows       ListVMPricingParamsType = "windows"
 )
 
 // Valid indicates whether the value is a known member of the ListVMPricingParamsType enum.
 func (e ListVMPricingParamsType) Valid() bool {
 	switch e {
+	case ListVMPricingParamsTypeCostOptimized:
+		return true
 	case ListVMPricingParamsTypePremium:
 		return true
 	case ListVMPricingParamsTypeStandard:
@@ -3432,14 +3438,17 @@ func (e ListTemplatesParamsCategory) Valid() bool {
 
 // Defines values for ListTemplatesParamsVMType.
 const (
-	Premium  ListTemplatesParamsVMType = "premium"
-	Standard ListTemplatesParamsVMType = "standard"
-	Windows  ListTemplatesParamsVMType = "windows"
+	CostOptimized ListTemplatesParamsVMType = "cost_optimized"
+	Premium       ListTemplatesParamsVMType = "premium"
+	Standard      ListTemplatesParamsVMType = "standard"
+	Windows       ListTemplatesParamsVMType = "windows"
 )
 
 // Valid indicates whether the value is a known member of the ListTemplatesParamsVMType enum.
 func (e ListTemplatesParamsVMType) Valid() bool {
 	switch e {
+	case CostOptimized:
+		return true
 	case Premium:
 		return true
 	case Standard:
@@ -7084,7 +7093,7 @@ type Template struct {
 	// ID Template ID — use as `template_id` when creating a VM
 	ID openapi_types.UUID `json:"id"`
 
-	// IsWindows Whether this is a Windows template (only available for premium VMs)
+	// IsWindows Whether this is a Windows template (only available for Windows plans)
 	IsWindows bool `json:"is_windows"`
 
 	// Name OS name
@@ -7515,7 +7524,7 @@ type VMPricingPlan struct {
 	// Vcpu Number of vCPU cores
 	Vcpu int `json:"vcpu"`
 
-	// VMType VM type
+	// VMType VM type: `standard` (General Purpose, shared burstable CPU), `premium` (CPU-Optimized, guaranteed CPU), `windows` (Windows Server) or `cost_optimized` (Cost-Optimized: shared burstable CPU on a local NVMe disk of one node, Linux only, no uptime commitment)
 	VMType VMPricingPlanVMType `json:"vm_type"`
 
 	// YearlyPrice Yearly commitment price in USD (total for 12 months)
@@ -7525,7 +7534,7 @@ type VMPricingPlan struct {
 // VMPricingPlanRegion Region this plan is available in
 type VMPricingPlanRegion string
 
-// VMPricingPlanVMType VM type
+// VMPricingPlanVMType VM type: `standard` (General Purpose, shared burstable CPU), `premium` (CPU-Optimized, guaranteed CPU), `windows` (Windows Server) or `cost_optimized` (Cost-Optimized: shared burstable CPU on a local NVMe disk of one node, Linux only, no uptime commitment)
 type VMPricingPlanVMType string
 
 // VMTag Custom tag attached to a VM.
@@ -8442,7 +8451,7 @@ type ListSnapshotPricingParamsRegion string
 
 // ListVMPricingParams defines parameters for ListVMPricing.
 type ListVMPricingParams struct {
-	// Type Filter by VM type
+	// Type Filter by VM type: `standard` (General Purpose), `premium` (CPU-Optimized), `windows` (Windows Server) or `cost_optimized` (Cost-Optimized)
 	Type *ListVMPricingParamsType `form:"type,omitempty" json:"type,omitempty"`
 
 	// Region Filter by region
@@ -8469,7 +8478,7 @@ type ListTemplatesParams struct {
 	// Category Filter by template category
 	Category *ListTemplatesParamsCategory `form:"category,omitempty" json:"category,omitempty"`
 
-	// VMType Filter by VM type. Windows templates are only returned for `windows`; `standard` and `premium` exclude them.
+	// VMType Filter by VM type. Windows templates are only returned for `windows`; `standard`, `premium` and `cost_optimized` exclude them, and `cost_optimized` returns only the templates a Cost-Optimized server can run.
 	VMType *ListTemplatesParamsVMType `form:"vm_type,omitempty" json:"vm_type,omitempty"`
 
 	// Region Filter by region
