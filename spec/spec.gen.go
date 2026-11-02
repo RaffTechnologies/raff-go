@@ -4989,6 +4989,9 @@ type CreateSnapshotRequestResourceType string
 
 // CreateVMRequest defines model for CreateVMRequest.
 type CreateVMRequest struct {
+	// AutoGeneratePassword Raff makes a strong root (Linux) or Administrator (Windows) password and emails it to the account's email once the server is created. The password is never in an API response. Use it instead of `password`; sending both is refused.
+	AutoGeneratePassword *bool `json:"auto_generate_password,omitempty"`
+
 	// BackupDate Day of the week for weekly backups (e.g. `Saturday`). Required when `backup_type` is `weekly`, ignored for daily backups. Valid values: Monday–Sunday.
 	BackupDate *string `json:"backup_date,omitempty"`
 
@@ -5007,7 +5010,7 @@ type CreateVMRequest struct {
 	// Name VM display name
 	Name string `json:"name"`
 
-	// Password Root password for the VM. Required for Windows VMs. For Linux VMs, required if no SSH keys are provided. Both SSH keys and password can be set on Linux. Must be at least 12 characters with: 2+ uppercase letters, 2+ digits, 1+ special character (@+-_.,!). Only alphanumeric characters and @+-_.,! are allowed.
+	// Password Root password for the VM. Required for Windows VMs unless `auto_generate_password` is true. For Linux VMs, required if no SSH keys are provided and `auto_generate_password` is not set. Both SSH keys and password can be set on Linux. Must be at least 12 characters with: 2+ uppercase letters, 2+ digits, 1+ special character (@+-_.,!). Only alphanumeric characters and @+-_.,! are allowed.
 	Password *string `json:"password,omitempty"`
 
 	// PricingID Pricing plan ID that determines vCPU, RAM, storage, and bandwidth. Use `GET /api/v1/public/pricing/vm` to list available plans.
@@ -7095,6 +7098,9 @@ type Template struct {
 
 	// IsWindows Whether this is a Windows template (only available for Windows plans)
 	IsWindows bool `json:"is_windows"`
+
+	// LicencePricePerMonth Windows templates only. The monthly price of Raff's Windows Server licence, paid on top of the plan when the server is bought with the licence (the dashboard checkout). Absent when the licence is not on sale.
+	LicencePricePerMonth *float32 `json:"licence_price_per_month,omitempty"`
 
 	// Name OS name
 	Name string `json:"name"`
