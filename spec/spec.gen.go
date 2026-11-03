@@ -5185,6 +5185,9 @@ type Database struct {
 	// ReplicaCount Number of read replicas (PostgreSQL only; 0 for other engines). Each costs the same as the plan.
 	ReplicaCount *int `json:"replica_count,omitempty"`
 
+	// ServerVersion Full version the running server reports, refreshed every few minutes. Empty until the first reading after creation.
+	ServerVersion *string `json:"server_version,omitempty"`
+
 	// Status Lifecycle status.
 	//
 	// - Creation: `pending`, then `deploying`, then `running`. A database with public access reports `running` only once its public address accepts connections.
