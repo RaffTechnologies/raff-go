@@ -59,6 +59,17 @@ type UpdateVMTagRequest = spec.UpdateVMTagRequest
 // updated tag list for the VM.
 type VMTagsResponse = spec.VMTagsResponse
 
+// RemoveVMTagOptions are the optional parameters for removing a tag from a VM.
+type RemoveVMTagOptions struct {
+	// ResetFirewall also puts the VM's public network interfaces back on the Raff Default
+	// Firewall. Without it, a firewall the tag set stays on the VM.
+	ResetFirewall bool
+}
+
+// ServerTagFirewall is the firewalls a VM's tags carry in its project, whether they conflict,
+// and the VM's latest tag firewall job.
+type ServerTagFirewall = spec.ServerTagFirewall
+
 // VMNote is a free-form note attached to a VM.
 type VMNote = spec.VMNote
 
@@ -132,7 +143,8 @@ type VMService interface {
 	DetachSecurityGroup(ctx context.Context, vmID, securityGroupID string, nicID int) (*Response, error)
 	AddTag(ctx context.Context, vmID string, req *AddVMTagRequest) ([]VMTag, *Response, error)
 	UpdateTag(ctx context.Context, vmID, tagID string, req *UpdateVMTagRequest) ([]VMTag, *Response, error)
-	RemoveTag(ctx context.Context, vmID, tagID string) ([]VMTag, *Response, error)
+	RemoveTag(ctx context.Context, vmID, tagID string, opts ...*RemoveVMTagOptions) ([]VMTag, *Response, error)
+	TagFirewall(ctx context.Context, vmID string) (*ServerTagFirewall, *Response, error)
 	GetNotes(ctx context.Context, vmID string, opts *GetVMNotesOptions) (*VMNotesResponse, *Response, error)
 	UpsertNote(ctx context.Context, vmID string, noteType VMNoteType, req *UpsertVMNoteRequest) (*VMNote, *Response, error)
 	UpdateNote(ctx context.Context, vmID string, noteType VMNoteType, req *UpsertVMNoteRequest) (*VMNote, *Response, error)
@@ -651,7 +663,9 @@ func (s *VMServiceOp) UpdateTag(ctx context.Context, vmID, tagID string, req *Up
 	return resp.JSON200.Tags, responseFrom(resp.HTTPResponse, 0), nil
 }
 
-func (s *VMServiceOp) RemoveTag(ctx context.Context, vmID, tagID string) ([]VMTag, *Response, error) {
+// RemoveTag removes a tag from a VM. Pass RemoveVMTagOptions{ResetFirewall: true} to also put the
+// VM back on the Raff Default Firewall.
+func (s *VMServiceOp) RemoveTag(ctx context.Context, vmID, tagID string, opts ...*RemoveVMTagOptions) ([]VMTag, *Response, error) {
 	vid, err := parseUUID(vmID)
 	if err != nil {
 		return nil, nil, err
@@ -664,7 +678,14 @@ func (s *VMServiceOp) RemoveTag(ctx context.Context, vmID, tagID string) ([]VMTa
 	if err != nil {
 		return nil, nil, err
 	}
-	resp, err := s.client.spec.RemoveVMTagWithResponse(ctx, vid, tid, &spec.RemoveVMTagParams{XProjectID: projectID})
+	params := &spec.RemoveVMTagParams{XProjectID: projectID}
+	for _, o := range opts {
+		if o != nil && o.ResetFirewall {
+			reset := true
+			params.ResetFirewall = &reset
+		}
+	}
+	resp, err := s.client.spec.RemoveVMTagWithResponse(ctx, vid, tid, params)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -672,6 +693,27 @@ func (s *VMServiceOp) RemoveTag(ctx context.Context, vmID, tagID string) ([]VMTa
 		return nil, responseFrom(resp.HTTPResponse, 0), errorFromResponse(resp.StatusCode(), resp.Body)
 	}
 	return resp.JSON200.Tags, responseFrom(resp.HTTPResponse, 0), nil
+}
+
+// TagFirewall returns the firewalls the VM's tags carry in its project, whether they conflict,
+// and the VM's latest tag firewall job.
+func (s *VMServiceOp) TagFirewall(ctx context.Context, vmID string) (*ServerTagFirewall, *Response, error) {
+	id, err := parseUUID(vmID)
+	if err != nil {
+		return nil, nil, err
+	}
+	projectID, err := s.client.requireProjectID()
+	if err != nil {
+		return nil, nil, err
+	}
+	resp, err := s.client.spec.GetVMTagFirewallWithResponse(ctx, id, &spec.GetVMTagFirewallParams{XProjectID: projectID})
+	if err != nil {
+		return nil, nil, err
+	}
+	if resp.JSON200 == nil || resp.JSON200.Data == nil {
+		return nil, responseFrom(resp.HTTPResponse, 0), errorFromResponse(resp.StatusCode(), resp.Body)
+	}
+	return resp.JSON200.Data, responseFrom(resp.HTTPResponse, 0), nil
 }
 
 func (s *VMServiceOp) GetNotes(ctx context.Context, vmID string, opts *GetVMNotesOptions) (*VMNotesResponse, *Response, error) {

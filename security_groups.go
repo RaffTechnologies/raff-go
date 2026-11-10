@@ -3,6 +3,8 @@ package raff
 import (
 	"context"
 
+	openapi_types "github.com/oapi-codegen/runtime/types"
+
 	"github.com/rafftechnologies/raff-go/spec"
 )
 
@@ -24,6 +26,10 @@ type UpdateSecurityGroupRequest = spec.UpdateSecurityGroupRequest
 // SecurityGroupListOptions are query params for listing security groups.
 type SecurityGroupListOptions = spec.ListSecurityGroupsParams
 
+// FirewallTags is the tags a security group is linked to in its project, with the progress of
+// putting it on their servers.
+type FirewallTags = spec.FirewallTags
+
 // SecurityGroupService handles communication with the security group endpoints.
 type SecurityGroupService interface {
 	List(ctx context.Context, opts *SecurityGroupListOptions) ([]SecurityGroup, *Response, error)
@@ -32,6 +38,8 @@ type SecurityGroupService interface {
 	Create(ctx context.Context, req *CreateSecurityGroupRequest) (*SecurityGroup, *Response, error)
 	Update(ctx context.Context, sgID string, req *UpdateSecurityGroupRequest) (*SecurityGroup, *Response, error)
 	Delete(ctx context.Context, sgID string) (*Response, error)
+	GetTags(ctx context.Context, sgID string) (*FirewallTags, *Response, error)
+	SetTags(ctx context.Context, sgID string, tagIDs []string) (*FirewallTags, *Response, error)
 }
 
 // SecurityGroupServiceOp implements SecurityGroupService.
@@ -149,4 +157,49 @@ func (s *SecurityGroupServiceOp) Delete(ctx context.Context, sgID string) (*Resp
 		return responseFrom(resp.HTTPResponse, 0), errorFromResponse(resp.StatusCode(), resp.Body)
 	}
 	return responseFrom(resp.HTTPResponse, 0), nil
+}
+
+// GetTags returns the tags the security group is linked to in its project and its job progress.
+func (s *SecurityGroupServiceOp) GetTags(ctx context.Context, sgID string) (*FirewallTags, *Response, error) {
+	id, err := parseUUID(sgID)
+	if err != nil {
+		return nil, nil, err
+	}
+	projectID, err := s.client.requireProjectID()
+	if err != nil {
+		return nil, nil, err
+	}
+	resp, err := s.client.spec.GetFirewallTagsWithResponse(ctx, id, &spec.GetFirewallTagsParams{XProjectID: projectID})
+	if err != nil {
+		return nil, nil, err
+	}
+	if resp.JSON200 == nil || resp.JSON200.Data == nil {
+		return nil, responseFrom(resp.HTTPResponse, 0), errorFromResponse(resp.StatusCode(), resp.Body)
+	}
+	return resp.JSON200.Data, responseFrom(resp.HTTPResponse, 0), nil
+}
+
+// SetTags makes tagIDs the security group's tags in its own project (an empty list unlinks every
+// tag). Raff then puts the security group on every server of that project with one of the tags.
+func (s *SecurityGroupServiceOp) SetTags(ctx context.Context, sgID string, tagIDs []string) (*FirewallTags, *Response, error) {
+	id, err := parseUUID(sgID)
+	if err != nil {
+		return nil, nil, err
+	}
+	ids := make([]openapi_types.UUID, 0, len(tagIDs))
+	for _, t := range tagIDs {
+		tid, err := parseUUID(t)
+		if err != nil {
+			return nil, nil, err
+		}
+		ids = append(ids, tid)
+	}
+	resp, err := s.client.spec.SetFirewallTagsWithResponse(ctx, id, spec.SetFirewallTagsRequest{TagIds: ids})
+	if err != nil {
+		return nil, nil, err
+	}
+	if resp.JSON200 == nil || resp.JSON200.Data == nil {
+		return nil, responseFrom(resp.HTTPResponse, 0), errorFromResponse(resp.StatusCode(), resp.Body)
+	}
+	return resp.JSON200.Data, responseFrom(resp.HTTPResponse, 0), nil
 }

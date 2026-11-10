@@ -51,6 +51,7 @@ type Client struct {
 	VPCs            VPCService
 	IPs             IPService
 	SecurityGroups  SecurityGroupService
+	Tags            TagService
 	SSHKeys         SSHKeyService
 	APIKeys         APIKeyService
 	Members         MemberService
@@ -110,6 +111,7 @@ func New(httpClient *http.Client, apiKey string, opts ...ClientOpt) *Client {
 	c.VPCs = &VPCServiceOp{client: c}
 	c.IPs = &IPServiceOp{client: c}
 	c.SecurityGroups = &SecurityGroupServiceOp{client: c}
+	c.Tags = &TagServiceOp{client: c}
 	c.SSHKeys = &SSHKeyServiceOp{client: c}
 	c.APIKeys = &APIKeyServiceOp{client: c}
 	c.Members = &MemberServiceOp{client: c}

@@ -2350,6 +2350,60 @@ func (e ProjectMemberStatus) Valid() bool {
 	}
 }
 
+// Defines values for RegionProducts.
+const (
+	RegionProductsApps          RegionProducts = "apps"
+	RegionProductsBackups       RegionProducts = "backups"
+	RegionProductsCostOptimized RegionProducts = "cost_optimized"
+	RegionProductsDatabases     RegionProducts = "databases"
+	RegionProductsFunctions     RegionProducts = "functions"
+	RegionProductsKubernetes    RegionProducts = "kubernetes"
+	RegionProductsObjectStorage RegionProducts = "object_storage"
+	RegionProductsPremium       RegionProducts = "premium"
+	RegionProductsSnapshots     RegionProducts = "snapshots"
+	RegionProductsStandard      RegionProducts = "standard"
+	RegionProductsVolumes       RegionProducts = "volumes"
+	RegionProductsVpc           RegionProducts = "vpc"
+	RegionProductsVpn           RegionProducts = "vpn"
+	RegionProductsWindows       RegionProducts = "windows"
+)
+
+// Valid indicates whether the value is a known member of the RegionProducts enum.
+func (e RegionProducts) Valid() bool {
+	switch e {
+	case RegionProductsApps:
+		return true
+	case RegionProductsBackups:
+		return true
+	case RegionProductsCostOptimized:
+		return true
+	case RegionProductsDatabases:
+		return true
+	case RegionProductsFunctions:
+		return true
+	case RegionProductsKubernetes:
+		return true
+	case RegionProductsObjectStorage:
+		return true
+	case RegionProductsPremium:
+		return true
+	case RegionProductsSnapshots:
+		return true
+	case RegionProductsStandard:
+		return true
+	case RegionProductsVolumes:
+		return true
+	case RegionProductsVpc:
+		return true
+	case RegionProductsVpn:
+		return true
+	case RegionProductsWindows:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for ReserveIPRequestBillingPeriod.
 const (
 	Monthly         ReserveIPRequestBillingPeriod = "monthly"
@@ -2590,6 +2644,42 @@ func (e StoragePricingRegion) Valid() bool {
 	}
 }
 
+// Defines values for TagColor.
+const (
+	Amber  TagColor = "amber"
+	Blue   TagColor = "blue"
+	Gray   TagColor = "gray"
+	Green  TagColor = "green"
+	Orange TagColor = "orange"
+	Pink   TagColor = "pink"
+	Red    TagColor = "red"
+	Violet TagColor = "violet"
+)
+
+// Valid indicates whether the value is a known member of the TagColor enum.
+func (e TagColor) Valid() bool {
+	switch e {
+	case Amber:
+		return true
+	case Blue:
+		return true
+	case Gray:
+		return true
+	case Green:
+		return true
+	case Orange:
+		return true
+	case Pink:
+		return true
+	case Red:
+		return true
+	case Violet:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for TemplateCategory.
 const (
 	TemplateCategoryMarketplace TemplateCategory = "marketplace"
@@ -2821,6 +2911,27 @@ const (
 func (e VMImageRegion) Valid() bool {
 	switch e {
 	case VMImageRegionUsEast:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for VMNetworkSecurityGroupSource.
+const (
+	VMNetworkSecurityGroupSourceCreate VMNetworkSecurityGroupSource = "create"
+	VMNetworkSecurityGroupSourceManual VMNetworkSecurityGroupSource = "manual"
+	VMNetworkSecurityGroupSourceTag    VMNetworkSecurityGroupSource = "tag"
+)
+
+// Valid indicates whether the value is a known member of the VMNetworkSecurityGroupSource enum.
+func (e VMNetworkSecurityGroupSource) Valid() bool {
+	switch e {
+	case VMNetworkSecurityGroupSourceCreate:
+		return true
+	case VMNetworkSecurityGroupSourceManual:
+		return true
+	case VMNetworkSecurityGroupSourceTag:
 		return true
 	default:
 		return false
@@ -3255,19 +3366,19 @@ func (e ListIPsParamsStatus) Valid() bool {
 
 // Defines values for UpdateK8SClusterMaintenanceJSONBodyUpgradeMode.
 const (
-	UpdateK8SClusterMaintenanceJSONBodyUpgradeModeAutoMinor UpdateK8SClusterMaintenanceJSONBodyUpgradeMode = "auto_minor"
-	UpdateK8SClusterMaintenanceJSONBodyUpgradeModeAutoPatch UpdateK8SClusterMaintenanceJSONBodyUpgradeMode = "auto_patch"
-	UpdateK8SClusterMaintenanceJSONBodyUpgradeModeManual    UpdateK8SClusterMaintenanceJSONBodyUpgradeMode = "manual"
+	AutoMinor UpdateK8SClusterMaintenanceJSONBodyUpgradeMode = "auto_minor"
+	AutoPatch UpdateK8SClusterMaintenanceJSONBodyUpgradeMode = "auto_patch"
+	Manual    UpdateK8SClusterMaintenanceJSONBodyUpgradeMode = "manual"
 )
 
 // Valid indicates whether the value is a known member of the UpdateK8SClusterMaintenanceJSONBodyUpgradeMode enum.
 func (e UpdateK8SClusterMaintenanceJSONBodyUpgradeMode) Valid() bool {
 	switch e {
-	case UpdateK8SClusterMaintenanceJSONBodyUpgradeModeAutoMinor:
+	case AutoMinor:
 		return true
-	case UpdateK8SClusterMaintenanceJSONBodyUpgradeModeAutoPatch:
+	case AutoPatch:
 		return true
-	case UpdateK8SClusterMaintenanceJSONBodyUpgradeModeManual:
+	case Manual:
 		return true
 	default:
 		return false
@@ -3438,22 +3549,22 @@ func (e ListTemplatesParamsCategory) Valid() bool {
 
 // Defines values for ListTemplatesParamsVMType.
 const (
-	CostOptimized ListTemplatesParamsVMType = "cost_optimized"
-	Premium       ListTemplatesParamsVMType = "premium"
-	Standard      ListTemplatesParamsVMType = "standard"
-	Windows       ListTemplatesParamsVMType = "windows"
+	ListTemplatesParamsVMTypeCostOptimized ListTemplatesParamsVMType = "cost_optimized"
+	ListTemplatesParamsVMTypePremium       ListTemplatesParamsVMType = "premium"
+	ListTemplatesParamsVMTypeStandard      ListTemplatesParamsVMType = "standard"
+	ListTemplatesParamsVMTypeWindows       ListTemplatesParamsVMType = "windows"
 )
 
 // Valid indicates whether the value is a known member of the ListTemplatesParamsVMType enum.
 func (e ListTemplatesParamsVMType) Valid() bool {
 	switch e {
-	case CostOptimized:
+	case ListTemplatesParamsVMTypeCostOptimized:
 		return true
-	case Premium:
+	case ListTemplatesParamsVMTypePremium:
 		return true
-	case Standard:
+	case ListTemplatesParamsVMTypeStandard:
 		return true
-	case Windows:
+	case ListTemplatesParamsVMTypeWindows:
 		return true
 	default:
 		return false
@@ -3753,6 +3864,29 @@ type APIKeyWithSecretRateLimitTier string
 // APIKeyWithSecretScope Always `public` for customer-created keys
 type APIKeyWithSecretScope string
 
+// AccountTag A tag of the account. The same tag is shared by every server that has it.
+type AccountTag struct {
+	// Color Tag colour.
+	Color     TagColor  `json:"color"`
+	CreatedAt time.Time `json:"created_at"`
+
+	// Firewalls The firewalls this tag carries, one at most per project.
+	Firewalls []TagFirewallLink `json:"firewalls"`
+
+	// ID Tag ID.
+	ID openapi_types.UUID `json:"id"`
+
+	// Name Tag name, unique per account ignoring case.
+	Name string `json:"name"`
+
+	// Priority Priority 1-9, 1 highest. `null` when the tag has none.
+	Priority *int `json:"priority"`
+
+	// ServerCount Servers with this tag, in the projects you can see.
+	ServerCount int       `json:"server_count"`
+	UpdatedAt   time.Time `json:"updated_at"`
+}
+
 // AddK8SNodePoolRequest defines model for AddK8sNodePoolRequest.
 type AddK8SNodePoolRequest struct {
 	AutoscaleEnabled *bool   `json:"autoscale_enabled,omitempty"`
@@ -3803,10 +3937,10 @@ type AddServerSSHKeyRequest struct {
 
 // AddVMTagRequest defines model for AddVMTagRequest.
 type AddVMTagRequest struct {
-	// Name Tag name.
+	// Name Tag name. The account tag of this name (ignoring case) is added; it is created when the account has none.
 	Name string `json:"name"`
 
-	// Priority Display priority (lower sorts first). Defaults to 0.
+	// Priority Priority 1-9 (1 highest) for a tag created by this call. Ignored when the tag exists. 0 or omitted means no priority.
 	Priority *int `json:"priority,omitempty"`
 }
 
@@ -4987,6 +5121,18 @@ type CreateSnapshotRequest struct {
 // CreateSnapshotRequestResourceType Source type for the snapshot
 type CreateSnapshotRequestResourceType string
 
+// CreateTagRequest defines model for CreateTagRequest.
+type CreateTagRequest struct {
+	// Color Tag colour. Defaults to `gray`.
+	Color *TagColor `json:"color,omitempty"`
+
+	// Name Tag name, unique per account ignoring case.
+	Name string `json:"name"`
+
+	// Priority Priority 1-9, 1 highest. Omit for none.
+	Priority *int `json:"priority,omitempty"`
+}
+
 // CreateVMRequest defines model for CreateVMRequest.
 type CreateVMRequest struct {
 	// AutoGeneratePassword Raff makes a strong root (Linux) or Administrator (Windows) password and emails it to the account's email once the server is created. The password is never in an API response. Use it instead of `password`; sending both is refused.
@@ -5000,6 +5146,9 @@ type CreateVMRequest struct {
 
 	// BackupType Set `daily` for daily backups or `weekly` for weekly backups. Use `none` or omit for no backups.
 	BackupType *CreateVMRequestBackupType `json:"backup_type,omitempty"`
+
+	// EnableIpv6 When `true`, the VM also gets a public IPv6 address from the node it runs on, shown as `public_ipv6_address` on the VM. With `skip_public_ip=true` it is the VM's only public address. If the VM's node has no IPv6 network, the VM is created without one.
+	EnableIpv6 *bool `json:"enable_ipv6,omitempty"`
 
 	// ExtraStorage Additional block storage volume in GB (0–10,000). Attached as a separate disk to the VM.
 	ExtraStorage *int `json:"extra_storage,omitempty"`
@@ -5019,6 +5168,9 @@ type CreateVMRequest struct {
 	// Region Data center region
 	Region CreateVMRequestRegion `json:"region"`
 
+	// SecurityGroupID Cloud firewall (security group) the VM's public network interfaces carry from the first boot. The VM is created on hold, its public interfaces get this firewall in place of the Raff Default Firewall, and only then does it start, so a port the firewall closes is never open. The firewall must belong to your account and to the same project as the new VM. The VM needs a public address: the request is refused with `skip_public_ip=true` unless `enable_ipv6=true`. Omit it or send an empty string for the Raff Default Firewall. After creation it is the VM's normal firewall: `GET /api/v1/vms/{id}/networks` shows it as `security_group_id` on the public interface, and `POST /api/v1/vms/{id}/security-groups` or `DELETE /api/v1/vms/{id}/security-groups/{sg_id}/{nic_id}` change it. List firewalls with `GET /api/v1/security-groups`. When set, it wins over a firewall the VM's `tags` carry.
+	SecurityGroupID *openapi_types.UUID `json:"security_group_id,omitempty"`
+
 	// SkipPublicIP When `true`, the VM is created without a public IPv4 address. It will only be reachable on its VPC private IP, so a VPC is required — pass `vpc_id` (existing) or `vpc_name` + `vpc_cidr` (new), or leave VPC fields empty to auto-create one. Combining `skip_public_ip=true` with `skip_vpc=true` is rejected because the VM would have no network at all.
 	SkipPublicIP *bool `json:"skip_public_ip,omitempty"`
 
@@ -5028,7 +5180,7 @@ type CreateVMRequest struct {
 	// SSHKeys SSH keys for VM access, each the `id` of a saved SSH key or a public key itself. Every key is checked (see Create SSH key) and an invalid entry refuses the request. Required for Linux VMs if no password is provided. Ignored for Windows VMs.
 	SSHKeys *[]string `json:"ssh_keys,omitempty"`
 
-	// Tags Custom tags for the VM
+	// Tags Custom tags for the VM. Each name is an account tag; tags the account does not have yet are created. When `security_group_id` is not sent and the tags carry exactly one firewall in the VM's project (see `PUT /api/v1/security-groups/{id}/tags`), the VM gets that firewall from its first boot. Tags that carry different firewalls in the project are refused (400) before any charge.
 	Tags *[]string `json:"tags,omitempty"`
 
 	// TemplateID OS template ID. Use `GET /api/v1/public/templates` to list available templates.
@@ -5700,6 +5852,21 @@ type DeleteVMsBulkRequestVolumeAction string
 type Error struct {
 	Error   *string `json:"error,omitempty"`
 	Message *string `json:"message,omitempty"`
+}
+
+// FirewallTags The tags a firewall is linked to in its project, and its jobs of the last day by status.
+type FirewallTags struct {
+	// JobCounts Server jobs of the last day that put this firewall on servers, by status. Statuses with no job are left out.
+	JobCounts struct {
+		// Conflict Servers whose tags carry different firewalls, so nothing was changed.
+		Conflict *int `json:"conflict,omitempty"`
+		Done     *int `json:"done,omitempty"`
+		Failed   *int `json:"failed,omitempty"`
+		Pending  *int `json:"pending,omitempty"`
+		Running  *int `json:"running,omitempty"`
+		Skipped  *int `json:"skipped,omitempty"`
+	} `json:"job_counts"`
+	Links []TagFirewallLink `json:"links"`
 }
 
 // FloatingIP A floating public IP address.
@@ -6630,7 +6797,13 @@ type Region struct {
 
 	// Name Human-readable region name
 	Name string `json:"name"`
+
+	// Products What the region sells, read from its live prices. Empty if it could not be read.
+	Products *[]RegionProducts `json:"products,omitempty"`
 }
+
+// RegionProducts defines model for Region.Products.
+type RegionProducts string
 
 // ReinstallVMRequest defines model for ReinstallVMRequest.
 type ReinstallVMRequest struct {
@@ -6987,6 +7160,19 @@ type ServerSSHKeysResponse struct {
 	Success *bool          `json:"success,omitempty"`
 }
 
+// ServerTagFirewall The firewalls a server's tags carry in its project.
+type ServerTagFirewall struct {
+	// Conflict `true` when the server's tags carry different firewalls in its project. Raff then changes nothing on the server.
+	Conflict  bool              `json:"conflict"`
+	Firewalls []TagFirewallLink `json:"firewalls"`
+
+	// JobError Why the latest job failed. Empty otherwise.
+	JobError *string `json:"job_error,omitempty"`
+
+	// JobStatus Status of the server's latest tag firewall job (`pending`, `running`, `done`, `failed`, `conflict` or `skipped`). Empty when there is none.
+	JobStatus *string `json:"job_status,omitempty"`
+}
+
 // SetDatabaseExtensionRequest defines model for SetDatabaseExtensionRequest.
 type SetDatabaseExtensionRequest struct {
 	// Enabled `true` to install, `false` to remove
@@ -6994,6 +7180,12 @@ type SetDatabaseExtensionRequest struct {
 
 	// Name Extension name as listed by `GET /api/v1/databases/{database_id}/extensions`
 	Name string `json:"name"`
+}
+
+// SetFirewallTagsRequest defines model for SetFirewallTagsRequest.
+type SetFirewallTagsRequest struct {
+	// TagIds The firewall's tags after the call. Tags left out are unlinked; `[]` unlinks every tag.
+	TagIds []openapi_types.UUID `json:"tag_ids"`
 }
 
 // SetVMConsolePolicyRequest defines model for SetVMConsolePolicyRequest.
@@ -7083,6 +7275,21 @@ type StoragePricingRegion string
 type SuccessResponse struct {
 	Message *string `json:"message,omitempty"`
 	Success *bool   `json:"success,omitempty"`
+}
+
+// TagColor Tag colour.
+type TagColor string
+
+// TagFirewallLink A tag that carries a firewall in one project. Servers of that project with the tag get the firewall on their public network interfaces.
+type TagFirewallLink struct {
+	// ProjectID The project the link applies to (the firewall's project).
+	ProjectID openapi_types.UUID `json:"project_id"`
+
+	// SecurityGroupID Firewall (security group) ID.
+	SecurityGroupID   openapi_types.UUID `json:"security_group_id"`
+	SecurityGroupName string             `json:"security_group_name"`
+	TagID             openapi_types.UUID `json:"tag_id"`
+	TagName           string             `json:"tag_name"`
 }
 
 // Template defines model for Template.
@@ -7264,6 +7471,18 @@ type UpdateSecurityGroupRequest struct {
 	Description *string              `json:"description,omitempty"`
 	Name        *string              `json:"name,omitempty"`
 	Rules       *[]SecurityGroupRule `json:"rules,omitempty"`
+}
+
+// UpdateTagRequest Send only the fields to change.
+type UpdateTagRequest struct {
+	// Color Tag colour.
+	Color *TagColor `json:"color,omitempty"`
+
+	// Name New tag name, unique per account ignoring case.
+	Name *string `json:"name,omitempty"`
+
+	// Priority New priority 1-9, 1 highest. `null` or `0` removes it.
+	Priority *int `json:"priority,omitempty"`
 }
 
 // UpdateVMTagRequest At least one field is required.
@@ -7455,12 +7674,24 @@ type VMNetwork struct {
 	// SecurityGroupID ID of the security group attached to this NIC, if any.
 	SecurityGroupID *openapi_types.UUID `json:"security_group_id,omitempty"`
 
+	// SecurityGroupSource How the security group got on this NIC: `manual` (attached by hand), `create` (`security_group_id` at create) or `tag` (carried by one of the VM's tags). Left out when unknown.
+	SecurityGroupSource *VMNetworkSecurityGroupSource `json:"security_group_source,omitempty"`
+
+	// SecurityGroupTagID When `security_group_source` is `tag`, the tag that carries the security group.
+	SecurityGroupTagID *openapi_types.UUID `json:"security_group_tag_id,omitempty"`
+
+	// SecurityGroupTagName When `security_group_source` is `tag`, that tag's name.
+	SecurityGroupTagName *string `json:"security_group_tag_name,omitempty"`
+
 	// Type Interface type:
 	// - `public` — public IPv4 address
 	// - `vpc` — private IPv4 inside a VPC
 	// - `ipv6` — public IPv6 address
 	Type VMNetworkType `json:"type"`
 }
+
+// VMNetworkSecurityGroupSource How the security group got on this NIC: `manual` (attached by hand), `create` (`security_group_id` at create) or `tag` (carried by one of the VM's tags). Left out when unknown.
+type VMNetworkSecurityGroupSource string
 
 // VMNetworkType Interface type:
 // - `public` — public IPv4 address
@@ -7548,6 +7779,9 @@ type VMPricingPlanVMType string
 
 // VMTag Custom tag attached to a VM.
 type VMTag struct {
+	// Color Tag colour.
+	Color *TagColor `json:"color,omitempty"`
+
 	// CreatedAt When the tag was created
 	CreatedAt time.Time `json:"created_at"`
 
@@ -7559,6 +7793,17 @@ type VMTag struct {
 
 	// Priority Tag priority (ordering)
 	Priority int `json:"priority"`
+}
+
+// VMTagAddedResponse The VM's full tag list after the tag was added, and the firewall the tag carries in the VM's project.
+type VMTagAddedResponse struct {
+	// Firewall A tag that carries a firewall in one project. Servers of that project with the tag get the firewall on their public network interfaces.
+	Firewall *TagFirewallLink `json:"firewall,omitempty"`
+
+	// FirewallQueued `true` when Raff will put the tag's firewall on the VM's public network interfaces in the background.
+	FirewallQueued bool    `json:"firewall_queued"`
+	Success        bool    `json:"success"`
+	Tags           []VMTag `json:"tags"`
 }
 
 // VMTagsResponse Returns the full updated tag list for the VM.
@@ -7641,6 +7886,44 @@ type VPCLease struct {
 	NicID int `json:"nic_id"`
 }
 
+// VPNPricing VPN pricing. A VPC needs one gateway; each site-to-site tunnel on it is priced separately. Traffic through the tunnels is not metered.
+type VPNPricing struct {
+	Gateway *struct {
+		// MonthlyPrice Monthly price in USD
+		MonthlyPrice *float32 `json:"monthly_price,omitempty"`
+
+		// PeerCount WireGuard client configs (remote-access peers) included with the gateway
+		PeerCount *int `json:"peer_count,omitempty"`
+
+		// PricePerHour Hourly price in USD
+		PricePerHour *float32 `json:"price_per_hour,omitempty"`
+
+		// TwentyFourMonthPrice 24-month commitment price in USD
+		TwentyFourMonthPrice *float32 `json:"twenty_four_month_price,omitempty"`
+
+		// YearlyPrice Yearly commitment price in USD
+		YearlyPrice *float32 `json:"yearly_price,omitempty"`
+	} `json:"gateway,omitempty"`
+
+	// Site Pricing for one VPN gateway or one site-to-site tunnel.
+	Site *VPNPricingTier `json:"site,omitempty"`
+}
+
+// VPNPricingTier Pricing for one VPN gateway or one site-to-site tunnel.
+type VPNPricingTier struct {
+	// MonthlyPrice Monthly price in USD
+	MonthlyPrice *float32 `json:"monthly_price,omitempty"`
+
+	// PricePerHour Hourly price in USD
+	PricePerHour *float32 `json:"price_per_hour,omitempty"`
+
+	// TwentyFourMonthPrice 24-month commitment price in USD
+	TwentyFourMonthPrice *float32 `json:"twenty_four_month_price,omitempty"`
+
+	// YearlyPrice Yearly commitment price in USD
+	YearlyPrice *float32 `json:"yearly_price,omitempty"`
+}
+
 // Volume defines model for Volume.
 type Volume struct {
 	// AccountID Account that owns the volume
@@ -7692,6 +7975,9 @@ type VolumeStatus string
 
 // VolumeVolumeType Storage class
 type VolumeVolumeType string
+
+// AccountTagIDPath defines model for AccountTagIDPath.
+type AccountTagIDPath = openapi_types.UUID
 
 // AppBindingIDPath defines model for AppBindingIDPath.
 type AppBindingIDPath = openapi_types.UUID
@@ -8543,6 +8829,12 @@ type UpdateSecurityGroupParams struct {
 	XProjectID ProjectIDHeader `json:"X-Project-ID"`
 }
 
+// GetFirewallTagsParams defines parameters for GetFirewallTags.
+type GetFirewallTagsParams struct {
+	// XProjectID Project ID. Required for all mutating operations (create, delete, power actions, resize).
+	XProjectID ProjectIDHeader `json:"X-Project-ID"`
+}
+
 // ListSnapshotsParams defines parameters for ListSnapshots.
 type ListSnapshotsParams struct {
 	// VMID Filter by VM UUID
@@ -8591,6 +8883,12 @@ type RenameSnapshotParams struct {
 type RestoreSnapshotParams struct {
 	// XProjectID Project ID. Required for all mutating operations (create, delete, power actions, resize).
 	XProjectID ProjectIDHeader `json:"X-Project-ID"`
+}
+
+// ListTagsParams defines parameters for ListTags.
+type ListTagsParams struct {
+	// XProjectID Count servers of this project only. Omit it to count servers of every project you can see.
+	XProjectID *openapi_types.UUID `json:"X-Project-ID,omitempty"`
 }
 
 // ListVMsParams defines parameters for ListVMs.
@@ -8788,6 +9086,12 @@ type StopVMParams struct {
 	XProjectID ProjectIDHeader `json:"X-Project-ID"`
 }
 
+// GetVMTagFirewallParams defines parameters for GetVMTagFirewall.
+type GetVMTagFirewallParams struct {
+	// XProjectID Project ID. Required for all mutating operations (create, delete, power actions, resize).
+	XProjectID ProjectIDHeader `json:"X-Project-ID"`
+}
+
 // AddVMTagParams defines parameters for AddVMTag.
 type AddVMTagParams struct {
 	// XProjectID Project ID. Required for all mutating operations (create, delete, power actions, resize).
@@ -8796,6 +9100,9 @@ type AddVMTagParams struct {
 
 // RemoveVMTagParams defines parameters for RemoveVMTag.
 type RemoveVMTagParams struct {
+	// ResetFirewall When `true`, the server's public network interfaces also go back on the Raff Default Firewall. Without it, a firewall the tag set stays on the server.
+	ResetFirewall *bool `form:"reset_firewall,omitempty" json:"reset_firewall,omitempty"`
+
 	// XProjectID Project ID. Required for all mutating operations (create, delete, power actions, resize).
 	XProjectID ProjectIDHeader `json:"X-Project-ID"`
 }
@@ -9081,6 +9388,9 @@ type CreateSecurityGroupJSONRequestBody = CreateSecurityGroupRequest
 // UpdateSecurityGroupJSONRequestBody defines body for UpdateSecurityGroup for application/json ContentType.
 type UpdateSecurityGroupJSONRequestBody = UpdateSecurityGroupRequest
 
+// SetFirewallTagsJSONRequestBody defines body for SetFirewallTags for application/json ContentType.
+type SetFirewallTagsJSONRequestBody = SetFirewallTagsRequest
+
 // CreateSnapshotJSONRequestBody defines body for CreateSnapshot for application/json ContentType.
 type CreateSnapshotJSONRequestBody = CreateSnapshotRequest
 
@@ -9092,6 +9402,12 @@ type CreateSSHKeyJSONRequestBody = CreateSSHKeyRequest
 
 // UpdateSSHKeyJSONRequestBody defines body for UpdateSSHKey for application/json ContentType.
 type UpdateSSHKeyJSONRequestBody = UpdateSSHKeyRequest
+
+// CreateTagJSONRequestBody defines body for CreateTag for application/json ContentType.
+type CreateTagJSONRequestBody = CreateTagRequest
+
+// UpdateTagJSONRequestBody defines body for UpdateTag for application/json ContentType.
+type UpdateTagJSONRequestBody = UpdateTagRequest
 
 // CreateVMJSONRequestBody defines body for CreateVM for application/json ContentType.
 type CreateVMJSONRequestBody = CreateVMRequest
@@ -9928,6 +10244,9 @@ type ClientInterface interface {
 	// ListVolumePricing request
 	ListVolumePricing(ctx context.Context, params *ListVolumePricingParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// ListVPNPricing request
+	ListVPNPricing(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// ListRegions request
 	ListRegions(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -9975,6 +10294,14 @@ type ClientInterface interface {
 
 	UpdateSecurityGroup(ctx context.Context, id SecurityGroupResourceIDPath, params *UpdateSecurityGroupParams, body UpdateSecurityGroupJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// GetFirewallTags request
+	GetFirewallTags(ctx context.Context, id SecurityGroupResourceIDPath, params *GetFirewallTagsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// SetFirewallTagsWithBody request with any body
+	SetFirewallTagsWithBody(ctx context.Context, id SecurityGroupResourceIDPath, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	SetFirewallTags(ctx context.Context, id SecurityGroupResourceIDPath, body SetFirewallTagsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// ListSnapshots request
 	ListSnapshots(ctx context.Context, params *ListSnapshotsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -10015,6 +10342,22 @@ type ClientInterface interface {
 	UpdateSSHKeyWithBody(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	UpdateSSHKey(ctx context.Context, id openapi_types.UUID, body UpdateSSHKeyJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ListTags request
+	ListTags(ctx context.Context, params *ListTagsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateTagWithBody request with any body
+	CreateTagWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreateTag(ctx context.Context, body CreateTagJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DeleteTag request
+	DeleteTag(ctx context.Context, id AccountTagIDPath, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// UpdateTagWithBody request with any body
+	UpdateTagWithBody(ctx context.Context, id AccountTagIDPath, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	UpdateTag(ctx context.Context, id AccountTagIDPath, body UpdateTagJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListVMs request
 	ListVMs(ctx context.Context, params *ListVMsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -10135,6 +10478,9 @@ type ClientInterface interface {
 
 	// StopVM request
 	StopVM(ctx context.Context, id VMIDPath, params *StopVMParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetVMTagFirewall request
+	GetVMTagFirewall(ctx context.Context, id VMIDPath, params *GetVMTagFirewallParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// AddVMTagWithBody request with any body
 	AddVMTagWithBody(ctx context.Context, id VMIDPath, params *AddVMTagParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -13198,6 +13544,18 @@ func (c *Client) ListVolumePricing(ctx context.Context, params *ListVolumePricin
 	return c.Client.Do(req)
 }
 
+func (c *Client) ListVPNPricing(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListVPNPricingRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) ListRegions(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewListRegionsRequest(c.Server)
 	if err != nil {
@@ -13402,6 +13760,42 @@ func (c *Client) UpdateSecurityGroup(ctx context.Context, id SecurityGroupResour
 	return c.Client.Do(req)
 }
 
+func (c *Client) GetFirewallTags(ctx context.Context, id SecurityGroupResourceIDPath, params *GetFirewallTagsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetFirewallTagsRequest(c.Server, id, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) SetFirewallTagsWithBody(ctx context.Context, id SecurityGroupResourceIDPath, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSetFirewallTagsRequestWithBody(c.Server, id, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) SetFirewallTags(ctx context.Context, id SecurityGroupResourceIDPath, body SetFirewallTagsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSetFirewallTagsRequest(c.Server, id, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) ListSnapshots(ctx context.Context, params *ListSnapshotsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewListSnapshotsRequest(c.Server, params)
 	if err != nil {
@@ -13572,6 +13966,78 @@ func (c *Client) UpdateSSHKeyWithBody(ctx context.Context, id openapi_types.UUID
 
 func (c *Client) UpdateSSHKey(ctx context.Context, id openapi_types.UUID, body UpdateSSHKeyJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewUpdateSSHKeyRequest(c.Server, id, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ListTags(ctx context.Context, params *ListTagsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListTagsRequest(c.Server, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateTagWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateTagRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateTag(ctx context.Context, body CreateTagJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateTagRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DeleteTag(ctx context.Context, id AccountTagIDPath, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteTagRequest(c.Server, id)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdateTagWithBody(ctx context.Context, id AccountTagIDPath, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateTagRequestWithBody(c.Server, id, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdateTag(ctx context.Context, id AccountTagIDPath, body UpdateTagJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateTagRequest(c.Server, id, body)
 	if err != nil {
 		return nil, err
 	}
@@ -14112,6 +14578,18 @@ func (c *Client) StartVM(ctx context.Context, id VMIDPath, params *StartVMParams
 
 func (c *Client) StopVM(ctx context.Context, id VMIDPath, params *StopVMParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewStopVMRequest(c.Server, id, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetVMTagFirewall(ctx context.Context, id VMIDPath, params *GetVMTagFirewallParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetVMTagFirewallRequest(c.Server, id, params)
 	if err != nil {
 		return nil, err
 	}
@@ -23474,6 +23952,33 @@ func NewListVolumePricingRequest(server string, params *ListVolumePricingParams)
 	return req, nil
 }
 
+// NewListVPNPricingRequest generates requests for ListVPNPricing
+func NewListVPNPricingRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/public/pricing/vpn")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewListRegionsRequest generates requests for ListRegions
 func NewListRegionsRequest(server string) (*http.Request, error) {
 	var err error
@@ -24094,6 +24599,100 @@ func NewUpdateSecurityGroupRequestWithBody(server string, id SecurityGroupResour
 	return req, nil
 }
 
+// NewGetFirewallTagsRequest generates requests for GetFirewallTags
+func NewGetFirewallTagsRequest(server string, id SecurityGroupResourceIDPath, params *GetFirewallTagsParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "id", id, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/security-groups/%s/tags", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+
+		var headerParam0 string
+
+		headerParam0, err = runtime.StyleParamWithOptions("simple", false, "X-Project-ID", params.XProjectID, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: "uuid"})
+		if err != nil {
+			return nil, err
+		}
+
+		req.Header.Set("X-Project-ID", headerParam0)
+
+	}
+
+	return req, nil
+}
+
+// NewSetFirewallTagsRequest calls the generic SetFirewallTags builder with application/json body
+func NewSetFirewallTagsRequest(server string, id SecurityGroupResourceIDPath, body SetFirewallTagsJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewSetFirewallTagsRequestWithBody(server, id, "application/json", bodyReader)
+}
+
+// NewSetFirewallTagsRequestWithBody generates requests for SetFirewallTags with any type of body
+func NewSetFirewallTagsRequestWithBody(server string, id SecurityGroupResourceIDPath, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "id", id, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/security-groups/%s/tags", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PUT", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 // NewListSnapshotsRequest generates requests for ListSnapshots
 func NewListSnapshotsRequest(server string, params *ListSnapshotsParams) (*http.Request, error) {
 	var err error
@@ -24649,6 +25248,169 @@ func NewUpdateSSHKeyRequestWithBody(server string, id openapi_types.UUID, conten
 	}
 
 	req, err := http.NewRequest("PUT", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewListTagsRequest generates requests for ListTags
+func NewListTagsRequest(server string, params *ListTagsParams) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/tags")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+
+		if params.XProjectID != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithOptions("simple", false, "X-Project-ID", *params.XProjectID, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: "uuid"})
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Project-ID", headerParam0)
+		}
+
+	}
+
+	return req, nil
+}
+
+// NewCreateTagRequest calls the generic CreateTag builder with application/json body
+func NewCreateTagRequest(server string, body CreateTagJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateTagRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewCreateTagRequestWithBody generates requests for CreateTag with any type of body
+func NewCreateTagRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/tags")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewDeleteTagRequest generates requests for DeleteTag
+func NewDeleteTagRequest(server string, id AccountTagIDPath) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "id", id, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/tags/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("DELETE", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewUpdateTagRequest calls the generic UpdateTag builder with application/json body
+func NewUpdateTagRequest(server string, id AccountTagIDPath, body UpdateTagJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewUpdateTagRequestWithBody(server, id, "application/json", bodyReader)
+}
+
+// NewUpdateTagRequestWithBody generates requests for UpdateTag with any type of body
+func NewUpdateTagRequestWithBody(server string, id AccountTagIDPath, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "id", id, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/tags/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PATCH", queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
@@ -26352,6 +27114,53 @@ func NewStopVMRequest(server string, id VMIDPath, params *StopVMParams) (*http.R
 	return req, nil
 }
 
+// NewGetVMTagFirewallRequest generates requests for GetVMTagFirewall
+func NewGetVMTagFirewallRequest(server string, id VMIDPath, params *GetVMTagFirewallParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "id", id, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: "uuid"})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/vms/%s/tag-firewall", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+
+		var headerParam0 string
+
+		headerParam0, err = runtime.StyleParamWithOptions("simple", false, "X-Project-ID", params.XProjectID, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationHeader, Type: "string", Format: "uuid"})
+		if err != nil {
+			return nil, err
+		}
+
+		req.Header.Set("X-Project-ID", headerParam0)
+
+	}
+
+	return req, nil
+}
+
 // NewAddVMTagRequest calls the generic AddVMTag builder with application/json body
 func NewAddVMTagRequest(server string, id VMIDPath, params *AddVMTagParams, body AddVMTagJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
@@ -26443,6 +27252,28 @@ func NewRemoveVMTagRequest(server string, id VMIDPath, tagID TagIDPath, params *
 	queryURL, err := serverURL.Parse(operationPath)
 	if err != nil {
 		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.ResetFirewall != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "reset_firewall", *params.ResetFirewall, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "boolean", Format: ""}); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
 	}
 
 	req, err := http.NewRequest("DELETE", queryURL.String(), nil)
@@ -28125,6 +28956,9 @@ type ClientWithResponsesInterface interface {
 	// ListVolumePricingWithResponse request
 	ListVolumePricingWithResponse(ctx context.Context, params *ListVolumePricingParams, reqEditors ...RequestEditorFn) (*ListVolumePricingResponse, error)
 
+	// ListVPNPricingWithResponse request
+	ListVPNPricingWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListVPNPricingResponse, error)
+
 	// ListRegionsWithResponse request
 	ListRegionsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListRegionsResponse, error)
 
@@ -28172,6 +29006,14 @@ type ClientWithResponsesInterface interface {
 
 	UpdateSecurityGroupWithResponse(ctx context.Context, id SecurityGroupResourceIDPath, params *UpdateSecurityGroupParams, body UpdateSecurityGroupJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateSecurityGroupResponse, error)
 
+	// GetFirewallTagsWithResponse request
+	GetFirewallTagsWithResponse(ctx context.Context, id SecurityGroupResourceIDPath, params *GetFirewallTagsParams, reqEditors ...RequestEditorFn) (*GetFirewallTagsResponse, error)
+
+	// SetFirewallTagsWithBodyWithResponse request with any body
+	SetFirewallTagsWithBodyWithResponse(ctx context.Context, id SecurityGroupResourceIDPath, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SetFirewallTagsResponse, error)
+
+	SetFirewallTagsWithResponse(ctx context.Context, id SecurityGroupResourceIDPath, body SetFirewallTagsJSONRequestBody, reqEditors ...RequestEditorFn) (*SetFirewallTagsResponse, error)
+
 	// ListSnapshotsWithResponse request
 	ListSnapshotsWithResponse(ctx context.Context, params *ListSnapshotsParams, reqEditors ...RequestEditorFn) (*ListSnapshotsResponse, error)
 
@@ -28212,6 +29054,22 @@ type ClientWithResponsesInterface interface {
 	UpdateSSHKeyWithBodyWithResponse(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateSSHKeyResponse, error)
 
 	UpdateSSHKeyWithResponse(ctx context.Context, id openapi_types.UUID, body UpdateSSHKeyJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateSSHKeyResponse, error)
+
+	// ListTagsWithResponse request
+	ListTagsWithResponse(ctx context.Context, params *ListTagsParams, reqEditors ...RequestEditorFn) (*ListTagsResponse, error)
+
+	// CreateTagWithBodyWithResponse request with any body
+	CreateTagWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateTagResponse, error)
+
+	CreateTagWithResponse(ctx context.Context, body CreateTagJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateTagResponse, error)
+
+	// DeleteTagWithResponse request
+	DeleteTagWithResponse(ctx context.Context, id AccountTagIDPath, reqEditors ...RequestEditorFn) (*DeleteTagResponse, error)
+
+	// UpdateTagWithBodyWithResponse request with any body
+	UpdateTagWithBodyWithResponse(ctx context.Context, id AccountTagIDPath, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateTagResponse, error)
+
+	UpdateTagWithResponse(ctx context.Context, id AccountTagIDPath, body UpdateTagJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateTagResponse, error)
 
 	// ListVMsWithResponse request
 	ListVMsWithResponse(ctx context.Context, params *ListVMsParams, reqEditors ...RequestEditorFn) (*ListVMsResponse, error)
@@ -28332,6 +29190,9 @@ type ClientWithResponsesInterface interface {
 
 	// StopVMWithResponse request
 	StopVMWithResponse(ctx context.Context, id VMIDPath, params *StopVMParams, reqEditors ...RequestEditorFn) (*StopVMResponse, error)
+
+	// GetVMTagFirewallWithResponse request
+	GetVMTagFirewallWithResponse(ctx context.Context, id VMIDPath, params *GetVMTagFirewallParams, reqEditors ...RequestEditorFn) (*GetVMTagFirewallResponse, error)
 
 	// AddVMTagWithBodyWithResponse request with any body
 	AddVMTagWithBodyWithResponse(ctx context.Context, id VMIDPath, params *AddVMTagParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*AddVMTagResponse, error)
@@ -33854,6 +34715,33 @@ func (r ListVolumePricingResponse) StatusCode() int {
 	return 0
 }
 
+type ListVPNPricingResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		// Pricing VPN pricing. A VPC needs one gateway; each site-to-site tunnel on it is priced separately. Traffic through the tunnels is not metered.
+		Pricing *VPNPricing `json:"pricing,omitempty"`
+		Success *bool       `json:"success,omitempty"`
+	}
+	JSON404 *NotFound
+}
+
+// Status returns HTTPResponse.Status
+func (r ListVPNPricingResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListVPNPricingResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type ListRegionsResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -34199,6 +35087,63 @@ func (r UpdateSecurityGroupResponse) StatusCode() int {
 	return 0
 }
 
+type GetFirewallTagsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		// Data The tags a firewall is linked to in its project, and its jobs of the last day by status.
+		Data    *FirewallTags `json:"data,omitempty"`
+		Success *bool         `json:"success,omitempty"`
+	}
+	JSON401 *Unauthorized
+	JSON404 *NotFound
+}
+
+// Status returns HTTPResponse.Status
+func (r GetFirewallTagsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetFirewallTagsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type SetFirewallTagsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		// Data The tags a firewall is linked to in its project, and its jobs of the last day by status.
+		Data    *FirewallTags `json:"data,omitempty"`
+		Success *bool         `json:"success,omitempty"`
+	}
+	JSON400 *BadRequest
+	JSON401 *Unauthorized
+	JSON404 *NotFound
+}
+
+// Status returns HTTPResponse.Status
+func (r SetFirewallTagsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r SetFirewallTagsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type ListSnapshotsResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -34482,6 +35427,122 @@ func (r UpdateSSHKeyResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r UpdateSSHKeyResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type ListTagsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		// Counts Servers per tag name. Kept for older clients; use `server_count` in `data`.
+		// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
+		Counts  *map[string]int `json:"counts,omitempty"`
+		Data    *[]AccountTag   `json:"data,omitempty"`
+		Success *bool           `json:"success,omitempty"`
+
+		// Tags Tags on the servers you can see. Kept for older clients; use `data`.
+		// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
+		Tags *[]VMTag `json:"tags,omitempty"`
+	}
+	JSON401 *Unauthorized
+}
+
+// Status returns HTTPResponse.Status
+func (r ListTagsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListTagsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type CreateTagResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON201      *struct {
+		// Data A tag of the account. The same tag is shared by every server that has it.
+		Data    *AccountTag `json:"data,omitempty"`
+		Success *bool       `json:"success,omitempty"`
+	}
+	JSON400 *BadRequest
+	JSON401 *Unauthorized
+	JSON409 *Conflict
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateTagResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateTagResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type DeleteTagResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *SuccessResponse
+	JSON401      *Unauthorized
+	JSON404      *NotFound
+}
+
+// Status returns HTTPResponse.Status
+func (r DeleteTagResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeleteTagResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type UpdateTagResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		// Data A tag of the account. The same tag is shared by every server that has it.
+		Data    *AccountTag `json:"data,omitempty"`
+		Success *bool       `json:"success,omitempty"`
+	}
+	JSON400 *BadRequest
+	JSON401 *Unauthorized
+	JSON404 *NotFound
+	JSON409 *Conflict
+}
+
+// Status returns HTTPResponse.Status
+func (r UpdateTagResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r UpdateTagResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -35300,10 +36361,38 @@ func (r StopVMResponse) StatusCode() int {
 	return 0
 }
 
+type GetVMTagFirewallResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		// Data The firewalls a server's tags carry in its project.
+		Data    *ServerTagFirewall `json:"data,omitempty"`
+		Success *bool              `json:"success,omitempty"`
+	}
+	JSON401 *Unauthorized
+	JSON404 *NotFound
+}
+
+// Status returns HTTPResponse.Status
+func (r GetVMTagFirewallResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetVMTagFirewallResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type AddVMTagResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *VMTagsResponse
+	JSON200      *VMTagAddedResponse
 	JSON400      *BadRequest
 	JSON401      *Unauthorized
 	JSON404      *NotFound
@@ -37982,6 +39071,15 @@ func (c *ClientWithResponses) ListVolumePricingWithResponse(ctx context.Context,
 	return ParseListVolumePricingResponse(rsp)
 }
 
+// ListVPNPricingWithResponse request returning *ListVPNPricingResponse
+func (c *ClientWithResponses) ListVPNPricingWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListVPNPricingResponse, error) {
+	rsp, err := c.ListVPNPricing(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListVPNPricingResponse(rsp)
+}
+
 // ListRegionsWithResponse request returning *ListRegionsResponse
 func (c *ClientWithResponses) ListRegionsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListRegionsResponse, error) {
 	rsp, err := c.ListRegions(ctx, reqEditors...)
@@ -38131,6 +39229,32 @@ func (c *ClientWithResponses) UpdateSecurityGroupWithResponse(ctx context.Contex
 	return ParseUpdateSecurityGroupResponse(rsp)
 }
 
+// GetFirewallTagsWithResponse request returning *GetFirewallTagsResponse
+func (c *ClientWithResponses) GetFirewallTagsWithResponse(ctx context.Context, id SecurityGroupResourceIDPath, params *GetFirewallTagsParams, reqEditors ...RequestEditorFn) (*GetFirewallTagsResponse, error) {
+	rsp, err := c.GetFirewallTags(ctx, id, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetFirewallTagsResponse(rsp)
+}
+
+// SetFirewallTagsWithBodyWithResponse request with arbitrary body returning *SetFirewallTagsResponse
+func (c *ClientWithResponses) SetFirewallTagsWithBodyWithResponse(ctx context.Context, id SecurityGroupResourceIDPath, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SetFirewallTagsResponse, error) {
+	rsp, err := c.SetFirewallTagsWithBody(ctx, id, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSetFirewallTagsResponse(rsp)
+}
+
+func (c *ClientWithResponses) SetFirewallTagsWithResponse(ctx context.Context, id SecurityGroupResourceIDPath, body SetFirewallTagsJSONRequestBody, reqEditors ...RequestEditorFn) (*SetFirewallTagsResponse, error) {
+	rsp, err := c.SetFirewallTags(ctx, id, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSetFirewallTagsResponse(rsp)
+}
+
 // ListSnapshotsWithResponse request returning *ListSnapshotsResponse
 func (c *ClientWithResponses) ListSnapshotsWithResponse(ctx context.Context, params *ListSnapshotsParams, reqEditors ...RequestEditorFn) (*ListSnapshotsResponse, error) {
 	rsp, err := c.ListSnapshots(ctx, params, reqEditors...)
@@ -38260,6 +39384,58 @@ func (c *ClientWithResponses) UpdateSSHKeyWithResponse(ctx context.Context, id o
 		return nil, err
 	}
 	return ParseUpdateSSHKeyResponse(rsp)
+}
+
+// ListTagsWithResponse request returning *ListTagsResponse
+func (c *ClientWithResponses) ListTagsWithResponse(ctx context.Context, params *ListTagsParams, reqEditors ...RequestEditorFn) (*ListTagsResponse, error) {
+	rsp, err := c.ListTags(ctx, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListTagsResponse(rsp)
+}
+
+// CreateTagWithBodyWithResponse request with arbitrary body returning *CreateTagResponse
+func (c *ClientWithResponses) CreateTagWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateTagResponse, error) {
+	rsp, err := c.CreateTagWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateTagResponse(rsp)
+}
+
+func (c *ClientWithResponses) CreateTagWithResponse(ctx context.Context, body CreateTagJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateTagResponse, error) {
+	rsp, err := c.CreateTag(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateTagResponse(rsp)
+}
+
+// DeleteTagWithResponse request returning *DeleteTagResponse
+func (c *ClientWithResponses) DeleteTagWithResponse(ctx context.Context, id AccountTagIDPath, reqEditors ...RequestEditorFn) (*DeleteTagResponse, error) {
+	rsp, err := c.DeleteTag(ctx, id, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeleteTagResponse(rsp)
+}
+
+// UpdateTagWithBodyWithResponse request with arbitrary body returning *UpdateTagResponse
+func (c *ClientWithResponses) UpdateTagWithBodyWithResponse(ctx context.Context, id AccountTagIDPath, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateTagResponse, error) {
+	rsp, err := c.UpdateTagWithBody(ctx, id, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateTagResponse(rsp)
+}
+
+func (c *ClientWithResponses) UpdateTagWithResponse(ctx context.Context, id AccountTagIDPath, body UpdateTagJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateTagResponse, error) {
+	rsp, err := c.UpdateTag(ctx, id, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateTagResponse(rsp)
 }
 
 // ListVMsWithResponse request returning *ListVMsResponse
@@ -38650,6 +39826,15 @@ func (c *ClientWithResponses) StopVMWithResponse(ctx context.Context, id VMIDPat
 		return nil, err
 	}
 	return ParseStopVMResponse(rsp)
+}
+
+// GetVMTagFirewallWithResponse request returning *GetVMTagFirewallResponse
+func (c *ClientWithResponses) GetVMTagFirewallWithResponse(ctx context.Context, id VMIDPath, params *GetVMTagFirewallParams, reqEditors ...RequestEditorFn) (*GetVMTagFirewallResponse, error) {
+	rsp, err := c.GetVMTagFirewall(ctx, id, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetVMTagFirewallResponse(rsp)
 }
 
 // AddVMTagWithBodyWithResponse request with arbitrary body returning *AddVMTagResponse
@@ -47174,6 +48359,43 @@ func ParseListVolumePricingResponse(rsp *http.Response) (*ListVolumePricingRespo
 	return response, nil
 }
 
+// ParseListVPNPricingResponse parses an HTTP response from a ListVPNPricingWithResponse call
+func ParseListVPNPricingResponse(rsp *http.Response) (*ListVPNPricingResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListVPNPricingResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			// Pricing VPN pricing. A VPC needs one gateway; each site-to-site tunnel on it is priced separately. Traffic through the tunnels is not metered.
+			Pricing *VPNPricing `json:"pricing,omitempty"`
+			Success *bool       `json:"success,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest NotFound
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseListRegionsResponse parses an HTTP response from a ListRegionsWithResponse call
 func ParseListRegionsResponse(rsp *http.Response) (*ListRegionsResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -47691,6 +48913,101 @@ func ParseUpdateSecurityGroupResponse(rsp *http.Response) (*UpdateSecurityGroupR
 	return response, nil
 }
 
+// ParseGetFirewallTagsResponse parses an HTTP response from a GetFirewallTagsWithResponse call
+func ParseGetFirewallTagsResponse(rsp *http.Response) (*GetFirewallTagsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetFirewallTagsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			// Data The tags a firewall is linked to in its project, and its jobs of the last day by status.
+			Data    *FirewallTags `json:"data,omitempty"`
+			Success *bool         `json:"success,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest Unauthorized
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest NotFound
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseSetFirewallTagsResponse parses an HTTP response from a SetFirewallTagsWithResponse call
+func ParseSetFirewallTagsResponse(rsp *http.Response) (*SetFirewallTagsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &SetFirewallTagsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			// Data The tags a firewall is linked to in its project, and its jobs of the last day by status.
+			Data    *FirewallTags `json:"data,omitempty"`
+			Success *bool         `json:"success,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest BadRequest
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest Unauthorized
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest NotFound
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseListSnapshotsResponse parses an HTTP response from a ListSnapshotsWithResponse call
 func ParseListSnapshotsResponse(rsp *http.Response) (*ListSnapshotsResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -48132,6 +49449,198 @@ func ParseUpdateSSHKeyResponse(rsp *http.Response) (*UpdateSSHKeyResponse, error
 			return nil, err
 		}
 		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListTagsResponse parses an HTTP response from a ListTagsWithResponse call
+func ParseListTagsResponse(rsp *http.Response) (*ListTagsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListTagsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			// Counts Servers per tag name. Kept for older clients; use `server_count` in `data`.
+			// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
+			Counts  *map[string]int `json:"counts,omitempty"`
+			Data    *[]AccountTag   `json:"data,omitempty"`
+			Success *bool           `json:"success,omitempty"`
+
+			// Tags Tags on the servers you can see. Kept for older clients; use `data`.
+			// Deprecated: this property has been marked as deprecated upstream, but no `x-deprecated-reason` was set
+			Tags *[]VMTag `json:"tags,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest Unauthorized
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCreateTagResponse parses an HTTP response from a CreateTagWithResponse call
+func ParseCreateTagResponse(rsp *http.Response) (*CreateTagResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateTagResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest struct {
+			// Data A tag of the account. The same tag is shared by every server that has it.
+			Data    *AccountTag `json:"data,omitempty"`
+			Success *bool       `json:"success,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest BadRequest
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest Unauthorized
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest Conflict
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDeleteTagResponse parses an HTTP response from a DeleteTagWithResponse call
+func ParseDeleteTagResponse(rsp *http.Response) (*DeleteTagResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeleteTagResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest SuccessResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest Unauthorized
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest NotFound
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseUpdateTagResponse parses an HTTP response from a UpdateTagWithResponse call
+func ParseUpdateTagResponse(rsp *http.Response) (*UpdateTagResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &UpdateTagResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			// Data A tag of the account. The same tag is shared by every server that has it.
+			Data    *AccountTag `json:"data,omitempty"`
+			Success *bool       `json:"success,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest BadRequest
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest Unauthorized
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest NotFound
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest Conflict
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
 
 	}
 
@@ -49626,6 +51135,50 @@ func ParseStopVMResponse(rsp *http.Response) (*StopVMResponse, error) {
 	return response, nil
 }
 
+// ParseGetVMTagFirewallResponse parses an HTTP response from a GetVMTagFirewallWithResponse call
+func ParseGetVMTagFirewallResponse(rsp *http.Response) (*GetVMTagFirewallResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetVMTagFirewallResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			// Data The firewalls a server's tags carry in its project.
+			Data    *ServerTagFirewall `json:"data,omitempty"`
+			Success *bool              `json:"success,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest Unauthorized
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest NotFound
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseAddVMTagResponse parses an HTTP response from a AddVMTagWithResponse call
 func ParseAddVMTagResponse(rsp *http.Response) (*AddVMTagResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -49641,7 +51194,7 @@ func ParseAddVMTagResponse(rsp *http.Response) (*AddVMTagResponse, error) {
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest VMTagsResponse
+		var dest VMTagAddedResponse
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
