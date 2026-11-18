@@ -4871,7 +4871,7 @@ type CreateDatabaseRequest struct {
 	// Extensions PostgreSQL only. Extensions to turn on before the database is marked running, so it is ready for them the moment you connect. Allowed: `vector` (AI embeddings), `pg_trgm`, `pg_stat_statements`, `hstore`, `uuid-ossp`, `citext`, `ltree`, `pgcrypto`, `unaccent`. Other engines or other names are refused with 400. Any other extension the image ships can be turned on later with the extensions endpoint.
 	Extensions *[]string `json:"extensions,omitempty"`
 
-	// HaEnabled Enable high availability (+70% of the plan price for PostgreSQL, Valkey and ClickHouse, +140% for MySQL and Kafka). Not available on the free plan.
+	// HaEnabled Enable high availability (+70% of the plan price for PostgreSQL, Valkey and ClickHouse, +210% for MySQL, +140% for Kafka). Not available on the free plan.
 	HaEnabled *bool `json:"ha_enabled,omitempty"`
 
 	// Name Display name, unique within the project across all engines. Lowercase letters, digits and hyphens work everywhere.
@@ -5496,6 +5496,24 @@ type DatabaseConnection struct {
 	// PublicPort Public port. PostgreSQL uses the standard direct port 5432 (routed by the hostname your client sends in TLS); ClickHouse uses its native TLS port; other engines use `public_port` of the database.
 	PublicPort *int `json:"public_port,omitempty"`
 
+	// PublicReadConnectionURI Ready-to-use URI for the public read address (includes the password only when revealed).
+	PublicReadConnectionURI *string `json:"public_read_connection_uri,omitempty"`
+
+	// PublicReadHost Public hostname of the read address. PostgreSQL with read replicas and public access on; empty otherwise.
+	PublicReadHost *string `json:"public_read_host,omitempty"`
+
+	// PublicReadPort Public port of the read address, the standard PostgreSQL port (routed by the hostname your client sends in TLS). 0 when there is none.
+	PublicReadPort *int `json:"public_read_port,omitempty"`
+
+	// ReadConnectionURI Ready-to-use URI for the private read address (includes the password only when revealed). Queries go to the read replicas; writes are refused.
+	ReadConnectionURI *string `json:"read_connection_uri,omitempty"`
+
+	// ReadHost Private hostname of the read address (the same hostname as `host`). PostgreSQL with read replicas, inside the VPC; empty otherwise.
+	ReadHost *string `json:"read_host,omitempty"`
+
+	// ReadPort Private port of the read address. 0 when there is none.
+	ReadPort *int `json:"read_port,omitempty"`
+
 	// Username Database user
 	Username *string `json:"username,omitempty"`
 }
@@ -5545,7 +5563,7 @@ type DatabaseExtension struct {
 }
 
 // DatabaseHAPricing High availability pricing for one engine. A plan with high availability costs `price_per_month * (1 + price_multiplier)`.
-// Today: 0.7 (+70%) for PostgreSQL, Valkey and ClickHouse, 1.4 (+140%) for MySQL and Kafka, whose high availability runs three nodes.
+// Today: 0.7 (+70%) for PostgreSQL, Valkey and ClickHouse, 2.1 (+210%) for MySQL and 1.4 (+140%) for Kafka, whose high availability runs three nodes.
 type DatabaseHAPricing struct {
 	// Engine Database engine identifier. Defaults to `postgres` on create; the live catalog (including availability and versions) is `GET /api/v1/databases/engines`.
 	Engine *DatabaseEngine `json:"engine,omitempty"`
@@ -5672,6 +5690,11 @@ type DatabaseParameterSource string
 type DatabasePricingPlan struct {
 	// Engine Database engine identifier. Defaults to `postgres` on create; the live catalog (including availability and versions) is `GET /api/v1/databases/engines`.
 	Engine DatabaseEngine `json:"engine"`
+
+	// HaAvailable Whether high availability can be ordered on this plan right now. `false` on the free plan, and on a MySQL plan
+	// whose three copies do not all fit at the moment: MySQL high availability runs on plans up to 2 vCPU and has
+	// limited room. Creating or resizing onto such a plan with high availability returns `412`.
+	HaAvailable *bool `json:"ha_available,omitempty"`
 
 	// ID Plan ID
 	ID int `json:"id"`
@@ -6904,7 +6927,7 @@ type RestoreDatabaseRequest struct {
 	// CloneToNew Restore into a new database
 	CloneToNew *bool `json:"clone_to_new,omitempty"`
 
-	// HaEnabled Enable high availability on the new database (+70% of the plan price for PostgreSQL, Valkey and ClickHouse, +140% for MySQL and Kafka). Never inherited from the source.
+	// HaEnabled Enable high availability on the new database (+70% of the plan price for PostgreSQL, Valkey and ClickHouse, +210% for MySQL, +140% for Kafka). Never inherited from the source.
 	HaEnabled *bool `json:"ha_enabled,omitempty"`
 
 	// InPlace Restore over this database. Data written after the restore point is lost.
@@ -8295,6 +8318,9 @@ type CreateDatabaseParams struct {
 type ListDatabasePlansParams struct {
 	// Engine Filter plans by engine
 	Engine *DatabaseEngine `form:"engine,omitempty" json:"engine,omitempty"`
+
+	// DatabaseID A database of yours that you want to move to another plan. `ha_available` is then worked out for that database, without counting the room its own copies use.
+	DatabaseID *string `form:"database_id,omitempty" json:"database_id,omitempty"`
 }
 
 // GetDatabaseConnectionParams defines parameters for GetDatabaseConnection.
@@ -17809,6 +17835,22 @@ func NewListDatabasePlansRequest(server string, params *ListDatabasePlansParams)
 		if params.Engine != nil {
 
 			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "engine", *params.Engine, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.DatabaseID != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "database_id", *params.DatabaseID, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
 				return nil, err
 			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
 				return nil, err
@@ -31218,8 +31260,26 @@ type GetDatabaseConnectionResponse struct {
 		PublicHost *string `json:"public_host,omitempty"`
 
 		// PublicPort Public port. PostgreSQL uses the standard direct port 5432 (routed by the hostname your client sends in TLS); ClickHouse uses its native TLS port; other engines use `public_port` of the database.
-		PublicPort *int  `json:"public_port,omitempty"`
-		Success    *bool `json:"success,omitempty"`
+		PublicPort *int `json:"public_port,omitempty"`
+
+		// PublicReadConnectionURI Ready-to-use URI for the public read address (includes the password only when revealed).
+		PublicReadConnectionURI *string `json:"public_read_connection_uri,omitempty"`
+
+		// PublicReadHost Public hostname of the read address. PostgreSQL with read replicas and public access on; empty otherwise.
+		PublicReadHost *string `json:"public_read_host,omitempty"`
+
+		// PublicReadPort Public port of the read address, the standard PostgreSQL port (routed by the hostname your client sends in TLS). 0 when there is none.
+		PublicReadPort *int `json:"public_read_port,omitempty"`
+
+		// ReadConnectionURI Ready-to-use URI for the private read address (includes the password only when revealed). Queries go to the read replicas; writes are refused.
+		ReadConnectionURI *string `json:"read_connection_uri,omitempty"`
+
+		// ReadHost Private hostname of the read address (the same hostname as `host`). PostgreSQL with read replicas, inside the VPC; empty otherwise.
+		ReadHost *string `json:"read_host,omitempty"`
+
+		// ReadPort Private port of the read address. 0 when there is none.
+		ReadPort *int  `json:"read_port,omitempty"`
+		Success  *bool `json:"success,omitempty"`
 
 		// Username Database user
 		Username *string `json:"username,omitempty"`
@@ -43135,8 +43195,26 @@ func ParseGetDatabaseConnectionResponse(rsp *http.Response) (*GetDatabaseConnect
 			PublicHost *string `json:"public_host,omitempty"`
 
 			// PublicPort Public port. PostgreSQL uses the standard direct port 5432 (routed by the hostname your client sends in TLS); ClickHouse uses its native TLS port; other engines use `public_port` of the database.
-			PublicPort *int  `json:"public_port,omitempty"`
-			Success    *bool `json:"success,omitempty"`
+			PublicPort *int `json:"public_port,omitempty"`
+
+			// PublicReadConnectionURI Ready-to-use URI for the public read address (includes the password only when revealed).
+			PublicReadConnectionURI *string `json:"public_read_connection_uri,omitempty"`
+
+			// PublicReadHost Public hostname of the read address. PostgreSQL with read replicas and public access on; empty otherwise.
+			PublicReadHost *string `json:"public_read_host,omitempty"`
+
+			// PublicReadPort Public port of the read address, the standard PostgreSQL port (routed by the hostname your client sends in TLS). 0 when there is none.
+			PublicReadPort *int `json:"public_read_port,omitempty"`
+
+			// ReadConnectionURI Ready-to-use URI for the private read address (includes the password only when revealed). Queries go to the read replicas; writes are refused.
+			ReadConnectionURI *string `json:"read_connection_uri,omitempty"`
+
+			// ReadHost Private hostname of the read address (the same hostname as `host`). PostgreSQL with read replicas, inside the VPC; empty otherwise.
+			ReadHost *string `json:"read_host,omitempty"`
+
+			// ReadPort Private port of the read address. 0 when there is none.
+			ReadPort *int  `json:"read_port,omitempty"`
+			Success  *bool `json:"success,omitempty"`
 
 			// Username Database user
 			Username *string `json:"username,omitempty"`
