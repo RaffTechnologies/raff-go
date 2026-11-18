@@ -7093,7 +7093,7 @@ type SecurityGroupRule struct {
 	// IcmpType ICMP message type (only for ICMP/ICMPV6 protocols).
 	IcmpType *int `json:"icmp_type,omitempty"`
 
-	// IP Source/destination IP for the rule. Empty means any.
+	// IP Source/destination IP for the rule, one IPv4 or IPv6 address. Empty means any. For several addresses, send one rule per address; anything else is refused (400).
 	IP *string `json:"ip,omitempty"`
 
 	// Protocol Network protocol.
@@ -7105,7 +7105,7 @@ type SecurityGroupRule struct {
 	// RuleType Direction of traffic.
 	RuleType SecurityGroupRuleRuleType `json:"rule_type"`
 
-	// Size CIDR block size (e.g. `24` for /24). Used with `ip` to allow a network range.
+	// Size CIDR prefix length for `ip` (0-32 for IPv4, 0-128 for IPv6, e.g. `24` for /24). Used with `ip` to allow a network range; empty means the one address.
 	Size *int `json:"size,omitempty"`
 }
 
@@ -7309,8 +7309,14 @@ type Template struct {
 	// IsWindows Whether this is a Windows template (only available for Windows plans)
 	IsWindows bool `json:"is_windows"`
 
-	// LicencePricePerMonth Windows templates only. The monthly price of Raff's Windows Server licence, paid on top of the plan when the server is bought with the licence (the dashboard checkout). Absent when the licence is not on sale.
+	// LicenceMinVcpu Windows templates only. The fewest vCPU the licence is billed for. Absent when the licence is not priced per vCPU or not on sale.
+	LicenceMinVcpu *int `json:"licence_min_vcpu,omitempty"`
+
+	// LicencePricePerMonth Windows templates only. The smallest monthly price of Raff's Windows Server licence (a server with `licence_min_vcpu` vCPU or fewer), paid on top of the plan when the server is bought with the licence (the dashboard checkout). Absent when the licence is not on sale.
 	LicencePricePerMonth *float32 `json:"licence_price_per_month,omitempty"`
+
+	// LicencePricePerVcpuMonth Windows templates only. The licence's monthly price per vCPU of the server's plan. A server pays this times its plan's vCPU, at least `licence_min_vcpu`. Absent when the licence is not priced per vCPU or not on sale.
+	LicencePricePerVcpuMonth *float32 `json:"licence_price_per_vcpu_month,omitempty"`
 
 	// Name OS name
 	Name string `json:"name"`
