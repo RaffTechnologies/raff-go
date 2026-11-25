@@ -23,6 +23,7 @@ const (
 	DatabaseStatusWarning   = spec.DatabaseStatusWarning
 	DatabaseStatusResizing  = spec.DatabaseStatusResizing
 	DatabaseStatusRestoring = spec.DatabaseStatusRestoring
+	DatabaseStatusUpgrading = spec.DatabaseStatusUpgrading
 	DatabaseStatusSuspended = spec.DatabaseStatusSuspended
 	DatabaseStatusFailed    = spec.DatabaseStatusFailed
 	DatabaseStatusDeleting  = spec.DatabaseStatusDeleting
@@ -47,6 +48,29 @@ type CreateDatabaseRequest = spec.CreateDatabaseJSONRequestBody
 
 // ScaleDatabaseRequest is the request body for scaling a database.
 type ScaleDatabaseRequest = spec.ScaleDatabaseJSONRequestBody
+
+// UpgradeDatabaseRequest is the request body for an upgrade to a newer major
+// version.
+type UpgradeDatabaseRequest = spec.UpgradeDatabaseJSONRequestBody
+
+// DatabaseVersionUpgrade is an upgrade of a database to a newer major version.
+type DatabaseVersionUpgrade = spec.DatabaseVersionUpgrade
+
+// DatabaseVersionUpgradeState is where an upgrade to a newer major version
+// stands.
+type DatabaseVersionUpgradeState = spec.DatabaseVersionUpgradeState
+
+// Upgrade states.
+const (
+	DatabaseUpgradeBackingUp = spec.DatabaseVersionUpgradeStateBackingUp
+	DatabaseUpgradeUpgrading = spec.DatabaseVersionUpgradeStateUpgrading
+	DatabaseUpgradeFinishing = spec.DatabaseVersionUpgradeStateFinishing
+	DatabaseUpgradeAnalyzing = spec.DatabaseVersionUpgradeStateAnalyzing
+	DatabaseUpgradeDone      = spec.DatabaseVersionUpgradeStateDone
+	DatabaseUpgradeReverting = spec.DatabaseVersionUpgradeStateReverting
+	DatabaseUpgradeFailed    = spec.DatabaseVersionUpgradeStateFailed
+	DatabaseUpgradeUndone    = spec.DatabaseVersionUpgradeStateUndone
+)
 
 // RestoreDatabaseRequest is the request body for a restore.
 type RestoreDatabaseRequest = spec.RestoreDatabaseJSONRequestBody
@@ -109,6 +133,17 @@ type DatabaseConsumer = spec.DatabaseConsumer
 // DatabaseBackup is a database backup.
 type DatabaseBackup = spec.DatabaseBackup
 
+// DatabaseBackupType is the kind of a database backup.
+type DatabaseBackupType = spec.DatabaseBackupBackupType
+
+// Database backup kinds.
+const (
+	DatabaseBackupBase          = spec.Base
+	DatabaseBackupOnDemand      = spec.OnDemand
+	DatabaseBackupBeforeUpgrade = spec.BeforeUpgrade
+	DatabaseBackupAfterUpgrade  = spec.AfterUpgrade
+)
+
 // DatabasePlans bundles database plans with HA, replica and storage pricing.
 type DatabasePlans struct {
 	Plans          []DatabasePricingPlan
@@ -156,6 +191,10 @@ type DatabaseService interface {
 	Scale(ctx context.Context, databaseID string, req *ScaleDatabaseRequest) (*Database, *Response, error)
 	// Resume wakes a free-tier database paused for idleness.
 	Resume(ctx context.Context, databaseID string) (*Database, *Response, error)
+	// Upgrade starts an upgrade to a newer major version, one of the
+	// database's UpgradeVersions. It answers at once with the database in
+	// status upgrading; follow it with WaitForUpgrade.
+	Upgrade(ctx context.Context, databaseID, version string) (*Database, *Response, error)
 
 	// Connection returns the connection details; reveal includes the password.
 	Connection(ctx context.Context, databaseID string, reveal bool) (*DatabaseConnection, *Response, error)
@@ -201,6 +240,13 @@ type DatabaseService interface {
 	// enters failed, or ctx is done. Poll interval is 2 seconds. Returns the
 	// database in its final observed state.
 	WaitForStatus(ctx context.Context, databaseID string, target DatabaseStatus) (*Database, error)
+	// WaitForUpgrade polls the database until the upgrade to version has
+	// ended, or ctx is done. Poll interval is 2 seconds. It returns the
+	// database once it runs on version. When the upgrade failed (the database
+	// is back on its old version), the database is gone, or it entered failed,
+	// it returns an error; for a failed upgrade that is an *UpgradeError
+	// carrying the API's own message.
+	WaitForUpgrade(ctx context.Context, databaseID, version string) (*Database, error)
 	// WaitForDeleted polls until Get returns 404 or ctx is done.
 	WaitForDeleted(ctx context.Context, databaseID string) error
 }
@@ -364,6 +410,18 @@ func (s *DatabaseServiceOp) Scale(ctx context.Context, databaseID string, req *S
 
 func (s *DatabaseServiceOp) Resume(ctx context.Context, databaseID string) (*Database, *Response, error) {
 	resp, err := s.client.spec.ResumeDatabaseWithResponse(ctx, databaseID)
+	if err != nil {
+		return nil, nil, err
+	}
+	var d *Database
+	if resp.JSON200 != nil {
+		d = resp.JSON200.Database
+	}
+	return databaseResult(d, resp.StatusCode(), responseFrom(resp.HTTPResponse, 0), resp.Body)
+}
+
+func (s *DatabaseServiceOp) Upgrade(ctx context.Context, databaseID, version string) (*Database, *Response, error) {
+	resp, err := s.client.spec.UpgradeDatabaseWithResponse(ctx, databaseID, spec.UpgradeDatabaseJSONRequestBody{Version: version})
 	if err != nil {
 		return nil, nil, err
 	}
@@ -716,6 +774,54 @@ func (s *DatabaseServiceOp) WaitForStatus(ctx context.Context, databaseID string
 					msg = ": " + *db.StatusMessage
 				}
 				return db, fmt.Errorf("database %s entered status %s%s", databaseID, *db.Status, msg)
+			}
+		}
+		select {
+		case <-ctx.Done():
+			return nil, ctx.Err()
+		case <-t.C:
+		}
+	}
+}
+
+// UpgradeError is returned by WaitForUpgrade when an upgrade to a newer major
+// version did not complete. The database is back on its old version and
+// running. Message is the API's own sentence, fit to show as is.
+type UpgradeError struct {
+	DatabaseID string
+	Version    string
+	Message    string
+}
+
+func (e *UpgradeError) Error() string {
+	return fmt.Sprintf("upgrade to PostgreSQL %s did not complete: %s", e.Version, e.Message)
+}
+
+func (s *DatabaseServiceOp) WaitForUpgrade(ctx context.Context, databaseID, version string) (*Database, error) {
+	t := time.NewTicker(databaseWaitPollInterval)
+	defer t.Stop()
+	for {
+		db, resp, err := s.Get(ctx, databaseID)
+		if err != nil && resp != nil && resp.StatusCode == 404 {
+			return nil, fmt.Errorf("database %s was not found while waiting for its upgrade to %s: %w", databaseID, version, err)
+		}
+		if err == nil {
+			if db.Status != nil && *db.Status == DatabaseStatusFailed {
+				msg := ""
+				if db.StatusMessage != nil && *db.StatusMessage != "" {
+					msg = ": " + *db.StatusMessage
+				}
+				return db, fmt.Errorf("database %s entered status %s%s", databaseID, *db.Status, msg)
+			}
+			if u := db.LastVersionUpgrade; u != nil && u.ToVersion != nil && *u.ToVersion == version && u.State != nil {
+				switch *u.State {
+				case DatabaseUpgradeFailed:
+					return db, &UpgradeError{DatabaseID: databaseID, Version: version, Message: StringValue(u.Message)}
+				case DatabaseUpgradeAnalyzing, DatabaseUpgradeDone:
+					if StringValue(db.EngineVersion) == version && db.Status != nil && *db.Status == DatabaseStatusRunning {
+						return db, nil
+					}
+				}
 			}
 		}
 		select {

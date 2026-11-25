@@ -26,3 +26,23 @@ const (
 	// Deprecated: use Manual.
 	UpdateK8SClusterMaintenanceJSONBodyUpgradeModeManual = Manual
 )
+
+// Names kept for code written against raff-go v0.8.10 and earlier. Since the database
+// upgrade enums were added, oapi-codegen names the VM list `status` filter values without
+// their type prefix.
+const (
+	// Deprecated: use Active.
+	ListVMsParamsStatusActive = Active
+	// Deprecated: use Booting.
+	ListVMsParamsStatusBooting = Booting
+	// Deprecated: use Failure.
+	ListVMsParamsStatusFailure = Failure
+	// Deprecated: use Finalizing.
+	ListVMsParamsStatusFinalizing = Finalizing
+	// Deprecated: use Initiating.
+	ListVMsParamsStatusInitiating = Initiating
+	// Deprecated: use Passive.
+	ListVMsParamsStatusPassive = Passive
+	// Deprecated: use Provisioning.
+	ListVMsParamsStatusProvisioning = Provisioning
+)

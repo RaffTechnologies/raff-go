@@ -1272,12 +1272,15 @@ func (e CreateVolumeRequestFilesystemType) Valid() bool {
 
 // Defines values for CreateVolumeRequestRegion.
 const (
-	CreateVolumeRequestRegionUsEast CreateVolumeRequestRegion = "us-east"
+	CreateVolumeRequestRegionEuCentral CreateVolumeRequestRegion = "eu-central"
+	CreateVolumeRequestRegionUsEast    CreateVolumeRequestRegion = "us-east"
 )
 
 // Valid indicates whether the value is a known member of the CreateVolumeRequestRegion enum.
 func (e CreateVolumeRequestRegion) Valid() bool {
 	switch e {
+	case CreateVolumeRequestRegionEuCentral:
+		return true
 	case CreateVolumeRequestRegionUsEast:
 		return true
 	default:
@@ -1345,6 +1348,7 @@ const (
 	DatabaseStatusRestoring DatabaseStatus = "restoring"
 	DatabaseStatusRunning   DatabaseStatus = "running"
 	DatabaseStatusSuspended DatabaseStatus = "suspended"
+	DatabaseStatusUpgrading DatabaseStatus = "upgrading"
 	DatabaseStatusWarning   DatabaseStatus = "warning"
 )
 
@@ -1371,6 +1375,8 @@ func (e DatabaseStatus) Valid() bool {
 		return true
 	case DatabaseStatusSuspended:
 		return true
+	case DatabaseStatusUpgrading:
+		return true
 	case DatabaseStatusWarning:
 		return true
 	default:
@@ -1380,14 +1386,20 @@ func (e DatabaseStatus) Valid() bool {
 
 // Defines values for DatabaseBackupBackupType.
 const (
-	Base     DatabaseBackupBackupType = "base"
-	OnDemand DatabaseBackupBackupType = "on_demand"
+	AfterUpgrade  DatabaseBackupBackupType = "after_upgrade"
+	Base          DatabaseBackupBackupType = "base"
+	BeforeUpgrade DatabaseBackupBackupType = "before_upgrade"
+	OnDemand      DatabaseBackupBackupType = "on_demand"
 )
 
 // Valid indicates whether the value is a known member of the DatabaseBackupBackupType enum.
 func (e DatabaseBackupBackupType) Valid() bool {
 	switch e {
+	case AfterUpgrade:
+		return true
 	case Base:
+		return true
+	case BeforeUpgrade:
 		return true
 	case OnDemand:
 		return true
@@ -1537,6 +1549,42 @@ func (e DatabaseUserKind) Valid() bool {
 	case Scoped:
 		return true
 	case System:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for DatabaseVersionUpgradeState.
+const (
+	DatabaseVersionUpgradeStateAnalyzing DatabaseVersionUpgradeState = "analyzing"
+	DatabaseVersionUpgradeStateBackingUp DatabaseVersionUpgradeState = "backing_up"
+	DatabaseVersionUpgradeStateDone      DatabaseVersionUpgradeState = "done"
+	DatabaseVersionUpgradeStateFailed    DatabaseVersionUpgradeState = "failed"
+	DatabaseVersionUpgradeStateFinishing DatabaseVersionUpgradeState = "finishing"
+	DatabaseVersionUpgradeStateReverting DatabaseVersionUpgradeState = "reverting"
+	DatabaseVersionUpgradeStateUndone    DatabaseVersionUpgradeState = "undone"
+	DatabaseVersionUpgradeStateUpgrading DatabaseVersionUpgradeState = "upgrading"
+)
+
+// Valid indicates whether the value is a known member of the DatabaseVersionUpgradeState enum.
+func (e DatabaseVersionUpgradeState) Valid() bool {
+	switch e {
+	case DatabaseVersionUpgradeStateAnalyzing:
+		return true
+	case DatabaseVersionUpgradeStateBackingUp:
+		return true
+	case DatabaseVersionUpgradeStateDone:
+		return true
+	case DatabaseVersionUpgradeStateFailed:
+		return true
+	case DatabaseVersionUpgradeStateFinishing:
+		return true
+	case DatabaseVersionUpgradeStateReverting:
+		return true
+	case DatabaseVersionUpgradeStateUndone:
+		return true
+	case DatabaseVersionUpgradeStateUpgrading:
 		return true
 	default:
 		return false
@@ -3033,12 +3081,15 @@ func (e VPCRegion) Valid() bool {
 
 // Defines values for VolumeRegion.
 const (
-	VolumeRegionUsEast VolumeRegion = "us-east"
+	VolumeRegionEuCentral VolumeRegion = "eu-central"
+	VolumeRegionUsEast    VolumeRegion = "us-east"
 )
 
 // Valid indicates whether the value is a known member of the VolumeRegion enum.
 func (e VolumeRegion) Valid() bool {
 	switch e {
+	case VolumeRegionEuCentral:
+		return true
 	case VolumeRegionUsEast:
 		return true
 	default:
@@ -3639,31 +3690,31 @@ func (e ListVMsParamsRegion) Valid() bool {
 
 // Defines values for ListVMsParamsStatus.
 const (
-	ListVMsParamsStatusActive       ListVMsParamsStatus = "active"
-	ListVMsParamsStatusBooting      ListVMsParamsStatus = "booting"
-	ListVMsParamsStatusFailure      ListVMsParamsStatus = "failure"
-	ListVMsParamsStatusFinalizing   ListVMsParamsStatus = "finalizing"
-	ListVMsParamsStatusInitiating   ListVMsParamsStatus = "initiating"
-	ListVMsParamsStatusPassive      ListVMsParamsStatus = "passive"
-	ListVMsParamsStatusProvisioning ListVMsParamsStatus = "provisioning"
+	Active       ListVMsParamsStatus = "active"
+	Booting      ListVMsParamsStatus = "booting"
+	Failure      ListVMsParamsStatus = "failure"
+	Finalizing   ListVMsParamsStatus = "finalizing"
+	Initiating   ListVMsParamsStatus = "initiating"
+	Passive      ListVMsParamsStatus = "passive"
+	Provisioning ListVMsParamsStatus = "provisioning"
 )
 
 // Valid indicates whether the value is a known member of the ListVMsParamsStatus enum.
 func (e ListVMsParamsStatus) Valid() bool {
 	switch e {
-	case ListVMsParamsStatusActive:
+	case Active:
 		return true
-	case ListVMsParamsStatusBooting:
+	case Booting:
 		return true
-	case ListVMsParamsStatusFailure:
+	case Failure:
 		return true
-	case ListVMsParamsStatusFinalizing:
+	case Finalizing:
 		return true
-	case ListVMsParamsStatusInitiating:
+	case Initiating:
 		return true
-	case ListVMsParamsStatusPassive:
+	case Passive:
 		return true
-	case ListVMsParamsStatusProvisioning:
+	case Provisioning:
 		return true
 	default:
 		return false
@@ -3765,12 +3816,15 @@ func (e AppendVMNoteParamsType) Valid() bool {
 
 // Defines values for ListVolumesParamsRegion.
 const (
-	ListVolumesParamsRegionUsEast ListVolumesParamsRegion = "us-east"
+	ListVolumesParamsRegionEuCentral ListVolumesParamsRegion = "eu-central"
+	ListVolumesParamsRegionUsEast    ListVolumesParamsRegion = "us-east"
 )
 
 // Valid indicates whether the value is a known member of the ListVolumesParamsRegion enum.
 func (e ListVolumesParamsRegion) Valid() bool {
 	switch e {
+	case ListVolumesParamsRegionEuCentral:
+		return true
 	case ListVolumesParamsRegionUsEast:
 		return true
 	default:
@@ -4868,7 +4922,7 @@ type CreateDatabaseRequest struct {
 	// EngineVersion Engine major version from the engine catalog. Omit for the default version.
 	EngineVersion *string `json:"engine_version,omitempty"`
 
-	// Extensions PostgreSQL only. Extensions to turn on before the database is marked running, so it is ready for them the moment you connect. Allowed: `vector` (AI embeddings), `pg_trgm`, `pg_stat_statements`, `hstore`, `uuid-ossp`, `citext`, `ltree`, `pgcrypto`, `unaccent`. Other engines or other names are refused with 400. Any other extension the image ships can be turned on later with the extensions endpoint.
+	// Extensions PostgreSQL only. Extensions to turn on before the database is marked running, so it is ready for them the moment you connect. Allowed: `vector` (AI embeddings), `postgis`, `pg_cron`, `pg_trgm`, `pg_stat_statements`, `hstore`, `uuid-ossp`, `citext`, `ltree`, `pgcrypto`, `unaccent`. Other engines or other names are refused with 400. Any other extension the image ships can be turned on later with the extensions endpoint.
 	Extensions *[]string `json:"extensions,omitempty"`
 
 	// HaEnabled Enable high availability (+70% of the plan price for PostgreSQL, Valkey and ClickHouse, +210% for MySQL, +140% for Kafka). Not available on the free plan.
@@ -5283,6 +5337,9 @@ type Database struct {
 	// IsFree True for a free-tier database. Free databases pause after 7 days without connections.
 	IsFree *bool `json:"is_free,omitempty"`
 
+	// LastVersionUpgrade The most recent upgrade to a newer major version, or null if there never was one.
+	LastVersionUpgrade *DatabaseVersionUpgrade `json:"last_version_upgrade,omitempty"`
+
 	// Metrics Latest live numbers, sampled every minute. `null` until the first sample.
 	Metrics *struct {
 		CacheHitPct       *float32 `json:"cache_hit_pct,omitempty"`
@@ -5346,13 +5403,14 @@ type Database struct {
 	// - `warning`: running with a problem (a component down, storage full). When the database stopped answering, `down_since` is set.
 	// - `resizing`: a plan, storage, high availability or replica change is being applied (a short restart, not an outage).
 	// - `restoring`: an in-place restore is in progress.
+	// - `upgrading`: being upgraded to a newer major version. `status_message` says the step. The database is offline for part of it.
 	// - `moving`: Raff is moving the database to other hardware for maintenance.
 	// - `suspended`: a free database paused after 7 days without connections. Data is kept; resume with `POST /api/v1/databases/{database_id}/resume`.
 	// - `failed`: provisioning did not complete.
 	// - `deleting`, `deleted`: being deleted, deleted.
 	Status *DatabaseStatus `json:"status,omitempty"`
 
-	// StatusMessage Plain-words detail for `warning`, `resizing` and `failed`
+	// StatusMessage Plain-words detail for `warning`, `resizing`, `upgrading` and `failed`
 	StatusMessage *string `json:"status_message,omitempty"`
 
 	// StorageGb Provisioned storage in GB. Storage above the plan's included storage is billed per GB per month (`storage_pricing` in `GET /api/v1/databases/plans`, $0.15 today).
@@ -5364,6 +5422,12 @@ type Database struct {
 	// SuspendedAt When a free-tier database was paused for idleness, RFC 3339 (empty when not paused)
 	SuspendedAt *string    `json:"suspended_at,omitempty"`
 	UpdatedAt   *time.Time `json:"updated_at,omitempty"`
+
+	// UpgradeNote When `upgrade_versions` is empty and an upgrade exists that this database cannot take yet, the reason in plain words. Empty otherwise.
+	UpgradeNote *string `json:"upgrade_note,omitempty"`
+
+	// UpgradeVersions Major versions this database can be upgraded to, newest first. Empty when there is none.
+	UpgradeVersions *[]string `json:"upgrade_versions,omitempty"`
 
 	// VpcID VPC the private endpoint is attached to (empty if not yet connected)
 	VpcID *string `json:"vpc_id,omitempty"`
@@ -5381,6 +5445,7 @@ type DatabaseRegion string
 // - `warning`: running with a problem (a component down, storage full). When the database stopped answering, `down_since` is set.
 // - `resizing`: a plan, storage, high availability or replica change is being applied (a short restart, not an outage).
 // - `restoring`: an in-place restore is in progress.
+// - `upgrading`: being upgraded to a newer major version. `status_message` says the step. The database is offline for part of it.
 // - `moving`: Raff is moving the database to other hardware for maintenance.
 // - `suspended`: a free database paused after 7 days without connections. Data is kept; resume with `POST /api/v1/databases/{database_id}/resume`.
 // - `failed`: provisioning did not complete.
@@ -5392,8 +5457,11 @@ type DatabaseBackup struct {
 	// BackupTimestamp Consistency point of the backup, RFC 3339 (empty while running)
 	BackupTimestamp *string `json:"backup_timestamp,omitempty"`
 
-	// BackupType `base` = nightly automatic backup; `on_demand` = manually requested
+	// BackupType `base` = nightly automatic backup; `on_demand` = manually requested; `before_upgrade` = taken automatically right before an upgrade to a newer major version; `after_upgrade` = the first backup on the new version
 	BackupType *DatabaseBackupBackupType `json:"backup_type,omitempty"`
+
+	// BeforeUpgrade True for a backup made before the database's last upgrade to a newer major version. It holds the older version; restoring it returns to that version.
+	BeforeUpgrade *bool `json:"before_upgrade,omitempty"`
 
 	// CompletedAt RFC 3339 (empty while running)
 	CompletedAt *string    `json:"completed_at,omitempty"`
@@ -5401,6 +5469,9 @@ type DatabaseBackup struct {
 
 	// DatabaseID Database this backup belongs to
 	DatabaseID *openapi_types.UUID `json:"database_id,omitempty"`
+
+	// EngineVersion Major version the backup's data is on
+	EngineVersion *string `json:"engine_version,omitempty"`
 
 	// ExpiresAt When the backup leaves retention, RFC 3339 (empty when not set)
 	ExpiresAt *string `json:"expires_at,omitempty"`
@@ -5421,7 +5492,7 @@ type DatabaseBackup struct {
 	Status *DatabaseBackupStatus `json:"status,omitempty"`
 }
 
-// DatabaseBackupBackupType `base` = nightly automatic backup; `on_demand` = manually requested
+// DatabaseBackupBackupType `base` = nightly automatic backup; `on_demand` = manually requested; `before_upgrade` = taken automatically right before an upgrade to a newer major version; `after_upgrade` = the first backup on the new version
 type DatabaseBackupBackupType string
 
 // DatabaseBackupStatus Only `completed` backups are restorable
@@ -5843,6 +5914,48 @@ type DatabaseUser struct {
 
 // DatabaseUserKind `admin` = created with the database; `scoped` = added by you; `binding` = managed by Raff for an app or function; `system` = engine internal
 type DatabaseUserKind string
+
+// DatabaseVersionUpgrade An upgrade of a database to a newer major version.
+type DatabaseVersionUpgrade struct {
+	// FinishedAt When the upgrade finished, RFC 3339 (empty while it runs)
+	FinishedAt *string `json:"finished_at,omitempty"`
+
+	// FromVersion Major version before the upgrade
+	FromVersion *string `json:"from_version,omitempty"`
+
+	// Message The reason when `state` is `failed`; empty otherwise
+	Message *string `json:"message,omitempty"`
+
+	// StartedAt When the upgrade started, RFC 3339
+	StartedAt *string `json:"started_at,omitempty"`
+
+	// State Where the upgrade stands.
+	//
+	// - `backing_up`: the backup before the upgrade is running. Nothing has changed yet.
+	// - `upgrading`: the database is offline and being upgraded.
+	// - `finishing`: up on the new version; extensions are being updated.
+	// - `analyzing`: running again; statistics are being refreshed.
+	// - `done`: the upgrade is complete.
+	// - `reverting`: the upgrade could not complete and the database is returning to its version.
+	// - `failed`: back on its version, unchanged. See `message`.
+	// - `undone`: it had succeeded and was later returned to the older version from a backup.
+	State *DatabaseVersionUpgradeState `json:"state,omitempty"`
+
+	// ToVersion Major version the upgrade goes to
+	ToVersion *string `json:"to_version,omitempty"`
+}
+
+// DatabaseVersionUpgradeState Where the upgrade stands.
+//
+// - `backing_up`: the backup before the upgrade is running. Nothing has changed yet.
+// - `upgrading`: the database is offline and being upgraded.
+// - `finishing`: up on the new version; extensions are being updated.
+// - `analyzing`: running again; statistics are being refreshed.
+// - `done`: the upgrade is complete.
+// - `reverting`: the upgrade could not complete and the database is returning to its version.
+// - `failed`: back on its version, unchanged. See `message`.
+// - `undone`: it had succeeded and was later returned to the older version from a backup.
+type DatabaseVersionUpgradeState string
 
 // DeleteVMRequest defines model for DeleteVMRequest.
 type DeleteVMRequest struct {
@@ -7530,6 +7643,12 @@ type UpdateVPCRequest struct {
 
 	// Name New VPC name.
 	Name *string `json:"name,omitempty"`
+}
+
+// UpgradeDatabaseRequest defines model for UpgradeDatabaseRequest.
+type UpgradeDatabaseRequest struct {
+	// Version The major version to upgrade to, one of the database's `upgrade_versions`
+	Version string `json:"version"`
 }
 
 // UpsertVMNoteRequest defines model for UpsertVMNoteRequest.
@@ -9318,6 +9437,9 @@ type SaveDatabaseSavedQueryJSONRequestBody SaveDatabaseSavedQueryJSONBody
 // ScaleDatabaseJSONRequestBody defines body for ScaleDatabase for application/json ContentType.
 type ScaleDatabaseJSONRequestBody = ScaleDatabaseRequest
 
+// UpgradeDatabaseJSONRequestBody defines body for UpgradeDatabase for application/json ContentType.
+type UpgradeDatabaseJSONRequestBody = UpgradeDatabaseRequest
+
 // CreateDatabaseUserJSONRequestBody defines body for CreateDatabaseUser for application/json ContentType.
 type CreateDatabaseUserJSONRequestBody = CreateDatabaseUserRequest
 
@@ -9897,6 +10019,11 @@ type ClientInterface interface {
 
 	// GetDatabaseSlowQueries request
 	GetDatabaseSlowQueries(ctx context.Context, databaseID DatabaseIDPath, params *GetDatabaseSlowQueriesParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// UpgradeDatabaseWithBody request with any body
+	UpgradeDatabaseWithBody(ctx context.Context, databaseID DatabaseIDPath, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	UpgradeDatabase(ctx context.Context, databaseID DatabaseIDPath, body UpgradeDatabaseJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListDatabaseUsers request
 	ListDatabaseUsers(ctx context.Context, databaseID DatabaseIDPath, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -11934,6 +12061,30 @@ func (c *Client) ScaleDatabase(ctx context.Context, databaseID DatabaseIDPath, b
 
 func (c *Client) GetDatabaseSlowQueries(ctx context.Context, databaseID DatabaseIDPath, params *GetDatabaseSlowQueriesParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetDatabaseSlowQueriesRequest(c.Server, databaseID, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpgradeDatabaseWithBody(ctx context.Context, databaseID DatabaseIDPath, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpgradeDatabaseRequestWithBody(c.Server, databaseID, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpgradeDatabase(ctx context.Context, databaseID DatabaseIDPath, body UpgradeDatabaseJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpgradeDatabaseRequest(c.Server, databaseID, body)
 	if err != nil {
 		return nil, err
 	}
@@ -18942,6 +19093,53 @@ func NewGetDatabaseSlowQueriesRequest(server string, databaseID DatabaseIDPath, 
 	if err != nil {
 		return nil, err
 	}
+
+	return req, nil
+}
+
+// NewUpgradeDatabaseRequest calls the generic UpgradeDatabase builder with application/json body
+func NewUpgradeDatabaseRequest(server string, databaseID DatabaseIDPath, body UpgradeDatabaseJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewUpgradeDatabaseRequestWithBody(server, databaseID, "application/json", bodyReader)
+}
+
+// NewUpgradeDatabaseRequestWithBody generates requests for UpgradeDatabase with any type of body
+func NewUpgradeDatabaseRequestWithBody(server string, databaseID DatabaseIDPath, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "database_id", databaseID, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v1/databases/%s/upgrade", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
 
 	return req, nil
 }
@@ -28626,6 +28824,11 @@ type ClientWithResponsesInterface interface {
 	// GetDatabaseSlowQueriesWithResponse request
 	GetDatabaseSlowQueriesWithResponse(ctx context.Context, databaseID DatabaseIDPath, params *GetDatabaseSlowQueriesParams, reqEditors ...RequestEditorFn) (*GetDatabaseSlowQueriesResponse, error)
 
+	// UpgradeDatabaseWithBodyWithResponse request with any body
+	UpgradeDatabaseWithBodyWithResponse(ctx context.Context, databaseID DatabaseIDPath, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpgradeDatabaseResponse, error)
+
+	UpgradeDatabaseWithResponse(ctx context.Context, databaseID DatabaseIDPath, body UpgradeDatabaseJSONRequestBody, reqEditors ...RequestEditorFn) (*UpgradeDatabaseResponse, error)
+
 	// ListDatabaseUsersWithResponse request
 	ListDatabaseUsersWithResponse(ctx context.Context, databaseID DatabaseIDPath, reqEditors ...RequestEditorFn) (*ListDatabaseUsersResponse, error)
 
@@ -31887,6 +32090,36 @@ func (r GetDatabaseSlowQueriesResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r GetDatabaseSlowQueriesResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type UpgradeDatabaseResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		// Database A managed database instance. The private endpoint `{database_id}.db.raffusercloud.com` lives inside the attached VPC; public access is optional. TLS is always required.
+		Database *Database `json:"database,omitempty"`
+		Success  *bool     `json:"success,omitempty"`
+	}
+	JSON400 *BadRequest
+	JSON401 *Unauthorized
+	JSON404 *NotFound
+	JSON412 *Error
+}
+
+// Status returns HTTPResponse.Status
+func (r UpgradeDatabaseResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r UpgradeDatabaseResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -37941,6 +38174,23 @@ func (c *ClientWithResponses) GetDatabaseSlowQueriesWithResponse(ctx context.Con
 		return nil, err
 	}
 	return ParseGetDatabaseSlowQueriesResponse(rsp)
+}
+
+// UpgradeDatabaseWithBodyWithResponse request with arbitrary body returning *UpgradeDatabaseResponse
+func (c *ClientWithResponses) UpgradeDatabaseWithBodyWithResponse(ctx context.Context, databaseID DatabaseIDPath, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpgradeDatabaseResponse, error) {
+	rsp, err := c.UpgradeDatabaseWithBody(ctx, databaseID, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpgradeDatabaseResponse(rsp)
+}
+
+func (c *ClientWithResponses) UpgradeDatabaseWithResponse(ctx context.Context, databaseID DatabaseIDPath, body UpgradeDatabaseJSONRequestBody, reqEditors ...RequestEditorFn) (*UpgradeDatabaseResponse, error) {
+	rsp, err := c.UpgradeDatabase(ctx, databaseID, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpgradeDatabaseResponse(rsp)
 }
 
 // ListDatabaseUsersWithResponse request returning *ListDatabaseUsersResponse
@@ -44162,6 +44412,64 @@ func ParseGetDatabaseSlowQueriesResponse(rsp *http.Response) (*GetDatabaseSlowQu
 			return nil, err
 		}
 		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseUpgradeDatabaseResponse parses an HTTP response from a UpgradeDatabaseWithResponse call
+func ParseUpgradeDatabaseResponse(rsp *http.Response) (*UpgradeDatabaseResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &UpgradeDatabaseResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			// Database A managed database instance. The private endpoint `{database_id}.db.raffusercloud.com` lives inside the attached VPC; public access is optional. TLS is always required.
+			Database *Database `json:"database,omitempty"`
+			Success  *bool     `json:"success,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest BadRequest
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest Unauthorized
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest NotFound
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 412:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON412 = &dest
 
 	}
 
